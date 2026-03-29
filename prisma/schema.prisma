@@ -125,6 +125,7 @@ model Venture {
   dataRoom      DataRoom?
   financials    FinancialSnapshot[]
   tasks         Task[]
+  chatMessages  ChatMessage[]
 }
 
 model Task {
@@ -351,6 +352,16 @@ model FinancialSnapshot {
   burn          Float
   runway        Float
   createdAt     DateTime  @default(now())
+}
+
+model ChatMessage {
+  id          String   @id @default(cuid())
+  ventureId   String
+  venture     Venture  @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  userId      String
+  role        String   // "user" | "assistant"
+  content     String   @db.Text
+  createdAt   DateTime @default(now())
 }
 
 model Session {
