@@ -1,0 +1,378 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users (managed by Clerk, but we sync essential data)
+model User {
+  id            String    @id // Clerk user ID
+  email         String    @unique
+  name          String?
+  imageUrl      String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  subscription  Subscription?
+  ventures      Venture[] @relation("VentureOwner")
+  ventureMembers VentureMember[]
+  ownedTeams    Team[]    @relation("TeamOwner")
+  teams         TeamMember[]
+  activities    Activity[]
+  alerts        Alert[]
+  sessions      Session[]
+  documents     Document[]
+  loginCount    Int       @default(0)
+  lastLoginAt   DateTime?
+}
+
+model Subscription {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeId      String?   // Stripe subscription ID
+  plan          PlanType  @default(FREE)
+  status        SubStatus @default(ACTIVE)
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  cancelAtPeriodEnd  Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum PlanType {
+  FREE
+  PRO
+  BUSINESS
+}
+
+enum SubStatus {
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+// Teams & Collaboration
+model Team {
+  id            String    @id @default(cuid())
+  name          String
+  ownerId       String
+  owner         User      @relation("TeamOwner", fields: [ownerId], references: [id])
+  members       TeamMember[]
+  ventures      Venture[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model TeamMember {
+  id            String    @id @default(cuid())
+  teamId        String
+  team          Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role          MemberRole @default(MEMBER)
+  invitedEmail  String?
+  status        InviteStatus @default(ACTIVE)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([teamId, userId])
+}
+
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum InviteStatus {
+  PENDING
+  ACTIVE
+  DECLINED
+}
+
+// Ventures (businesses)
+model Venture {
+  id            String    @id @default(cuid())
+  name          String
+  description   String?
+  logo          String?
+  ownerId       String
+  owner         User      @relation("VentureOwner", fields: [ownerId], references: [id])
+  teamId        String?
+  team          Team?     @relation(fields: [teamId], references: [id])
+  members       VentureMember[]
+  stages        Stage[]
+  stage         Int       @default(1) // Current stage (1-13)
+  status        VentureStatus @default(ACTIVE)
+  cashRunwayMonths Float?
+  monthlyBurn   Float?
+  monthlyRevenue Float?
+  lastActivityAt DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  stressLevel   Int       @default(0) // 0-100
+  stressMode    StressMode @default(DISCOVERY)
+  documents     Document[]
+  ipAssets      IPAsset[]
+  activities    Activity[]
+  alerts        Alert[]
+  dataRoom      DataRoom?
+  financials    FinancialSnapshot[]
+  tasks         Task[]
+}
+
+model Task {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  dueDate       DateTime?
+  completed     Boolean   @default(false)
+  completedAt   DateTime?
+  createdById   String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum VentureStatus {
+  ACTIVE
+  ARCHIVED
+  GRADUATED
+}
+
+enum StressMode {
+  DISCOVERY
+  EXECUTION
+  SURVIVAL
+}
+
+model VentureMember {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role          MemberRole @default(MEMBER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([ventureId, userId])
+}
+
+model Stage {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  stageNumber   Int
+  completed     Boolean   @default(false)
+  completedAt   DateTime?
+  data          Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([ventureId, stageNumber])
+}
+
+model Document {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  title         String
+  type          DocType
+  content       String?
+  fileUrl       String?
+  version       Int       @default(1)
+  isAIGenerated Boolean   @default(false)
+  metadata      Json?
+  createdById   String
+  createdBy     User      @relation(fields: [createdById], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  parentId      String?
+  parent        Document? @relation("DocumentVersion", fields: [parentId], references: [id])
+  revisions     Document[] @relation("DocumentVersion")
+  dataRoomDocuments DataRoomDocument[]
+  ipAssets      IPAsset[]
+}
+
+enum DocType {
+  BUSINESS_PLAN
+  MARKET_REPORT
+  VALUE_PROPOSITION
+  PATENT_DRAFT
+  TRADEMARK_DRAFT
+  COPYRIGHT_DRAFT
+  FINANCIAL_MODEL
+  MARKETING_STRATEGY
+  SALES_PITCH
+  CONTRACT
+  OTHER
+}
+
+model IPAsset {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  type          IPType
+  title         String
+  description   String?
+  jurisdiction  String
+  status        IPStatus  @default(DRAFT)
+  filingNumber  String?
+  filingDate    DateTime?
+  documentId    String?
+  document      Document? @relation(fields: [documentId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum IPType {
+  PATENT
+  TRADEMARK
+  COPYRIGHT
+  TRADE_SECRET
+}
+
+enum IPStatus {
+  DRAFT
+  FILED
+  PUBLISHED
+  GRANTED
+  REJECTED
+  ABANDONED
+}
+
+model Activity {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User      @relation(fields: [userId], references: [id])
+  type          ActivityType
+  description   String
+  metadata      Json?
+  createdAt     DateTime  @default(now())
+}
+
+enum ActivityType {
+  STAGE_COMPLETED
+  DOCUMENT_GENERATED
+  DOCUMENT_UPLOADED
+  IP_FILING
+  INVESTOR_SHARE
+  TASK_CREATED
+  TASK_COMPLETED
+  ALERT_VIEWED
+  LOGIN
+  MODE_CHANGE
+  OTHER
+}
+
+model Alert {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?     @relation(fields: [userId], references: [id])
+  type          AlertType
+  severity      AlertSeverity @default(INFO)
+  title         String
+  message       String
+  actionUrl     String?
+  read          Boolean   @default(false)
+  dismissed     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  expiresAt     DateTime?
+}
+
+enum AlertType {
+  COMPETITOR_THREAT
+  CASH_RUNWAY
+  IP_RISK
+  TASK_OVERDUE
+  MILESTONE_REACHED
+  INVESTOR_INTEREST
+}
+
+enum AlertSeverity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+model DataRoom {
+  id            String    @id @default(cuid())
+  ventureId     String    @unique
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  isActive      Boolean   @default(true)
+  accessToken   String    @unique
+  password      String?
+  documents     DataRoomDocument[]
+  investors     InvestorAccess[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model DataRoomDocument {
+  id            String    @id @default(cuid())
+  dataRoomId    String
+  dataRoom      DataRoom  @relation(fields: [dataRoomId], references: [id], onDelete: Cascade)
+  documentId    String
+  document      Document  @relation(fields: [documentId], references: [id])
+  order         Int
+  createdAt     DateTime  @default(now())
+}
+
+model InvestorAccess {
+  id            String    @id @default(cuid())
+  dataRoomId    String
+  dataRoom      DataRoom  @relation(fields: [dataRoomId], references: [id], onDelete: Cascade)
+  investorName  String
+  investorEmail String
+  company       String?
+  accessGranted DateTime  @default(now())
+  lastAccessed  DateTime?
+  revoked       Boolean   @default(false)
+}
+
+model FinancialSnapshot {
+  id            String    @id @default(cuid())
+  ventureId     String
+  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  month         DateTime
+  revenue       Float
+  burn          Float
+  runway        Float
+  createdAt     DateTime  @default(now())
+}
+
+model Session {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ventureId     String?
+  socketId      String?
+  lastSeen      DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+}
+
+// Audit log for IP-related and sensitive actions (patentability, compliance)
+model AuditLog {
+  id            String    @id @default(cuid())
+  userId        String?
+  ventureId     String?
+  action        String    // e.g. IP_VIEW, DATA_ROOM_ACCESS, DOCUMENT_EXPORT
+  resourceType  String?   // e.g. Document, DataRoom, IPAsset
+  resourceId    String?
+  metadata      Json?
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime  @default(now())
+}

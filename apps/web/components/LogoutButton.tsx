@@ -1,0 +1,22 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+
+export default function LogoutButton() {
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/sign-in");
+    router.refresh();
+  }
+
+  return (
+    <button
+      onClick={handleLogout}
+      className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+    >
+      Sign out
+    </button>
+  );
+}
