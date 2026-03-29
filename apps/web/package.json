@@ -10,7 +10,7 @@
     "build:cloudflare": "npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion",
     "preview:cloudflare": "npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion && npx @opennextjs/cloudflare preview",
     "deploy:cloudflare": "npx @opennextjs/cloudflare build --dangerouslyUseUnsupportedNextVersion && npx @opennextjs/cloudflare deploy",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate --schema=../../prisma/schema.prisma || prisma generate"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.5",
