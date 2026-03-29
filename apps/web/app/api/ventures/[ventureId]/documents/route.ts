@@ -104,7 +104,7 @@ export async function POST(
     }
 
     const model = process.env.OPENAI_MODEL ?? "gpt-4.1-mini";
-    const openai = new OpenAI({ apiKey });
+    const openai = new OpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL });
 
     const context = [
       `Venture: ${venture.name}`,

@@ -43,7 +43,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "OPENAI_API_KEY is not configured" }, { status: 503 });
     }
 
-    const openai = new OpenAI({ apiKey });
+    const openai = new OpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL });
     const userMsg = `Problem: ${problem}\nHours per week: ${hoursPerWeek}\nCapital: ${capitalAvailable}\nExperience: ${founderExperience}`;
 
     const completion = await openai.chat.completions.create({
