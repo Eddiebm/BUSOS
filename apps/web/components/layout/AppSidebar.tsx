@@ -6,7 +6,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { getStageName } from "@/lib/stage-names";
 import type { StressMode } from "@/types/api";
-import { Map, Sparkles, Waves } from "lucide-react";
+import { Brain, Map, Sparkles, Waves } from "lucide-react";
 
 interface VentureRow {
   id: string;
@@ -179,6 +179,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               )}
               {nav(`${base}/tasks`, "Tasks")}
               {nav(`${base}/documents`, "Documents")}
+              {nav(`${base}/intelligence`, "Intelligence", <Brain className="h-4 w-4 shrink-0 opacity-90" aria-hidden />)}
               {nav(`${base}/settings`, "Settings")}
             </>
           ) : (
@@ -188,6 +189,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Blue Ocean</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Tasks</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Documents</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Intelligence</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Settings</span>
             </>
           )}
