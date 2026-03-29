@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { VoiceInputButton } from "@/components/voice/VoiceInputButton";
 type FounderExperience = "FIRST_TIME" | "REPEAT" | "SERIAL";
 
 type CapitalOption = "" | "bootstrapped" | "pre-seed" | "seed" | "series-a";
@@ -100,6 +101,16 @@ export default function DreamIntakePage() {
   const update = <K extends keyof DnaForm>(key: K, value: DnaForm[K]) => {
     setForm((f) => ({ ...f, [key]: value }));
   };
+
+  const appendField = useCallback(<K extends keyof DnaForm>(key: K, text: string) => {
+    const piece = text.trim();
+    if (!piece) return;
+    setForm((f) => {
+      const cur = String(f[key] ?? "");
+      const joined = cur ? `${cur} ${piece}` : piece;
+      return { ...f, [key]: joined as DnaForm[K] };
+    });
+  }, []);
 
   const canNext = (): boolean => {
     if (step === 0) {
@@ -207,16 +218,16 @@ export default function DreamIntakePage() {
         <div className="relative min-h-[480px] overflow-hidden">
           <div key={step} className="transition-opacity duration-300">
             {step === 0 && (
-              <StepDream form={form} update={update} />
+              <StepDream form={form} update={update} appendField={appendField} />
             )}
             {step === 1 && (
-              <StepOpportunity form={form} update={update} />
+              <StepOpportunity form={form} update={update} appendField={appendField} />
             )}
             {step === 2 && (
-              <StepWhy form={form} update={update} />
+              <StepWhy form={form} update={update} appendField={appendField} />
             )}
             {step === 3 && (
-              <StepAbout form={form} update={update} />
+              <StepAbout form={form} update={update} appendField={appendField} />
             )}
             {step === 4 && (
               <StepResources form={form} update={update} />
@@ -279,9 +290,11 @@ export default function DreamIntakePage() {
 function StepDream({
   form,
   update,
+  appendField,
 }: {
   form: DnaForm;
   update: <K extends keyof DnaForm>(key: K, value: DnaForm[K]) => void;
+  appendField: <K extends keyof DnaForm>(key: K, text: string) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -293,14 +306,20 @@ function StepDream({
         <label htmlFor="dream" className="sr-only">
           Dream statement
         </label>
-        <textarea
-          id="dream"
-          value={form.dreamStatement}
-          onChange={(e) => update("dreamStatement", e.target.value)}
-          rows={6}
-          className="mt-4 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-          placeholder="Paint the picture…"
-        />
+        <div className="relative mt-4">
+          <textarea
+            id="dream"
+            value={form.dreamStatement}
+            onChange={(e) => update("dreamStatement", e.target.value)}
+            rows={6}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            placeholder="Paint the picture…"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("dreamStatement", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
       <div>
         <p className="text-slate-700">
@@ -309,26 +328,38 @@ function StepDream({
         <label htmlFor="problem" className="sr-only">
           Problem statement
         </label>
-        <textarea
-          id="problem"
-          value={form.problemStatement}
-          onChange={(e) => update("problemStatement", e.target.value)}
-          rows={5}
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-2">
+          <textarea
+            id="problem"
+            value={form.problemStatement}
+            onChange={(e) => update("problemStatement", e.target.value)}
+            rows={5}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("problemStatement", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
       <div>
         <p className="text-slate-700">Who exactly is your target customer? Be as specific as possible.</p>
         <label htmlFor="target" className="sr-only">
           Target customer
         </label>
-        <textarea
-          id="target"
-          value={form.targetCustomer}
-          onChange={(e) => update("targetCustomer", e.target.value)}
-          rows={4}
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-2">
+          <textarea
+            id="target"
+            value={form.targetCustomer}
+            onChange={(e) => update("targetCustomer", e.target.value)}
+            rows={4}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("targetCustomer", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
     </div>
   );
@@ -337,9 +368,11 @@ function StepDream({
 function StepOpportunity({
   form,
   update,
+  appendField,
 }: {
   form: DnaForm;
   update: <K extends keyof DnaForm>(key: K, value: DnaForm[K]) => void;
+  appendField: <K extends keyof DnaForm>(key: K, text: string) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -349,38 +382,56 @@ function StepOpportunity({
           What changed in the world — technology, regulation, behavior, cost — that makes this possible
           today when it wasn&apos;t 5 years ago?
         </p>
-        <textarea
-          value={form.whyNow}
-          onChange={(e) => update("whyNow", e.target.value)}
-          rows={5}
-          className="mt-4 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-4">
+          <textarea
+            value={form.whyNow}
+            onChange={(e) => update("whyNow", e.target.value)}
+            rows={5}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("whyNow", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
       <div>
         <label htmlFor="market" className="block text-sm font-medium text-slate-700">
           How big is the market opportunity?
         </label>
-        <input
-          id="market"
-          type="text"
-          value={form.marketSize}
-          onChange={(e) => update("marketSize", e.target.value)}
-          placeholder="e.g. $2B TAM in the US"
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-1">
+          <textarea
+            id="market"
+            value={form.marketSize}
+            onChange={(e) => update("marketSize", e.target.value)}
+            rows={3}
+            placeholder="e.g. $2B TAM in the US"
+            className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("marketSize", text)}
+            className="absolute right-2 top-2"
+          />
+        </div>
       </div>
       <div>
         <label htmlFor="vertical" className="block text-sm font-medium text-slate-700">
           What industry or vertical?
         </label>
-        <input
-          id="vertical"
-          type="text"
-          value={form.industryVertical}
-          onChange={(e) => update("industryVertical", e.target.value)}
-          placeholder="e.g. fintech, healthtech, edtech, logistics"
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-1">
+          <textarea
+            id="vertical"
+            value={form.industryVertical}
+            onChange={(e) => update("industryVertical", e.target.value)}
+            rows={3}
+            placeholder="e.g. fintech, healthtech, edtech, logistics"
+            className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("industryVertical", text)}
+            className="absolute right-2 top-2"
+          />
+        </div>
       </div>
     </div>
   );
@@ -389,9 +440,11 @@ function StepOpportunity({
 function StepWhy({
   form,
   update,
+  appendField,
 }: {
   form: DnaForm;
   update: <K extends keyof DnaForm>(key: K, value: DnaForm[K]) => void;
+  appendField: <K extends keyof DnaForm>(key: K, text: string) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -400,12 +453,18 @@ function StepWhy({
         <p className="mt-2 text-slate-600">
           The most important question any investor — or co-founder — will ask you.
         </p>
-        <textarea
-          value={form.founderWhy}
-          onChange={(e) => update("founderWhy", e.target.value)}
-          rows={6}
-          className="mt-4 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-4">
+          <textarea
+            value={form.founderWhy}
+            onChange={(e) => update("founderWhy", e.target.value)}
+            rows={6}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("founderWhy", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
       <div>
         <label htmlFor="unfair" className="block text-sm font-medium text-slate-700">
@@ -415,13 +474,19 @@ function StepWhy({
           Domain expertise, network, proprietary data, lived experience — what do you have that a
           well-funded competitor can&apos;t easily replicate?
         </p>
-        <textarea
-          id="unfair"
-          value={form.unfairAdvantage}
-          onChange={(e) => update("unfairAdvantage", e.target.value)}
-          rows={4}
-          className="mt-2 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-2">
+          <textarea
+            id="unfair"
+            value={form.unfairAdvantage}
+            onChange={(e) => update("unfairAdvantage", e.target.value)}
+            rows={4}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("unfairAdvantage", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
     </div>
   );
@@ -430,9 +495,11 @@ function StepWhy({
 function StepAbout({
   form,
   update,
+  appendField,
 }: {
   form: DnaForm;
   update: <K extends keyof DnaForm>(key: K, value: DnaForm[K]) => void;
+  appendField: <K extends keyof DnaForm>(key: K, text: string) => void;
 }) {
   const levels: { value: FounderExperience; label: string }[] = [
     { value: "FIRST_TIME", label: "First-time founder — this is my first venture" },
@@ -451,14 +518,20 @@ function StepAbout({
         <label htmlFor="bg" className="block text-sm font-medium text-slate-700">
           Your background & experience
         </label>
-        <textarea
-          id="bg"
-          value={form.founderBackground}
-          onChange={(e) => update("founderBackground", e.target.value)}
-          placeholder="e.g. 10 years in banking, built 2 startups before, deep network in healthcare"
-          rows={4}
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white p-4 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
-        />
+        <div className="relative mt-1">
+          <textarea
+            id="bg"
+            value={form.founderBackground}
+            onChange={(e) => update("founderBackground", e.target.value)}
+            placeholder="e.g. 10 years in banking, built 2 startups before, deep network in healthcare"
+            rows={4}
+            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          />
+          <VoiceInputButton
+            onTranscript={(text) => appendField("founderBackground", text)}
+            className="absolute right-2 top-3"
+          />
+        </div>
       </div>
       <fieldset className="space-y-3">
         <legend className="text-sm font-medium text-slate-700">Founder experience level</legend>
