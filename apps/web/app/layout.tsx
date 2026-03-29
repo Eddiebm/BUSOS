@@ -3,8 +3,9 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "BUSOS — Entrepreneur Operating System",
-  description: "Ada AI co-founder, stress-adaptive dashboard, Blue Ocean intelligence, Business Immune System.",
+  title: "BUSOS — Founder Operating System",
+  description:
+    "From idea to execution. Nothing missed. The operating system for founders who cannot afford to miss a step.",
 };
 
 export default function RootLayout({

@@ -5,9 +5,15 @@ import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const MODEL = "gpt-4o-mini";
+
+function getOpenAI(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not configured");
+  }
+  return new OpenAI({ apiKey });
+}
 
 const STAGE_FOCUS: Record<number, string> = {
   1: "Problem Discovery — validate the pain point is real and worth solving",
@@ -25,9 +31,9 @@ const STAGE_FOCUS: Record<number, string> = {
   13: "Expansion — new markets, products, or geographies",
 };
 
-const ADA_SYSTEM = `You are Ada, the AI co-founder embedded in BUSOS — an entrepreneur operating system for serious founders.
+const ADA_SYSTEM = `You are Ada, embedded in BUSOS — the Founder Operating System for serious founders.
 
-You are not a generic assistant. You are a deeply invested co-founder who knows this venture's data intimately. You think like a seasoned operator who has built and scaled companies, combined with the analytical rigor of a top-tier investor.
+You are not a generic chatbot. You are a deeply invested co-founder who knows this venture's data intimately. You think like a seasoned operator who has built and scaled companies, combined with the analytical rigor of a top-tier investor.
 
 Your voice:
 - Direct, specific, and grounded in the founder's actual data
@@ -43,7 +49,27 @@ Stress modes:
 - SURVIVAL: Cash or growth crisis. Prioritize extending runway and finding revenue immediately.`;
 
 const ADA_COFOUNDER_PROMPT =
-  "You have access to this founder's VentureDNA — their founding story, their dream, their why. Reference it specifically and often. When they're struggling, remind them of their dream. When they're making decisions, connect them back to their original problem statement. This is what makes you a real co-founder, not a generic assistant.";
+  "You have access to this founder's VentureDNA — their founding story, their dream, their why. Reference it specifically and often. When they're struggling, remind them of their dream. When they're making decisions, connect them back to their original problem statement. This is what makes you Ada, not a generic chatbot.";
+
+const JSON_OUTPUT_INSTRUCTION = `Respond with ONLY a JSON object (no markdown) of this shape:
+{"message":"your proactive insight in plain prose","reasoning":["Because ...","Given ...","Risk identified: ...","Your experience as ..."]}
+The "reasoning" array must have 2-4 short strings. Each string should start with "Because", "Given", "Risk identified:", or "Your". Be specific to this founder's data.`;
+
+function parseMessageAndReasoning(
+  content: string
+): { message: string; reasoning: string[] } {
+  try {
+    const parsed = JSON.parse(content) as { message?: string; reasoning?: unknown };
+    const message = String(parsed.message ?? "").trim();
+    const reasoning = Array.isArray(parsed.reasoning)
+      ? parsed.reasoning.map((r) => String(r).trim()).filter(Boolean)
+      : [];
+    if (message) return { message, reasoning };
+  } catch {
+    /* fall through */
+  }
+  return { message: content.trim(), reasoning: [] };
+}
 
 function dnaContextLines(dna: VentureDNA): string[] {
   return [
@@ -146,13 +172,24 @@ export async function GET(
 
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({
+        text: "Ada is temporarily unavailable (OpenAI is not configured). Check back soon.",
+        message: "Ada is temporarily unavailable (OpenAI is not configured). Check back soon.",
+        reasoning: [] as string[],
+        tone: "encouraging" as const,
+        suggestions: [] as Array<{ label: string; action: string }>,
+      });
+    }
+
     const context = buildContext(venture);
     const stageName = getStageName(venture.stage);
 
-    const systemWithDna = `${ADA_SYSTEM}\n\n${ADA_COFOUNDER_PROMPT}`;
+    const systemWithDna = `${ADA_SYSTEM}\n\n${ADA_COFOUNDER_PROMPT}\n\n${JSON_OUTPUT_INSTRUCTION}`;
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: MODEL,
+      response_format: { type: "json_object" },
       messages: [
         { role: "system", content: systemWithDna },
         {
@@ -160,13 +197,14 @@ export async function GET(
           content: `Venture context:\n${context}\n\nThis founder is at Stage ${venture.stage}/13 (${stageName}) in ${venture.stressMode} mode. Give them your most important, specific, actionable insight right now. Reference their actual data and founding story when VentureDNA is present.`,
         },
       ],
-      max_tokens: 220,
+      max_tokens: 400,
       temperature: 0.75,
     });
 
-    const text =
+    const rawContent =
       completion.choices[0]?.message?.content?.trim() ??
-      "I'm analyzing your venture. Ask me anything.";
+      `{"message":"I'm analyzing your venture. Ask me anything.","reasoning":[]}`;
+    const { message: text, reasoning } = parseMessageAndReasoning(rawContent);
 
     const base = `/ventures/${ventureId}`;
     const suggestions: Array<{ label: string; action: string }> = [];
@@ -190,6 +228,8 @@ export async function GET(
 
     return NextResponse.json({
       text,
+      message: text,
+      reasoning,
       tone:
         venture.stressMode === "SURVIVAL"
           ? "urgent"
@@ -202,6 +242,9 @@ export async function GET(
     console.error("[ada/GET]", e);
     return NextResponse.json({
       text: "I'm here and ready to help. Tell me what's on your mind or ask me anything about your venture.",
+      message:
+        "I'm here and ready to help. Tell me what's on your mind or ask me anything about your venture.",
+      reasoning: [] as string[],
       tone: "encouraging",
       suggestions: [],
     });
@@ -243,6 +286,18 @@ export async function POST(
 
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json(
+        {
+          error: "OpenAI not configured",
+          reply: "Ada is temporarily unavailable. Please try again later.",
+          message: "Ada is temporarily unavailable. Please try again later.",
+          reasoning: [] as string[],
+        },
+        { status: 503 }
+      );
+    }
+
     const history = await prisma.chatMessage.findMany({
       where: { ventureId },
       orderBy: { createdAt: "asc" },
@@ -254,7 +309,7 @@ export async function POST(
     const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
       {
         role: "system",
-        content: `${ADA_SYSTEM}\n\n${ADA_COFOUNDER_PROMPT}\n\nCurrent venture context:\n${context}`,
+        content: `${ADA_SYSTEM}\n\n${ADA_COFOUNDER_PROMPT}\n\n${JSON_OUTPUT_INSTRUCTION}\n\nCurrent venture context:\n${context}`,
       },
       ...history.map((m) => ({
         role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
@@ -263,16 +318,18 @@ export async function POST(
       { role: "user", content: userMessage },
     ];
 
-    const completion = await openai.chat.completions.create({
+    const completion = await getOpenAI().chat.completions.create({
       model: MODEL,
+      response_format: { type: "json_object" },
       messages,
-      max_tokens: 450,
+      max_tokens: 550,
       temperature: 0.75,
     });
 
-    const reply =
+    const rawAssistant =
       completion.choices[0]?.message?.content?.trim() ??
-      "I'm here to help. Could you rephrase that?";
+      `{"message":"I'm here to help. Could you rephrase that?","reasoning":[]}`;
+    const { message: reply, reasoning } = parseMessageAndReasoning(rawAssistant);
 
     await prisma.chatMessage.createMany({
       data: [
@@ -286,7 +343,7 @@ export async function POST(
       data: { lastActivityAt: new Date() },
     });
 
-    return NextResponse.json({ reply });
+    return NextResponse.json({ reply, message: reply, reasoning });
   } catch (e) {
     console.error("[ada/POST]", e);
     return NextResponse.json(

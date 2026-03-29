@@ -10,6 +10,7 @@ interface MilestoneRow {
   category: string;
   title: string;
   description: string;
+  reason: string | null;
   order: number;
   completed: boolean;
   completedAt: string | null;
@@ -257,6 +258,11 @@ export default function JourneyRoadmapPage() {
                         )}
                         {open && (
                           <p className="mt-3 text-sm text-slate-600">{m.description}</p>
+                        )}
+                        {m.reason && (
+                          <p className="mt-2 text-xs italic text-slate-500">
+                            Why this exists: {m.reason}
+                          </p>
                         )}
                         <div className="mt-3 flex flex-wrap gap-2">
                           <label className="flex items-center gap-2 text-xs text-slate-600">

@@ -175,6 +175,7 @@ model JourneyMilestone {
   skipped     Boolean   @default(false)
   skipReason  String?
   aiGenerated Boolean   @default(false)
+  reason      String?   @db.Text
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 

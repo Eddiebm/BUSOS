@@ -2,11 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { StressMode } from "@/types/api";
 
 interface AdaResponse {
   text: string;
+  message?: string;
+  reasoning?: string[];
   tone: "urgent" | "direct" | "encouraging";
   suggestions?: Array<{ label: string; action: string }>;
 }
@@ -15,6 +18,7 @@ interface ChatMessage {
   id?: string;
   role: "user" | "assistant";
   content: string;
+  reasoning?: string[];
 }
 
 interface AdaMessageProps {
@@ -22,27 +26,69 @@ interface AdaMessageProps {
   mode: StressMode;
 }
 
+function ReasoningBlock({
+  reasoning,
+  open,
+  onToggle,
+}: {
+  reasoning: string[];
+  open: boolean;
+  onToggle: () => void;
+}) {
+  if (reasoning.length === 0) return null;
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+      >
+        Why this recommendation{" "}
+        {open ? (
+          <ChevronUp className="h-3.5 w-3.5" aria-hidden />
+        ) : (
+          <ChevronDown className="h-3.5 w-3.5" aria-hidden />
+        )}
+      </button>
+      {open && (
+        <div className="mt-2 rounded-md bg-slate-100 p-3 text-sm text-slate-700">
+          <ul className="list-disc space-y-1 pl-4">
+            {reasoning.map((line, i) => (
+              <li key={i}>{line}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
   const [proactive, setProactive] = useState<AdaResponse | null>(null);
   const [proactiveLoading, setProactiveLoading] = useState(true);
+  const [proactiveReasonOpen, setProactiveReasonOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [historyLoaded, setHistoryLoaded] = useState(false);
   const [input, setInput] = useState("");
   const [chatLoading, setChatLoading] = useState(false);
+  const [openReasoningKey, setOpenReasoningKey] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load proactive message
   useEffect(() => {
     setProactiveLoading(true);
     fetch(`/api/ventures/${ventureId}/ada`)
       .then((r) => (r.ok ? r.json() : null))
-      .then(setProactive)
+      .then((data: AdaResponse | null) => {
+        if (data) {
+          const text = data.message ?? data.text ?? "";
+          setProactive({ ...data, text });
+        } else setProactive(null);
+      })
       .catch(() => setProactive(null))
       .finally(() => setProactiveLoading(false));
   }, [ventureId]);
 
-  // Load persistent chat history
   useEffect(() => {
     fetch(`/api/ventures/${ventureId}/ada`, { method: "PATCH" })
       .then((r) => (r.ok ? r.json() : null))
@@ -61,7 +107,6 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
       .finally(() => setHistoryLoaded(true));
   }, [ventureId]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (historyLoaded && chatMessages.length > 0) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -80,12 +125,19 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: msg }),
       });
-      const json = await r.json();
+      const json = (await r.json()) as {
+        reply?: string;
+        message?: string;
+        reasoning?: string[];
+      };
+      const reply = json.message ?? json.reply ?? "Sorry, I couldn't process that.";
+      const reasoning = Array.isArray(json.reasoning) ? json.reasoning : [];
       setChatMessages((prev) => [
         ...prev,
         {
           role: "assistant",
-          content: json.reply ?? "Sorry, I couldn't process that.",
+          content: reply,
+          reasoning,
         },
       ]);
     } catch {
@@ -129,18 +181,18 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
     btn: "bg-slate-800 hover:bg-slate-700",
   };
 
+  const proactiveReasoning = proactive?.reasoning ?? [];
+
   return (
     <div className={cn("rounded-xl border shadow-sm overflow-hidden", accent.border)}>
-      {/* Header */}
       <div className={cn("px-4 py-3 border-b flex items-center gap-2", accent.header)}>
         <span className={cn("h-2 w-2 rounded-full animate-pulse", accent.dot)} />
-        <span className="text-sm font-semibold text-slate-900">Ada — AI Co-founder</span>
+        <span className="text-sm font-semibold text-slate-900">Ada</span>
         <span className="ml-auto text-xs text-slate-500 capitalize">
           {mode.toLowerCase()} mode
         </span>
       </div>
 
-      {/* Proactive message */}
       <div className="bg-white px-4 py-4 border-b border-slate-100">
         {proactiveLoading ? (
           <div className="space-y-2">
@@ -151,6 +203,11 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
         ) : proactive?.text ? (
           <>
             <p className="text-sm leading-relaxed text-slate-700">{proactive.text}</p>
+            <ReasoningBlock
+              reasoning={proactiveReasoning}
+              open={proactiveReasonOpen}
+              onToggle={() => setProactiveReasonOpen((v) => !v)}
+            />
             {proactive.suggestions && proactive.suggestions.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {proactive.suggestions.map((s, i) => (
@@ -169,36 +226,49 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
             )}
           </>
         ) : (
-          <p className="text-sm text-slate-500 italic">
-            Ask me anything about your venture.
-          </p>
+          <p className="text-sm text-slate-500 italic">Ask me anything about your venture.</p>
         )}
       </div>
 
-      {/* Chat history */}
       <div className="max-h-72 overflow-y-auto bg-white px-4 py-3 space-y-3">
         {historyLoaded && chatMessages.length === 0 && (
           <p className="text-center text-xs text-slate-400 py-2">
             Your conversation with Ada will appear here and persist across sessions.
           </p>
         )}
-        {chatMessages.map((m, i) => (
-          <div
-            key={m.id ?? i}
-            className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
-          >
+        {chatMessages.map((m, i) => {
+          const key = m.id ?? `chat-${i}`;
+          const isAssistant = m.role === "assistant";
+          const reasoning = m.reasoning ?? [];
+          return (
             <div
-              className={cn(
-                "max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed",
-                m.role === "user"
-                  ? "bg-slate-800 text-white rounded-br-sm"
-                  : "bg-slate-100 text-slate-800 rounded-bl-sm"
-              )}
+              key={key}
+              className={cn("flex flex-col", m.role === "user" ? "items-end" : "items-start")}
             >
-              {m.content}
+              <div
+                className={cn(
+                  "max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed",
+                  m.role === "user"
+                    ? "bg-slate-800 text-white rounded-br-sm"
+                    : "bg-slate-100 text-slate-800 rounded-bl-sm"
+                )}
+              >
+                {m.content}
+              </div>
+              {isAssistant && reasoning.length > 0 && (
+                <div className="max-w-[85%] pl-0 pt-1">
+                  <ReasoningBlock
+                    reasoning={reasoning}
+                    open={openReasoningKey === key}
+                    onToggle={() =>
+                      setOpenReasoningKey((k) => (k === key ? null : key))
+                    }
+                  />
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
         {chatLoading && (
           <div className="flex justify-start">
             <div className="rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-3">
@@ -213,7 +283,6 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
       <div className="border-t border-slate-100 bg-white px-4 py-3">
         <div className="flex gap-2">
           <input
@@ -227,6 +296,7 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
             disabled={chatLoading}
           />
           <button
+            type="button"
             onClick={sendMessage}
             disabled={chatLoading || !input.trim()}
             className={cn(

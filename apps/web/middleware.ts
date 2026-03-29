@@ -11,9 +11,11 @@ const NDA_COOKIE = "busos_nda_accepted";
 // Routes that don't need auth
 const PUBLIC_PATHS = [
   "/nda",
+  "/demo",
   "/sign-in",
   "/sign-up",
   "/api/auth",
+  "/api/demo",
   "/api/webhooks",
   "/api/investor",
   "/investor/rooms",
@@ -22,7 +24,8 @@ const PUBLIC_PATHS = [
 ];
 
 function isPublic(pathname: string): boolean {
-  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + "/") || pathname.startsWith(p));
+  if (pathname === "/") return true;
+  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
 }
 
 async function isAuthenticated(request: NextRequest): Promise<boolean> {

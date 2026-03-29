@@ -6,11 +6,16 @@ import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
 import { AlertType, AlertSeverity } from "@prisma/client";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const MODEL = "gpt-4o-mini";
 
+function getOpenAI(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
+}
+
 /**
- * Auto-generate AI-powered alerts based on stress factors.
+ * Auto-generate Founder Operating System alerts based on stress factors.
  * Only creates alerts that don't already exist (deduped by type + venture).
  */
 async function maybeCreateAIAlerts(
@@ -49,13 +54,15 @@ async function maybeCreateAIAlerts(
     if (!existing) {
       let message = `${venture.name} has ${venture.cashRunwayMonths} months of runway remaining.`;
       try {
-        const completion = await openai.chat.completions.create({
+        const client = getOpenAI();
+        if (!client) throw new Error("no openai");
+        const completion = await client.chat.completions.create({
           model: MODEL,
           messages: [
             {
               role: "system",
               content:
-                "You are Ada, an AI co-founder. Write a single urgent but calm 2-sentence alert message for a founder whose cash runway is critically low. Be specific, actionable, and reference the actual numbers. No bullet points.",
+                "You are Ada. Write a single urgent but calm 2-sentence alert message for a founder whose cash runway is critically low. Be specific, actionable, and reference the actual numbers. No bullet points.",
             },
             {
               role: "user",
@@ -95,13 +102,15 @@ async function maybeCreateAIAlerts(
     if (!existing) {
       let message = `You have ${overdueCount} overdue tasks. Falling behind on execution is an early warning sign.`;
       try {
-        const completion = await openai.chat.completions.create({
+        const client = getOpenAI();
+        if (!client) throw new Error("no openai");
+        const completion = await client.chat.completions.create({
           model: MODEL,
           messages: [
             {
               role: "system",
               content:
-                "You are Ada, an AI co-founder. Write a single direct 2-sentence alert for a founder with multiple overdue tasks. Be specific and motivating. No bullet points.",
+                "You are Ada. Write a single direct 2-sentence alert for a founder with multiple overdue tasks. Be specific and motivating. No bullet points.",
             },
             {
               role: "user",

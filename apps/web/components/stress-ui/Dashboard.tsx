@@ -9,6 +9,7 @@ import { AlertsPanel } from "@/components/alerts/AlertsPanel";
 import { TaskList } from "@/components/tasks/TaskList";
 import { RunwayGauge } from "@/components/stress/RunwayGauge";
 import { StageProgress } from "@/components/stages/StageProgress";
+import { IntelligenceBanner } from "@/components/dashboard/IntelligenceBanner";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -80,6 +81,9 @@ export function Dashboard({ ventureId }: DashboardProps) {
 
   return (
     <div className={containerClasses}>
+      <div className="px-6 pt-6">
+        <IntelligenceBanner ventureId={venture.id} />
+      </div>
       <header className="flex flex-wrap items-center justify-between gap-4 border-b p-6">
         <div className="flex items-center gap-3">
           {headerIcon[mode]}
