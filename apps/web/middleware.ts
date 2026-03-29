@@ -62,7 +62,12 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Auth gate for protected routes
+  // Auth gate for protected **pages** only. API routes must handle auth and return JSON
+  // (401/403/404) instead of an HTML redirect — otherwise clients and E2E see 200 after redirect.
+  if (pathname.startsWith("/api")) {
+    return NextResponse.next();
+  }
+
   if (!isPublic(pathname)) {
     const authed = await isAuthenticated(request);
     if (!authed) {
