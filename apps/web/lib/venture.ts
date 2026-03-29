@@ -1,14 +1,12 @@
 import { prisma } from "./prisma";
 
-/**
- * Get venture by id only if the user is the owner. Returns null otherwise.
- */
-export async function getVentureForUser(
-  ventureId: string,
-  userId: string
-) {
+/** Venture visible to owner or any venture member. */
+export async function getVentureForUser(ventureId: string, userId: string) {
   return prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: {
+      id: ventureId,
+      OR: [{ ownerId: userId }, { members: { some: { userId } } }],
+    },
     include: { stages: { orderBy: { stageNumber: "asc" } } },
   });
 }
@@ -18,6 +16,9 @@ export async function getVentureForUser(
  */
 export async function getVentureForUserLite(ventureId: string, userId: string) {
   return prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: {
+      id: ventureId,
+      OR: [{ ownerId: userId }, { members: { some: { userId } } }],
+    },
   });
 }

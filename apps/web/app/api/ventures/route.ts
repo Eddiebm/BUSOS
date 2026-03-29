@@ -9,7 +9,9 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
     const ventures = await prisma.venture.findMany({
-      where: { ownerId: userId },
+      where: {
+        OR: [{ ownerId: userId }, { members: { some: { userId } } }],
+      },
       orderBy: { updatedAt: "desc" },
       select: {
         id: true,
@@ -41,12 +43,20 @@ export async function POST(request: Request) {
     if (!name) {
       return NextResponse.json({ error: "name is required" }, { status: 400 });
     }
-    const venture = await prisma.venture.create({
-      data: {
-        name,
-        description: body.description?.trim() || null,
-        ownerId: userId,
-      },
+    const venture = await prisma.$transaction(async (tx) => {
+      const v = await tx.venture.create({
+        data: {
+          name,
+          description: body.description?.trim() || null,
+          ownerId: userId,
+        },
+      });
+      await tx.ventureMember.upsert({
+        where: { ventureId_userId: { ventureId: v.id, userId } },
+        create: { ventureId: v.id, userId, role: "OWNER" },
+        update: { role: "OWNER" },
+      });
+      return v;
     });
     return NextResponse.json(venture);
   } catch (e) {

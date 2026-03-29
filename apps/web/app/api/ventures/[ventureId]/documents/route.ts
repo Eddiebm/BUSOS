@@ -87,6 +87,7 @@ export async function POST(
     const { ventureId } = await params;
     const venture = await prisma.venture.findFirst({
       where: { id: ventureId, ownerId: userId },
+      include: { dna: true },
     });
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -106,10 +107,12 @@ export async function POST(
     const model = process.env.OPENAI_MODEL ?? "gpt-4.1-mini";
     const openai = new OpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL });
 
+    const dna = venture.dna;
     const context = [
       `Venture: ${venture.name}`,
       venture.description ? `Description: ${venture.description}` : "",
       `Stage: ${venture.stage}/13`,
+      `Stress mode: ${venture.stressMode}`,
       venture.monthlyBurn != null ? `Monthly burn (USD): ${venture.monthlyBurn}` : "",
       venture.monthlyRevenue != null ? `Monthly revenue (USD): ${venture.monthlyRevenue}` : "",
       venture.cashRunwayMonths != null ? `Cash runway (months): ${venture.cashRunwayMonths}` : "",
@@ -117,15 +120,67 @@ export async function POST(
       .filter(Boolean)
       .join("\n");
 
-    const instruction = `You are a business writing assistant. Produce a clear, structured ${label} for the venture below. Use markdown headings and bullet points where helpful.\n\n${context}`;
+    const dnaBlock = dna
+      ? [
+          "",
+          "Venture DNA (founder intake):",
+          `Dream: ${dna.dreamStatement}`,
+          `Problem: ${dna.problemStatement}`,
+          dna.targetCustomer ? `Target customer: ${dna.targetCustomer}` : "",
+          dna.whyNow ? `Why now: ${dna.whyNow}` : "",
+          dna.unfairAdvantage ? `Unfair advantage: ${dna.unfairAdvantage}` : "",
+          dna.marketSize ? `Market / TAM notes: ${dna.marketSize}` : "",
+          dna.founderWhy ? `Founder why: ${dna.founderWhy}` : "",
+          dna.industryVertical ? `Industry vertical: ${dna.industryVertical}` : "",
+        ]
+          .filter(Boolean)
+          .join("\n")
+      : "\n(No Venture DNA on file — infer carefully from venture name and description.)";
+
+    const isPitchDeck = docType === "SALES_PITCH";
+
+    const instruction = isPitchDeck
+      ? `You are Ada's pitch strategist inside BUSOS. Produce a **12-slide investor pitch deck** as markdown.
+
+Rules:
+- Use exactly **12** top-level headings in order: \`## Slide 1\` … \`## Slide 12\`.
+- Each slide must have a short title after the number and 2–5 tight bullets (or one short paragraph for Slide 1).
+- Ground every slide in the venture context and Venture DNA below. Use "TBD" only where data is truly unknown.
+- Slide titles (use these themes; adapt wording to the company):
+  Slide 1 — Title & tagline
+  Slide 2 — Problem
+  Slide 3 — Solution / product
+  Slide 4 — Why now
+  Slide 5 — Market opportunity
+  Slide 6 — Business model
+  Slide 7 — Traction & metrics
+  Slide 8 — Competition & differentiation
+  Slide 9 — Go-to-market
+  Slide 10 — Team
+  Slide 11 — Financials, ask, use of funds
+  Slide 12 — Vision & closing
+
+Venture context:
+${context}
+${dnaBlock}`
+      : `You are a business writing assistant. Produce a clear, structured ${label} for the venture below. Use markdown headings and bullet points where helpful.
+
+${context}
+${dnaBlock}`;
 
     const completion = await openai.chat.completions.create({
       model,
       messages: [
-        { role: "system", content: "Write professional business documents. Be concise but complete." },
+        {
+          role: "system",
+          content: isPitchDeck
+            ? "Write investor-grade pitch decks: specific, confident, no fluff. BUSOS founders rely on accuracy."
+            : "Write professional business documents. Be concise but complete.",
+        },
         { role: "user", content: instruction },
       ],
-      temperature: 0.7,
+      temperature: 0.65,
+      max_tokens: isPitchDeck ? 3500 : undefined,
     });
 
     const content =
@@ -140,7 +195,10 @@ export async function POST(
         content,
         isAIGenerated: true,
         createdById: userId,
-        metadata: { model } as object,
+        metadata: {
+          model,
+          ...(isPitchDeck ? { slideCount: 12, source: "funding-hub-pitch" } : {}),
+        } as object,
       },
     });
 

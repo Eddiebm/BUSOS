@@ -21,7 +21,7 @@ const GENERATE_OPTIONS = [
   { label: "Business Plan", value: "BUSINESS_PLAN" },
   { label: "Market Report", value: "MARKET_REPORT" },
   { label: "Value Proposition", value: "VALUE_PROPOSITION" },
-  { label: "Pitch Deck", value: "SALES_PITCH" },
+  { label: "Pitch Deck (12 slides, Venture DNA)", value: "SALES_PITCH" },
 ] as const;
 
 export default function VentureDocumentsPage() {

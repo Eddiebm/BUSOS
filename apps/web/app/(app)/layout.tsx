@@ -31,15 +31,15 @@ export default async function AppLayout({
     );
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <a
+    return (
+      <div className="min-h-screen bg-zinc-950 text-zinc-100">
+        <a
         href="#main"
         className="absolute -top-full left-4 z-50 rounded bg-slate-900 px-3 py-2 text-white transition-[top] focus:top-4 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
       >
         Skip to main content
       </a>
-      <Suspense fallback={<div className="min-h-screen bg-slate-50 p-6 text-slate-600">Loading…</div>}>
+      <Suspense fallback={<div className="min-h-screen bg-zinc-950 p-6 text-zinc-400">Loading…</div>}>
         <AppShell>{children}</AppShell>
       </Suspense>
     </div>

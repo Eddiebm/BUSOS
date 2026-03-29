@@ -28,6 +28,10 @@ model User {
   blueOceanScans BlueOceanScan[]
   loginCount    Int       @default(0)
   lastLoginAt   DateTime?
+  timezone      String?
+  lastActiveAt  DateTime?
+  ventureInvitesSent VentureInvite[] @relation("VentureInviteInviter")
+  integrationConnections IntegrationConnection[]
 }
 
 model Subscription {
@@ -130,6 +134,16 @@ model Venture {
   dna           VentureDNA?
   milestones    JourneyMilestone[]
   blueOceanScans BlueOceanScan[]
+  leanCanvas    LeanCanvas?
+  ventureInvites VentureInvite[]
+  cashTransactions CashTransaction[]
+  contacts      CrmContact[]
+  deals         CrmDeal[]
+  shareholders  Shareholder[]
+  contentPieces ContentPiece[]
+  keywords      Keyword[]
+  investorUpdates InvestorUpdate[]
+  integrationConnections IntegrationConnection[]
 }
 
 model VentureDNA {
@@ -204,6 +218,16 @@ model BlueOceanScan {
   createdAt  DateTime @default(now())
 
   @@index([ventureId, createdAt])
+}
+
+// Ash Maurya–style Lean Canvas blocks (living document; prefilled from Venture DNA when empty)
+model LeanCanvas {
+  id         String   @id @default(cuid())
+  ventureId  String   @unique
+  venture    Venture  @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  blocks     Json
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Task {
@@ -351,6 +375,10 @@ enum ActivityType {
   ALERT_VIEWED
   LOGIN
   MODE_CHANGE
+  TEAM_MEMBER_ADDED
+  TEAM_INVITE_SENT
+  TRANSACTION_RECORDED
+  DEAL_MOVED
   OTHER
 }
 
@@ -450,6 +478,231 @@ model Session {
   socketId      String?
   lastSeen      DateTime  @default(now())
   createdAt     DateTime  @default(now())
+}
+
+enum VentureInviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+}
+
+model VentureInvite {
+  id          String              @id @default(cuid())
+  ventureId   String
+  venture     Venture             @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  email       String
+  role        MemberRole          @default(MEMBER)
+  invitedById String
+  invitedBy   User                @relation("VentureInviteInviter", fields: [invitedById], references: [id], onDelete: Cascade)
+  status      VentureInviteStatus @default(PENDING)
+  token       String              @unique @default(cuid())
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([ventureId])
+  @@index([email])
+}
+
+enum TransactionCategory {
+  REVENUE
+  PAYROLL
+  MARKETING
+  SOFTWARE
+  OTHER
+}
+
+enum CashFlowType {
+  INCOME
+  EXPENSE
+}
+
+model CashTransaction {
+  id          String              @id @default(cuid())
+  ventureId   String
+  venture     Venture             @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  date        DateTime
+  amount      Float
+  description String
+  category    TransactionCategory
+  type        CashFlowType
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  @@index([ventureId, date])
+}
+
+enum CrmDealKind {
+  SALES
+  INVESTOR
+}
+
+model CrmContact {
+  id          String    @id @default(cuid())
+  ventureId   String
+  venture     Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  name        String
+  email       String
+  company     String?
+  role        String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deals       CrmDeal[]
+
+  @@index([ventureId])
+}
+
+model CrmDeal {
+  id          String       @id @default(cuid())
+  ventureId   String
+  venture     Venture      @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  contactId   String?
+  contact     CrmContact?  @relation(fields: [contactId], references: [id], onDelete: SetNull)
+  name        String
+  value       Float        @default(0)
+  kind        CrmDealKind  @default(SALES)
+  stage       String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  interactions CrmInteraction[]
+
+  @@index([ventureId])
+}
+
+enum CrmInteractionType {
+  EMAIL
+  CALL
+  MEETING
+}
+
+model CrmInteraction {
+  id        String             @id @default(cuid())
+  dealId    String
+  deal      CrmDeal            @relation(fields: [dealId], references: [id], onDelete: Cascade)
+  date      DateTime
+  type      CrmInteractionType
+  notes     String             @db.Text
+  createdAt DateTime           @default(now())
+
+  @@index([dealId])
+}
+
+enum ShareholderKind {
+  FOUNDER
+  INVESTOR
+  EMPLOYEE
+}
+
+enum EquityKind {
+  COMMON
+  PREFERRED
+  OPTION
+}
+
+model Shareholder {
+  id          String            @id @default(cuid())
+  ventureId   String
+  venture     Venture           @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  name        String
+  type        ShareholderKind
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  grants      EquityGrant[]
+
+  @@index([ventureId])
+}
+
+model EquityGrant {
+  id             String        @id @default(cuid())
+  shareholderId  String
+  shareholder    Shareholder     @relation(fields: [shareholderId], references: [id], onDelete: Cascade)
+  date           DateTime
+  shares         Float
+  equityType     EquityKind
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+enum ContentChannel {
+  BLOG
+  TWITTER
+  LINKEDIN
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model ContentPiece {
+  id          String         @id @default(cuid())
+  ventureId   String
+  venture     Venture        @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  title       String
+  status      ContentStatus  @default(DRAFT)
+  channel     ContentChannel
+  publishAt   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([ventureId])
+}
+
+model Keyword {
+  id          String   @id @default(cuid())
+  ventureId   String
+  venture     Venture  @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  term        String
+  volume      Int?
+  difficulty  Int?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([ventureId])
+}
+
+model InvestorUpdate {
+  id        String   @id @default(cuid())
+  ventureId String
+  venture   Venture  @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  title     String
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([ventureId])
+}
+
+enum IntegrationProvider {
+  SLACK
+  GITHUB
+  GOOGLE_CALENDAR
+}
+
+model IntegrationConnection {
+  id          String               @id @default(cuid())
+  ventureId   String
+  venture     Venture              @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    IntegrationProvider
+  connected   Boolean              @default(false)
+  accessToken String?              @db.Text
+  metadata    Json?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@unique([ventureId, provider])
+}
+
+model Article {
+  id        String   @id @default(cuid())
+  title     String
+  slug      String   @unique
+  content   String   @db.Text
+  category  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Audit log for IP-related and sensitive actions (patentability, compliance)

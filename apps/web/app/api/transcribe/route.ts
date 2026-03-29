@@ -6,7 +6,10 @@ import path from "path";
 import os from "os";
 import OpenAI from "openai";
 import { toFile } from "openai/uploads";
+import { clientIpFromRequest } from "@/lib/request-ip";
 import { log } from "@/lib/logger";
+import { transcribePayloadTooLarge, TRANSCRIBE_MAX_BYTES } from "@/lib/transcribe-limits";
+import { checkTranscribeRateLimit } from "@/lib/transcribe-rate-limit";
 
 const execFileAsync = promisify(execFile);
 
@@ -52,6 +55,19 @@ async function transcribeWithManus(tempFilePath: string): Promise<string | null>
 export async function POST(request: Request) {
   let tempFilePath: string | null = null;
   try {
+    const ip = clientIpFromRequest(request);
+    const limited = checkTranscribeRateLimit(`transcribe:${ip}`);
+    if (!limited.ok) {
+      log("warn", "transcribe.rate_limited", { ip, retryAfterSec: limited.retryAfterSec });
+      return NextResponse.json(
+        { error: "Too many transcription requests. Try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        }
+      );
+    }
+
     const data = await request.formData();
     const file = data.get("file");
     if (!file || !(file instanceof Blob)) {
@@ -60,6 +76,19 @@ export async function POST(request: Request) {
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
+
+    if (transcribePayloadTooLarge(buffer.byteLength)) {
+      log("warn", "transcribe.payload_too_large", {
+        bytes: buffer.byteLength,
+        maxBytes: TRANSCRIBE_MAX_BYTES,
+      });
+      return NextResponse.json(
+        {
+          error: `Audio must be ${Math.floor(TRANSCRIBE_MAX_BYTES / (1024 * 1024))} MB or smaller.`,
+        },
+        { status: 413 }
+      );
+    }
 
     const whisperText = await transcribeWithWhisper(buffer);
     if (whisperText) {
