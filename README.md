@@ -18,6 +18,13 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
+## Dream intake and journey roadmap (`apps/web`)
+
+- **Dream (founding story):** `/ventures/[ventureId]/dream` — multi-step VentureDNA form. Submit saves to `POST /api/ventures/[ventureId]/dna`, which upserts `VentureDNA` and regenerates journey milestones via `lib/journey.ts`.
+- **Journey:** `/ventures/[ventureId]/journey` — roadmap UI; requires DNA (otherwise links to Dream). Milestones: `GET/POST /api/ventures/[ventureId]/milestones`, updates `PATCH /api/ventures/[ventureId]/milestones/[milestoneId]`.
+- **New venture flow:** creating a venture from `/ventures` redirects to `/ventures/[id]/dream` first.
+- **Database:** `VentureDNA` and `JourneyMilestone` live in `prisma/schema.prisma` at the repo root. After pulling, run migrations against your PostgreSQL (e.g. `npx prisma migrate deploy` or `prisma migrate dev`) so these tables exist before using Dream/Journey in production.
+
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
 ## Learn More
