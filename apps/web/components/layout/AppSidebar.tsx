@@ -11,6 +11,7 @@ import {
   BookOpen,
   Brain,
   Briefcase,
+  Camera,
   CircleDollarSign,
   LayoutGrid,
   Map,
@@ -189,6 +190,11 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           {nav("/dashboard" + (ventureId ? `?ventureId=${ventureId}` : ""), "Dashboard")}
           {ventureId ? (
             <>
+              {nav(
+                `${base}/snapshot`,
+                "Snapshot",
+                <Camera className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
+              )}
               {nav(`${base}/dream`, "Dream", <Sparkles className="h-4 w-4 shrink-0 opacity-90" aria-hidden />)}
               {nav(`${base}/journey`, "Journey", <Map className="h-4 w-4 shrink-0 opacity-90" aria-hidden />)}
               {nav(
@@ -233,6 +239,9 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             </>
           ) : (
             <>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">
+                Snapshot
+              </span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Dream</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Journey</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Blue Ocean</span>
