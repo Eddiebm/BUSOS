@@ -177,6 +177,16 @@ enum FounderExperience {
   SERIAL
 }
 
+// Which interactive workspace module is embedded in the milestone card (founder does work here).
+enum MilestoneWorkspaceType {
+  NONE
+  COMPETITOR_MATRIX
+  VALUE_PROP_BUILDER
+  MVP_FEATURE_LIST
+  FINANCIAL_MODELER
+  CHECKLIST
+}
+
 model JourneyMilestone {
   id          String    @id @default(cuid())
   ventureId   String
@@ -201,6 +211,10 @@ model JourneyMilestone {
   skipConsequence String?   @db.Text   // What happens if skipped
   deferred        Boolean   @default(false)
   deferredUntil   DateTime?
+  // Drives which embedded workspace UI to render inside the milestone card.
+  workspaceType   MilestoneWorkspaceType @default(NONE)
+  // Persisted founder work for the workspace module (shape depends on workspaceType).
+  workspaceData   Json?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   conversations   MilestoneConversation[]
