@@ -18,6 +18,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { MilestoneWorkspace } from "@/components/journey/MilestoneWorkspace";
 
 const CATEGORY_COLORS: Record<string, string> = {
   VALIDATION: "bg-blue-50 text-blue-700 border-blue-200",
@@ -60,6 +61,8 @@ export interface Milestone {
   deferredUntil?: string | null;
   dueDate?: string | null;
   aiGenerated: boolean;
+  workspaceType?: string | null;
+  workspaceData?: unknown | null;
 }
 
 interface MilestoneCardProps {
@@ -208,6 +211,12 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
       {/* Expanded detail panel */}
       {open && (
         <div className="border-t border-slate-100 px-4 pb-5 pt-4 space-y-5">
+          <MilestoneWorkspace
+            milestone={m}
+            ventureId={ventureId}
+            onUpdate={onUpdate}
+            disabled={loading}
+          />
 
           {/* Why this matters */}
           {m.reason && (

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { Prisma, MilestoneWorkspaceType } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canWrite, getVentureAccess } from "@/lib/venture-access";
@@ -41,6 +42,8 @@ export async function PATCH(
       dueDate?: Date | null;
       skipped?: boolean;
       skipReason?: string | null;
+      workspaceType?: MilestoneWorkspaceType;
+      workspaceData?: Prisma.InputJsonValue | typeof Prisma.JsonNull;
     } = {};
 
     if (body.completed !== undefined) {
@@ -70,6 +73,22 @@ export async function PATCH(
       (data as Record<string, unknown>).deferredUntil = body.deferredUntil
         ? new Date(String(body.deferredUntil))
         : null;
+    }
+
+    if (body.workspaceType !== undefined) {
+      const raw = String(body.workspaceType);
+      const allowed = Object.values(MilestoneWorkspaceType) as string[];
+      if (!allowed.includes(raw)) {
+        return NextResponse.json({ error: "Invalid workspaceType" }, { status: 400 });
+      }
+      data.workspaceType = raw as MilestoneWorkspaceType;
+    }
+    if (body.workspaceData !== undefined) {
+      if (body.workspaceData === null) {
+        data.workspaceData = Prisma.JsonNull;
+      } else {
+        data.workspaceData = body.workspaceData as Prisma.InputJsonValue;
+      }
     }
 
     const updated = await prisma.journeyMilestone.update({
