@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const MODEL = "gpt-4o-mini";
+const MODEL = "gpt-4.1-mini";
 
 export type DemoPayload = {
   problem: string;

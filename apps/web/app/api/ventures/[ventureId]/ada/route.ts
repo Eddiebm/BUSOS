@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
 
-const MODEL = "gpt-4o-mini";
+const MODEL = "gpt-4.1-mini";
 
 function getOpenAI(): OpenAI {
   const apiKey = process.env.OPENAI_API_KEY;
