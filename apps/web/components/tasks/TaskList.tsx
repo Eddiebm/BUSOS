@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TaskListSkeleton } from "@/components/ui/Skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -17,19 +17,19 @@ export function TaskList({ ventureId, compact, urgentOnly }: TaskListProps) {
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState("");
 
-  const fetchTasks = () => {
+  const fetchTasks = useCallback(() => {
     const q = urgentOnly ? "?urgentOnly=true" : "";
     fetch(`/api/ventures/${ventureId}/tasks${q}`)
       .then((r) => (r.ok ? r.json() : []))
       .then(setTasks)
       .catch(() => setTasks([]))
       .finally(() => setLoading(false));
-  };
+  }, [ventureId, urgentOnly]);
 
   useEffect(() => {
     setLoading(true);
     fetchTasks();
-  }, [ventureId, urgentOnly]);
+  }, [fetchTasks]);
 
   const handleAdd = (e: React.FormEvent) => {
     e.preventDefault();

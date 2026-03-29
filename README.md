@@ -53,6 +53,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | Dream / DNA | `/ventures/[ventureId]/dream` |
 | Journey | `/ventures/[ventureId]/journey` |
 | Survival emergency kits | `/ventures/[ventureId]/emergency/bridge-financing`, `pivot-canvas`, `cost-reduction` |
+| Blue Ocean strategy scan | `/ventures/[ventureId]/blue-ocean` (UI) · `POST /api/ventures/[ventureId]/blue-ocean` |
 | Investor room (token) | `/investor/rooms/[accessToken]` |
 
 ## API notes

@@ -83,7 +83,7 @@ function NdaGateContent() {
               <li>
                 <strong>Confidential Information.</strong> You acknowledge that all information
                 you receive or observe through this site (including software, interfaces, features,
-                business methods, and any related materials) ("Confidential Information") is
+                business methods, and any related materials) (&quot;Confidential Information&quot;) is
                 proprietary and confidential. Confidential Information is disclosed to you solely in
                 connection with your evaluation or use of BUSOS.
               </li>
@@ -99,7 +99,7 @@ function NdaGateContent() {
                 Information, including patent, copyright, trademark, and trade secret rights, remain
                 with the owner. Your access does not grant you any license except to view and use
                 the site as intended. Disclosure of Confidential Information without this agreement
-                could impair the owner's ability to obtain or enforce patent and other intellectual
+                could impair the owner&apos;s ability to obtain or enforce patent and other intellectual
                 property rights. You agree not to take any action that would jeopardize those
                 rights.
               </li>
@@ -122,8 +122,8 @@ function NdaGateContent() {
             </ol>
 
             <p className="mt-4 text-slate-600">
-              By clicking "I Accept" you confirm that you have read, understood, and agree to be
-              bound by these terms. If you do not agree, click "I Do Not Accept" and you will not
+              By clicking &quot;I Accept&quot; you confirm that you have read, understood, and agree to be
+              bound by these terms. If you do not agree, click &quot;I Do Not Accept&quot; and you will not
               be granted access.
             </p>
           </div>
