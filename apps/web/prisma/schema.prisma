@@ -168,7 +168,6 @@ model JourneyMilestone {
   category    String
   title       String
   description String    @db.Text
-  reason      String?   @db.Text
   order       Int
   completed   Boolean   @default(false)
   completedAt DateTime?
@@ -176,6 +175,7 @@ model JourneyMilestone {
   skipped     Boolean   @default(false)
   skipReason  String?
   aiGenerated Boolean   @default(false)
+  reason      String?   @db.Text
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
