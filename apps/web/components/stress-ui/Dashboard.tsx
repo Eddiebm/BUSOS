@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useVentureSummary } from "@/hooks/useVentureSummary";
 import { cn } from "@/lib/utils";
 import { getStageName } from "@/lib/stage-names";
@@ -10,6 +11,7 @@ import { TaskList } from "@/components/tasks/TaskList";
 import { RunwayGauge } from "@/components/stress/RunwayGauge";
 import { StageProgress } from "@/components/stages/StageProgress";
 import { IntelligenceBanner } from "@/components/dashboard/IntelligenceBanner";
+import { UpcomingMilestones } from "@/components/dashboard/UpcomingMilestones";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
@@ -121,21 +123,30 @@ export function Dashboard({ ventureId }: DashboardProps) {
               <ul className="mt-2 space-y-1 text-sm text-red-700">
                 <li>
                   •{" "}
-                  <a href="#" className="underline">
-                    Bridge Financing Plan
-                  </a>
+                  <Link
+                    href={`/ventures/${venture.id}/emergency/bridge-financing`}
+                    className="font-medium underline underline-offset-2 hover:text-red-900"
+                  >
+                    Bridge financing plan
+                  </Link>
                 </li>
                 <li>
                   •{" "}
-                  <a href="#" className="underline">
-                    Pivot Canvas
-                  </a>
+                  <Link
+                    href={`/ventures/${venture.id}/emergency/pivot-canvas`}
+                    className="font-medium underline underline-offset-2 hover:text-red-900"
+                  >
+                    Pivot canvas
+                  </Link>
                 </li>
                 <li>
                   •{" "}
-                  <a href="#" className="underline">
-                    Cost Reduction Checklist
-                  </a>
+                  <Link
+                    href={`/ventures/${venture.id}/emergency/cost-reduction`}
+                    className="font-medium underline underline-offset-2 hover:text-red-900"
+                  >
+                    Cost reduction checklist
+                  </Link>
                 </li>
               </ul>
             </div>
@@ -173,11 +184,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
             urgentOnly={mode === "SURVIVAL"}
           />
 
-          {mode === "EXECUTION" && (
-            <div className="rounded-lg bg-white p-4 shadow">
-              <h3 className="mb-2 font-medium">Upcoming Milestones</h3>
-            </div>
-          )}
+          {mode === "EXECUTION" && <UpcomingMilestones ventureId={venture.id} />}
         </div>
       </div>
     </div>

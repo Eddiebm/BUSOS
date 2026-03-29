@@ -1,20 +1,42 @@
 import { NextResponse } from "next/server";
+import OpenAI from "openai";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+
+const MODEL = "gpt-4o-mini";
+
+type BlueOceanAnalysis = {
+  executiveSummary: string;
+  uncontestedSpace: string;
+  strategicOpportunities: string[];
+  risksToValidate: string[];
+  suggestedExperiments: string[];
+};
+
+const SYSTEM = `You are a strategy analyst for BUSOS (Founder Operating System). Perform a concise Blue Ocean-style scan: help the founder see differentiation and uncontested demand space — not generic advice.
+Respond ONLY with valid JSON matching the schema. Be specific to this venture's name, stage, and DNA when provided.`;
+
+function getOpenAI(): OpenAI | null {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  return new OpenAI({ apiKey });
+}
 
 async function ensureVentureOwner(ventureId: string, userId: string) {
   const v = await prisma.venture.findFirst({
     where: { id: ventureId, ownerId: userId },
+    include: { dna: true },
   });
   if (!v) throw new Error("NOT_FOUND");
+  return v;
 }
 
 /**
- * POST: Trigger Blue Ocean scan for the venture.
- * In full implementation, add job to BullMQ 'blue-ocean' queue; worker runs scraper + alerts.
+ * POST: Run a synchronous Blue Ocean scan (LLM). For high-volume production you can
+ * move this behind a queue; the response shape stays the same with jobId + status.
  */
 export async function POST(
-  request: Request,
+  _request: Request,
   { params }: { params: Promise<{ ventureId: string }> }
 ) {
   try {
@@ -22,16 +44,101 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    await ensureVentureOwner(ventureId, userId);
+    const venture = await ensureVentureOwner(ventureId, userId);
 
-    // Placeholder: in production, add to BullMQ and return jobId
     const jobId = `blue_${Date.now()}_${ventureId}`;
+    const dna = venture.dna;
 
-    return NextResponse.json({ jobId }, { status: 202 });
+    const contextParts = [
+      `Venture: ${venture.name}`,
+      venture.description ? `Description: ${venture.description}` : null,
+      `Stage: ${venture.stage}/13`,
+      `Stress mode: ${venture.stressMode}`,
+      venture.cashRunwayMonths != null ? `Runway (months): ${venture.cashRunwayMonths}` : null,
+      dna
+        ? [
+            `Dream: ${dna.dreamStatement}`,
+            `Problem: ${dna.problemStatement}`,
+            dna.targetCustomer ? `Target customer: ${dna.targetCustomer}` : null,
+            dna.whyNow ? `Why now: ${dna.whyNow}` : null,
+            dna.unfairAdvantage ? `Unfair advantage: ${dna.unfairAdvantage}` : null,
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : "No VentureDNA yet — infer carefully from venture name/description only.",
+    ]
+      .filter(Boolean)
+      .join("\n");
+
+    const client = getOpenAI();
+    if (!client) {
+      return NextResponse.json(
+        {
+          jobId,
+          status: "failed" as const,
+          error: "OPENAI_API_KEY is not configured",
+          analysis: null,
+        },
+        { status: 503 }
+      );
+    }
+
+    const completion = await client.chat.completions.create({
+      model: MODEL,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: SYSTEM },
+        {
+          role: "user",
+          content: `Context:\n${contextParts}\n\nReturn JSON:
+{
+  "executiveSummary": "2-3 sentences",
+  "uncontestedSpace": "1 paragraph on where they could compete with less head-on rivalry",
+  "strategicOpportunities": ["3-5 short bullets"],
+  "risksToValidate": ["3-5 short bullets — assumptions that could sink the thesis"],
+  "suggestedExperiments": ["3-5 cheap tests for the next 30 days"]
+}`,
+        },
+      ],
+      max_tokens: 900,
+      temperature: 0.65,
+    });
+
+    const raw = completion.choices[0]?.message?.content?.trim() ?? "{}";
+    let parsed: BlueOceanAnalysis;
+    try {
+      parsed = JSON.parse(raw) as BlueOceanAnalysis;
+    } catch {
+      return NextResponse.json(
+        { jobId, status: "failed" as const, error: "Invalid model output", analysis: null },
+        { status: 502 }
+      );
+    }
+
+    const analysis: BlueOceanAnalysis = {
+      executiveSummary: String(parsed.executiveSummary ?? "").trim() || "Analysis incomplete.",
+      uncontestedSpace: String(parsed.uncontestedSpace ?? "").trim(),
+      strategicOpportunities: Array.isArray(parsed.strategicOpportunities)
+        ? parsed.strategicOpportunities.map((s) => String(s).trim()).filter(Boolean)
+        : [],
+      risksToValidate: Array.isArray(parsed.risksToValidate)
+        ? parsed.risksToValidate.map((s) => String(s).trim()).filter(Boolean)
+        : [],
+      suggestedExperiments: Array.isArray(parsed.suggestedExperiments)
+        ? parsed.suggestedExperiments.map((s) => String(s).trim()).filter(Boolean)
+        : [],
+    };
+
+    return NextResponse.json({
+      jobId,
+      status: "completed" as const,
+      completedAt: new Date().toISOString(),
+      analysis,
+    });
   } catch (e) {
     if ((e as Error).message === "NOT_FOUND")
       return NextResponse.json({ error: "Not found" }, { status: 404 });
-    console.error(e);
+    console.error("[blue-ocean/POST]", e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
 }

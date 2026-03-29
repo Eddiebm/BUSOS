@@ -1,43 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BUSOS — Founder Operating System
 
-## Getting Started
+Monorepo with the main product in **`apps/web`**: a Next.js (App Router) app for founders — Dream Intake (VentureDNA), stress-adaptive dashboard, journey milestones, Ada (LLM), demo mode, and investor flows.
 
-First, run the development server:
+## Requirements
+
+- **Node.js 20+** (recommended)
+- **PostgreSQL** (e.g. Supabase) — connection string in **`DATABASE_URL`**
+- **OpenAI API key** — **`OPENAI_API_KEY`** (Ada, demo, stress alerts, Blue Ocean scan, documents where applicable)
+
+## Environment variables (`apps/web`)
+
+| Variable | Purpose |
+|----------|---------|
+| `DATABASE_URL` | PostgreSQL connection string for Prisma |
+| `JWT_SECRET` | Secret for session JWT (cookies) |
+| `OPENAI_API_KEY` | OpenAI API for Ada, `/api/demo`, Blue Ocean, etc. |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Optional; only if you use `/api/clerk-dev-init` for hosted dev |
+
+Copy from your host’s dashboard as needed; never commit real secrets.
+
+## Database
+
+From **`apps/web`**:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npx prisma generate --schema=./prisma/schema.prisma
+npx prisma db push --schema=./prisma/schema.prisma
+# or: npx prisma migrate deploy (if you use migrations)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Schema source of truth: **`apps/web/prisma/schema.prisma`** (kept in sync with the repo root `prisma/schema.prisma` where present).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run locally
 
-## Dream intake and journey roadmap (`apps/web`)
+```bash
+cd apps/web
+npm install
+npm run dev
+```
 
-- **Dream (founding story):** `/ventures/[ventureId]/dream` — multi-step VentureDNA form. Submit saves to `POST /api/ventures/[ventureId]/dna`, which upserts `VentureDNA` and regenerates journey milestones via `lib/journey.ts`.
-- **Journey:** `/ventures/[ventureId]/journey` — roadmap UI; requires DNA (otherwise links to Dream). Milestones: `GET/POST /api/ventures/[ventureId]/milestones`, updates `PATCH /api/ventures/[ventureId]/milestones/[milestoneId]`.
-- **New venture flow:** creating a venture from `/ventures` redirects to `/ventures/[id]/dream` first.
-- **Database:** `VentureDNA` and `JourneyMilestone` live in `prisma/schema.prisma` at the repo root. After pulling, run migrations against your PostgreSQL (e.g. `npx prisma migrate deploy` or `prisma migrate dev`) so these tables exist before using Dream/Journey in production.
+Open [http://localhost:3000](http://localhost:3000).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Key routes
 
-## Learn More
+| Area | Path |
+|------|------|
+| Marketing | `/` |
+| No-login demo | `/demo`, `POST /api/demo` |
+| Auth | `/sign-in`, `/sign-up` (custom JWT; no Clerk UI components in-app) |
+| NDA gate | `/nda` (middleware) |
+| Dashboard | `/dashboard?ventureId=…` |
+| Dream / DNA | `/ventures/[ventureId]/dream` |
+| Journey | `/ventures/[ventureId]/journey` |
+| Survival emergency kits | `/ventures/[ventureId]/emergency/bridge-financing`, `pivot-canvas`, `cost-reduction` |
+| Investor room (token) | `/investor/rooms/[accessToken]` |
 
-To learn more about Next.js, take a look at the following resources:
+## API notes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Most **`/api/ventures/[ventureId]/...`** routes require auth and verify **venture ownership** via `getOrCreateUserFromClerk()` → internal `userId`.
+- **`POST /api/ventures/[ventureId]/blue-ocean`** runs a **synchronous** Blue Ocean analysis (JSON). For very high traffic you can later move execution to a queue; the response shape supports `jobId` + `status` + `analysis`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Tests
 
-## Deploy on Vercel
+From **`apps/web`**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm test
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Uses **Vitest** (`*.test.ts` next to source or under `tests/`).
+
+## Deploy
+
+Configure the same env vars on your host (Vercel, Cloudflare, etc.). Build:
+
+```bash
+cd apps/web && npm run build && npm start
+```
+
+See also `apps/web` scripts for Cloudflare OpenNext if you deploy there.
+
+## License
+
+Private / all rights reserved unless otherwise stated by the repository owner.

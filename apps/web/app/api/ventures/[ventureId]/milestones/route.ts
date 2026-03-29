@@ -1,17 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-const CATEGORY_ORDER = ["VALIDATION", "PRODUCT", "LEGAL", "FINANCIAL", "GROWTH", "IP"];
-
-function sortMilestones<T extends { category: string; order: number }>(rows: T[]): T[] {
-  return [...rows].sort((a, b) => {
-    const ca = CATEGORY_ORDER.indexOf(a.category);
-    const cb = CATEGORY_ORDER.indexOf(b.category);
-    if (ca !== cb) return (ca === -1 ? 99 : ca) - (cb === -1 ? 99 : cb);
-    return a.order - b.order;
-  });
-}
+import { sortJourneyMilestones } from "@/lib/sort-milestones";
 
 export async function GET(
   _request: Request,
@@ -30,7 +20,7 @@ export async function GET(
     const list = await prisma.journeyMilestone.findMany({
       where: { ventureId },
     });
-    return NextResponse.json(sortMilestones(list));
+    return NextResponse.json(sortJourneyMilestones(list));
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
