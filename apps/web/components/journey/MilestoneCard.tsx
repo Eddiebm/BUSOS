@@ -16,6 +16,7 @@ import {
   Sparkles,
   Send,
   Loader2,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { MilestoneWorkspace } from "@/components/journey/MilestoneWorkspace";
@@ -211,13 +212,6 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
       {/* Expanded detail panel */}
       {open && (
         <div className="border-t border-slate-100 px-4 pb-5 pt-4 space-y-5">
-          <MilestoneWorkspace
-            milestone={m}
-            ventureId={ventureId}
-            onUpdate={onUpdate}
-            disabled={loading}
-          />
-
           {/* Why this matters */}
           {m.reason && (
             <section>
@@ -358,6 +352,21 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
           {/* Skip reason if already skipped */}
           {m.skipped && m.skipReason && (
             <p className="text-xs text-slate-500 italic">Reason: {m.skipReason}</p>
+          )}
+
+          {m.workspaceType && m.workspaceType !== "NONE" && (
+            <section className="pt-2">
+              <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-600">
+                <Pencil className="h-3.5 w-3.5" aria-hidden />
+                Your Workspace
+              </h4>
+              <MilestoneWorkspace
+                milestone={m}
+                ventureId={ventureId}
+                onUpdate={onUpdate}
+                disabled={loading}
+              />
+            </section>
           )}
         </div>
       )}

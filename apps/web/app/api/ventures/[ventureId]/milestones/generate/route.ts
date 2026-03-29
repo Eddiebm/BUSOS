@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { MilestoneWorkspaceType } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canWrite, getVentureAccess } from "@/lib/venture-access";
@@ -7,6 +8,12 @@ import { auditLog } from "@/lib/audit-log";
 import OpenAI from "openai";
 
 const MODEL = "gpt-4.1-mini";
+
+function parseWorkspaceType(raw: unknown): MilestoneWorkspaceType {
+  const s = String(raw ?? "NONE");
+  const allowed = Object.values(MilestoneWorkspaceType) as string[];
+  return (allowed.includes(s) ? s : MilestoneWorkspaceType.NONE) as MilestoneWorkspaceType;
+}
 
 function getOpenAI() {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -36,6 +43,13 @@ For each milestone, provide:
 - howToDoIt: 3-5 concrete numbered steps a first-time founder can follow
 - canSkip: true/false — whether this task can be safely deferred
 - skipConsequence: What specifically breaks or becomes harder if this is skipped or deferred
+- workspaceType: Which embedded workspace UI fits this milestone (founder does work in the app). Choose exactly one:
+  - COMPETITOR_MATRIX — mapping, researching, or listing competitors
+  - VALUE_PROP_BUILDER — defining a value proposition or positioning
+  - MVP_FEATURE_LIST — scoping, defining, or planning the MVP or product
+  - FINANCIAL_MODELER — financial modeling, projections, unit economics, or pricing models
+  - CHECKLIST — legal steps, incorporation, compliance, IP filing, or setup checklists
+  - NONE — everything else
 
 Generate exactly 23 milestones covering the full journey from idea to launch:
 - 4 VALIDATION milestones (customer discovery, problem validation, solution testing, pricing)
@@ -62,7 +76,8 @@ Return ONLY valid JSON with this exact shape:
       "whereToDoIt": "string",
       "howToDoIt": "string",
       "canSkip": false,
-      "skipConsequence": "string"
+      "skipConsequence": "string",
+      "workspaceType": "NONE"
     }
   ]
 }`;
@@ -187,6 +202,7 @@ Industry: ${dna.industryVertical ?? "Not specified"}
             howToDoIt: String(ms.howToDoIt ?? ""),
             canSkip: Boolean(ms.canSkip ?? true),
             skipConsequence: String(ms.skipConsequence ?? ""),
+            workspaceType: parseWorkspaceType(ms.workspaceType),
           },
         });
       })
