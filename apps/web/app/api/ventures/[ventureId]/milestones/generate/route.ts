@@ -3,12 +3,18 @@ import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-  baseURL: process.env.OPENAI_BASE_URL ?? "https://api.manus.im/api/llm-proxy/v1",
-});
-
 const MODEL = "gpt-4.1-mini";
+
+function getOpenAI() {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY is not configured");
+  }
+  return new OpenAI({
+    apiKey,
+    baseURL: process.env.OPENAI_BASE_URL ?? "https://api.manus.im/api/llm-proxy/v1",
+  });
+}
 
 const SYSTEM_PROMPT = `You are Ada, the AI co-founder inside BUSOS — the Founder Operating System.
 Your job is to generate a complete, ordered, personalized action plan for a founder based on their venture DNA.
@@ -73,6 +79,11 @@ export async function POST(
     });
 
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    if (!process.env.OPENAI_API_KEY) {
+      return NextResponse.json({ error: "AI generation is not configured" }, { status: 503 });
+    }
+    const openai = getOpenAI();
 
     const body = await request.json().catch(() => ({}));
     const regenerate = body?.regenerate === true;
