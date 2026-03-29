@@ -176,10 +176,19 @@ model JourneyMilestone {
   dueDate     DateTime?
   skipped     Boolean   @default(false)
   skipReason  String?
-  aiGenerated Boolean   @default(false)
-  reason      String?   @db.Text
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  aiGenerated     Boolean   @default(false)
+  reason          String?   @db.Text
+  // Enriched guidance fields (Ada-generated)
+  whyThisOrder    String?   @db.Text   // Why this step comes before/after others
+  timeEstimate    String?              // e.g. "2-4 hours", "1 week"
+  whereToDoIt     String?   @db.Text   // Specific tools, websites, services
+  howToDoIt       String?   @db.Text   // Step-by-step instructions
+  canSkip         Boolean   @default(true)  // Whether skipping is safe
+  skipConsequence String?   @db.Text   // What happens if skipped
+  deferred        Boolean   @default(false)
+  deferredUntil   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   @@index([ventureId, order])
 }

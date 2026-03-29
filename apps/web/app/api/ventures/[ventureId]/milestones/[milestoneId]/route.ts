@@ -57,6 +57,14 @@ export async function PATCH(
     if (body.skipReason !== undefined) {
       data.skipReason = body.skipReason ? String(body.skipReason) : null;
     }
+    if (body.deferred !== undefined) {
+      (data as Record<string, unknown>).deferred = Boolean(body.deferred);
+    }
+    if (body.deferredUntil !== undefined) {
+      (data as Record<string, unknown>).deferredUntil = body.deferredUntil
+        ? new Date(String(body.deferredUntil))
+        : null;
+    }
 
     const updated = await prisma.journeyMilestone.update({
       where: { id: milestoneId },
