@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
 import type { VentureSummary } from "@/types/api";
@@ -9,6 +10,7 @@ import { ErrorState } from "@/components/ui/ErrorState";
 import { EmptyState } from "@/components/ui/EmptyState";
 
 export default function VenturesPage() {
+  const router = useRouter();
   const [ventures, setVentures] = useState<VentureSummary[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +52,9 @@ export default function VenturesPage() {
       setCreateName("");
       setVentures((prev) => [data, ...prev]);
       toast.success("Venture created");
+      if (data?.id) {
+        router.push(`/ventures/${data.id}/dream`);
+      }
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Create failed";
       setError(msg);

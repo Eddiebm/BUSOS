@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { getStageName } from "@/lib/stage-names";
 import type { StressMode } from "@/types/api";
+import { Map, Sparkles } from "lucide-react";
 
 interface VentureRow {
   id: string;
@@ -79,7 +80,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const stressLevel = detail?.stressLevel ?? 0;
   const stageLabel = getStageName(stage);
 
-  const nav = (href: string, label: string) => {
+  const nav = (href: string, label: string, icon?: ReactNode) => {
     const pathOnly = href.split("?")[0];
     let active = false;
     if (pathOnly === "/dashboard") active = pathname === "/dashboard";
@@ -90,10 +91,11 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         href={href}
         onClick={() => onNavigate?.()}
         className={cn(
-          "block rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+          "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
           active ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100"
         )}
       >
+        {icon}
         {label}
       </Link>
     );
@@ -168,12 +170,16 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
           {nav("/dashboard" + (ventureId ? `?ventureId=${ventureId}` : ""), "Dashboard")}
           {ventureId ? (
             <>
+              {nav(`${base}/dream`, "Dream", <Sparkles className="h-4 w-4 shrink-0 opacity-90" aria-hidden />)}
+              {nav(`${base}/journey`, "Journey", <Map className="h-4 w-4 shrink-0 opacity-90" aria-hidden />)}
               {nav(`${base}/tasks`, "Tasks")}
               {nav(`${base}/documents`, "Documents")}
               {nav(`${base}/settings`, "Settings")}
             </>
           ) : (
             <>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Dream</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Journey</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Tasks</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Documents</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-slate-400">Settings</span>

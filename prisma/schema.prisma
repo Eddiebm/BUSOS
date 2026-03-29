@@ -126,6 +126,59 @@ model Venture {
   financials    FinancialSnapshot[]
   tasks         Task[]
   chatMessages  ChatMessage[]
+  dna           VentureDNA?
+  milestones    JourneyMilestone[]
+}
+
+model VentureDNA {
+  id                  String              @id @default(cuid())
+  ventureId           String              @unique
+  venture             Venture             @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  dreamStatement      String              @db.Text
+  problemStatement    String              @db.Text
+  targetCustomer      String?             @db.Text
+  whyNow              String?             @db.Text
+  marketSize          String?
+  founderWhy          String              @db.Text
+  unfairAdvantage     String?             @db.Text
+  founderBackground   String?             @db.Text
+  founderExperience   FounderExperience   @default(FIRST_TIME)
+  coFounders          String?
+  location            String?
+  hoursPerWeek        Int?
+  capitalAvailable    String?
+  teamSize            Int?                @default(1)
+  hasPatentableIP     Boolean             @default(false)
+  hasTrademarkNeeds   Boolean             @default(false)
+  industryVertical    String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+}
+
+enum FounderExperience {
+  FIRST_TIME
+  REPEAT
+  SERIAL
+}
+
+model JourneyMilestone {
+  id          String    @id @default(cuid())
+  ventureId   String
+  venture     Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  category    String
+  title       String
+  description String    @db.Text
+  order       Int
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  dueDate     DateTime?
+  skipped     Boolean   @default(false)
+  skipReason  String?
+  aiGenerated Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([ventureId, order])
 }
 
 model Task {

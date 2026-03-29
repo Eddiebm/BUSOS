@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { VentureDNA } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import OpenAI from "openai";
@@ -6,7 +7,6 @@ import { getStageName } from "@/lib/stage-names";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// gpt-4o-mini: fast, capable, cost-effective
 const MODEL = "gpt-4o-mini";
 
 const STAGE_FOCUS: Record<number, string> = {
@@ -42,6 +42,26 @@ Stress modes:
 - EXECUTION: PMF found, now building. Prioritize shipping velocity and team leverage.
 - SURVIVAL: Cash or growth crisis. Prioritize extending runway and finding revenue immediately.`;
 
+const ADA_COFOUNDER_PROMPT =
+  "You have access to this founder's VentureDNA — their founding story, their dream, their why. Reference it specifically and often. When they're struggling, remind them of their dream. When they're making decisions, connect them back to their original problem statement. This is what makes you a real co-founder, not a generic assistant.";
+
+function dnaContextLines(dna: VentureDNA): string[] {
+  return [
+    "--- FOUNDING STORY ---",
+    `Dream: ${dna.dreamStatement}`,
+    `Problem being solved: ${dna.problemStatement}`,
+    ...(dna.targetCustomer ? [`Target customer: ${dna.targetCustomer}`] : []),
+    ...(dna.whyNow ? [`Why now: ${dna.whyNow}`] : []),
+    `Founder's why: ${dna.founderWhy}`,
+    ...(dna.unfairAdvantage ? [`Unfair advantage: ${dna.unfairAdvantage}`] : []),
+    ...(dna.founderBackground ? [`Founder background: ${dna.founderBackground}`] : []),
+    `Founder experience: ${dna.founderExperience}`,
+    ...(dna.hoursPerWeek != null ? [`Hours/week available: ${dna.hoursPerWeek}`] : []),
+    ...(dna.capitalAvailable ? [`Capital: ${dna.capitalAvailable}`] : []),
+    "--- END FOUNDING STORY ---",
+  ];
+}
+
 function buildContext(venture: {
   name: string;
   description?: string | null;
@@ -53,13 +73,14 @@ function buildContext(venture: {
   monthlyRevenue?: number | null;
   tasks: Array<{ title: string; dueDate?: Date | null; completed: boolean }>;
   alerts?: Array<{ message: string; read: boolean }>;
+  dna?: VentureDNA | null;
 }): string {
   const now = new Date();
   const open = venture.tasks.filter((t) => !t.completed);
   const overdue = open.filter((t) => t.dueDate && new Date(t.dueDate) < now);
   const stageFocus = STAGE_FOCUS[venture.stage] ?? `Stage ${venture.stage}`;
 
-  return [
+  const lines: Array<string | null> = [
     `Venture: ${venture.name}`,
     venture.description ? `What it does: ${venture.description}` : null,
     `Stage: ${venture.stage}/13 — ${stageFocus}`,
@@ -84,13 +105,17 @@ function buildContext(venture: {
           .map((a) => a.message)
           .join("; ")}`
       : null,
-  ]
-    .filter(Boolean)
-    .join("\n");
+  ];
+
+  if (venture.dna) {
+    lines.push(...dnaContextLines(venture.dna));
+  }
+
+  return lines.filter(Boolean).join("\n");
 }
 
 /**
- * GET — Proactive Ada message, context-aware and GPT-powered.
+ * GET — Proactive Ada message, context-aware and GPT-powered (includes VentureDNA when present).
  */
 export async function GET(
   _req: Request,
@@ -105,6 +130,7 @@ export async function GET(
     const venture = await prisma.venture.findFirst({
       where: { id: ventureId, ownerId: userId },
       include: {
+        dna: true,
         tasks: {
           orderBy: { createdAt: "desc" },
           take: 15,
@@ -123,13 +149,15 @@ export async function GET(
     const context = buildContext(venture);
     const stageName = getStageName(venture.stage);
 
+    const systemWithDna = `${ADA_SYSTEM}\n\n${ADA_COFOUNDER_PROMPT}`;
+
     const completion = await openai.chat.completions.create({
       model: MODEL,
       messages: [
-        { role: "system", content: ADA_SYSTEM },
+        { role: "system", content: systemWithDna },
         {
           role: "user",
-          content: `Venture context:\n${context}\n\nThis founder is at Stage ${venture.stage}/13 (${stageName}) in ${venture.stressMode} mode. Give them your most important, specific, actionable insight right now. Reference their actual data.`,
+          content: `Venture context:\n${context}\n\nThis founder is at Stage ${venture.stage}/13 (${stageName}) in ${venture.stressMode} mode. Give them your most important, specific, actionable insight right now. Reference their actual data and founding story when VentureDNA is present.`,
         },
       ],
       max_tokens: 220,
@@ -166,8 +194,8 @@ export async function GET(
         venture.stressMode === "SURVIVAL"
           ? "urgent"
           : venture.stressMode === "EXECUTION"
-          ? "direct"
-          : "encouraging",
+            ? "direct"
+            : "encouraging",
       suggestions,
     });
   } catch (e) {
@@ -199,6 +227,7 @@ export async function POST(
     const venture = await prisma.venture.findFirst({
       where: { id: ventureId, ownerId: userId },
       include: {
+        dna: true,
         tasks: {
           where: { completed: false },
           take: 15,
@@ -214,7 +243,6 @@ export async function POST(
 
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    // Fetch last 20 messages for context window
     const history = await prisma.chatMessage.findMany({
       where: { ventureId },
       orderBy: { createdAt: "asc" },
@@ -226,7 +254,7 @@ export async function POST(
     const messages: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
       {
         role: "system",
-        content: `${ADA_SYSTEM}\n\nCurrent venture context:\n${context}`,
+        content: `${ADA_SYSTEM}\n\n${ADA_COFOUNDER_PROMPT}\n\nCurrent venture context:\n${context}`,
       },
       ...history.map((m) => ({
         role: (m.role === "assistant" ? "assistant" : "user") as "user" | "assistant",
@@ -246,7 +274,6 @@ export async function POST(
       completion.choices[0]?.message?.content?.trim() ??
       "I'm here to help. Could you rephrase that?";
 
-    // Persist both messages
     await prisma.chatMessage.createMany({
       data: [
         { ventureId, userId, role: "user", content: userMessage },
@@ -254,7 +281,6 @@ export async function POST(
       ],
     });
 
-    // Update lastActivityAt
     await prisma.venture.update({
       where: { id: ventureId },
       data: { lastActivityAt: new Date() },
