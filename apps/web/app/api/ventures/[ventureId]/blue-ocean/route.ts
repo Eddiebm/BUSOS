@@ -3,7 +3,7 @@ import OpenAI from "openai";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-const MODEL = "gpt-4o-mini";
+const MODEL = "gpt-4.1-mini";
 
 type BlueOceanAnalysis = {
   executiveSummary: string;
