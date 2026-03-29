@@ -71,9 +71,9 @@ function HowAdaHelps({ path }: { path: "bootstrap" | "vc" | "debt" }) {
       "Ada helps you stress-test repayment against your revenue pattern: when an SBA-backed loan, venture debt, revenue-based financing, or a revolving bank line is most aligned—and what covenants to watch given runway and stress mode.",
   };
   return (
-    <section className="rounded-2xl border border-violet-200 bg-violet-50/80 p-5 shadow-sm">
-      <h3 className="text-xs font-semibold uppercase tracking-wide text-violet-800">How Ada helps · this path</h3>
-      <p className="mt-2 text-sm leading-relaxed text-violet-950/95">{text[path]}</p>
+    <section className="rounded-2xl border border-primary/30 bg-primary/10 p-5 shadow-sm">
+      <h3 className="text-xs font-semibold uppercase tracking-wide text-primary">How Ada helps · this path</h3>
+      <p className="mt-2 text-sm leading-relaxed text-foreground/90">{text[path]}</p>
     </section>
   );
 }
@@ -364,10 +364,10 @@ function VentureCapitalPanel({
             {VC_STAGES.map((s, i) => (
               <div
                 key={s.name}
-                className="flex min-w-[120px] flex-1 flex-col rounded-xl border border-violet-200 bg-violet-50/80 p-4"
+                className="flex min-w-[120px] flex-1 flex-col rounded-xl border border-primary/30 bg-primary/10 p-4"
               >
-                <span className="text-xs font-medium text-violet-600">Step {i + 1}</span>
-                <span className="mt-1 font-bold text-violet-950">{s.name}</span>
+                <span className="text-xs font-medium text-primary">Step {i + 1}</span>
+                <span className="mt-1 font-bold text-foreground">{s.name}</span>
                 <span className="mt-2 text-sm font-semibold text-foreground">{s.size}</span>
                 <p className="mt-2 text-xs leading-snug text-muted-foreground">{s.expect}</p>
               </div>
@@ -503,12 +503,12 @@ function DebtPanel() {
       <HowAdaHelps path="debt" />
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-sky-200 bg-sky-50/80 p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-sky-900">
+        <div className="rounded-2xl border border-info/30 bg-info/10 p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <Coins className="h-5 w-5" aria-hidden />
             Pros
           </h3>
-          <ul className="mt-4 space-y-3 text-sm text-sky-950/90">
+          <ul className="mt-4 space-y-3 text-sm text-foreground/90">
             <li>
               <strong>Less dilution</strong> than selling equity — lenders don&apos;t own your company.
             </li>
