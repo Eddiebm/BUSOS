@@ -56,7 +56,7 @@ export function ValuePropBuilder({ milestone, onSave }: Props) {
   }
 
   const ph = (v: string, placeholder: string) =>
-    v.trim() ? v : <span className="text-zinc-600">{placeholder}</span>;
+    v.trim() ? v : <span className="text-muted-foreground">{placeholder}</span>;
 
   return (
     <div className="space-y-4">
@@ -71,20 +71,20 @@ export function ValuePropBuilder({ milestone, onSave }: Props) {
           ] as const
         ).map(([key, label, phText]) => (
           <label key={key} className="block">
-            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-amber-200/80">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-primary">
               {label}
             </span>
             <input
               type="text"
               value={s[key]}
               onChange={(e) => setField(key, e.target.value)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
               placeholder={phText}
             />
           </label>
         ))}
       </div>
-      <div className="rounded-lg border border-amber-400/40 bg-zinc-900/80 p-4 text-sm leading-relaxed text-zinc-200">
+      <div className="rounded-lg border border-primary/50 bg-card/80 p-4 text-sm leading-relaxed text-foreground">
         For {ph(s.customer, "[customer]")}, who {ph(s.problem, "[problem]")}, our{" "}
         {ph(s.category, "[category]")} is the solution that {ph(s.benefit, "[benefit]")}, unlike{" "}
         {ph(s.competitor, "[competitor]")}.

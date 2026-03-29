@@ -15,13 +15,13 @@ interface AdaPayload {
 const CATEGORY_ORDER = ["VALIDATION", "LEGAL", "FINANCIAL", "PRODUCT", "GROWTH", "IP", "OPERATIONS"];
 
 const CATEGORY_STYLES: Record<string, string> = {
-  VALIDATION: "bg-blue-100 text-blue-900 ring-blue-200",
-  LEGAL: "bg-purple-100 text-purple-900 ring-purple-200",
-  FINANCIAL: "bg-green-100 text-green-900 ring-green-200",
-  PRODUCT: "bg-orange-100 text-orange-900 ring-orange-200",
-  GROWTH: "bg-pink-100 text-pink-900 ring-pink-200",
-  OPERATIONS: "bg-slate-100 text-slate-800 ring-slate-200",
-  IP: "bg-yellow-100 text-yellow-900 ring-yellow-200",
+  VALIDATION: "bg-info/15 text-foreground ring-info/35",
+  LEGAL: "bg-secondary/15 text-foreground ring-secondary/40",
+  FINANCIAL: "bg-success/15 text-foreground ring-success/35",
+  PRODUCT: "bg-warning/15 text-foreground ring-warning/30",
+  GROWTH: "bg-accent/15 text-foreground ring-accent/40",
+  OPERATIONS: "bg-muted text-foreground ring-border",
+  IP: "bg-warning/15 text-warning ring-warning/35",
 };
 
 type ViewMode = "ordered" | "grouped";
@@ -137,24 +137,24 @@ export default function JourneyRoadmapPage() {
   }
 
   if (loading) {
-    return <div className="py-12 text-center text-slate-600">Loading your journey…</div>;
+    return <div className="py-12 text-center text-muted-foreground">Loading your journey…</div>;
   }
 
   if (dnaExists === false) {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center gap-6 px-4 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8 text-primary">
           <Sparkles className="h-8 w-8" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900">Before we map your journey, tell Ada your story.</h1>
-        <p className="text-slate-600">Ada needs to understand your venture to generate a personalized action plan — not a generic checklist.</p>
+        <h1 className="text-2xl font-bold text-foreground">Before we map your journey, tell Ada your story.</h1>
+        <p className="text-muted-foreground">Ada needs to understand your venture to generate a personalized action plan — not a generic checklist.</p>
         <Link
           href={`/ventures/${ventureId}/dream`}
-          className="rounded-lg bg-indigo-600 px-6 py-3 font-semibold text-white hover:bg-indigo-700"
+          className="rounded-lg bg-primary px-6 py-3 font-semibold text-primary-foreground hover:bg-primary/90"
         >
           Start Dream Intake →
         </Link>
-        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-slate-500 hover:text-slate-800">
+        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-muted-foreground hover:text-foreground">
           Back to dashboard
         </Link>
       </div>
@@ -164,11 +164,11 @@ export default function JourneyRoadmapPage() {
   if (generating && milestones.length === 0) {
     return (
       <div className="py-20 text-center">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/8 text-primary">
           <Sparkles className="h-8 w-8 animate-pulse" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">Ada is building your roadmap…</h2>
-        <p className="mt-2 text-slate-600">Personalizing 23 milestones based on your venture DNA. This takes about 15 seconds.</p>
+        <h2 className="text-xl font-bold text-foreground">Ada is building your roadmap…</h2>
+        <p className="mt-2 text-muted-foreground">Personalizing 23 milestones based on your venture DNA. This takes about 15 seconds.</p>
       </div>
     );
   }
@@ -182,9 +182,9 @@ export default function JourneyRoadmapPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Your Journey</h1>
-          <p className="mt-1 text-lg text-slate-600">{ventureName}</p>
-          <p className="text-sm text-slate-500">Every step from dream to launch — personalized by Ada.</p>
+          <h1 className="text-3xl font-bold text-foreground">Your Journey</h1>
+          <p className="mt-1 text-lg text-muted-foreground">{ventureName}</p>
+          <p className="text-sm text-muted-foreground">Every step from dream to launch — personalized by Ada.</p>
         </div>
         <button
           type="button"
@@ -194,7 +194,7 @@ export default function JourneyRoadmapPage() {
             }
           }}
           disabled={generating}
-          className="flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition"
+          className="flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-background disabled:opacity-50 transition"
         >
           <RefreshCw className={cn("h-4 w-4", generating && "animate-spin")} />
           {generating ? "Regenerating…" : "Regenerate roadmap"}
@@ -203,25 +203,25 @@ export default function JourneyRoadmapPage() {
 
       {/* Ada message */}
       {ada && (
-        <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-5">
-          <p className="text-xs font-bold uppercase tracking-wide text-indigo-600 mb-1">Ada</p>
-          <p className="text-sm text-indigo-950 leading-relaxed">{ada.text}</p>
+        <div className="rounded-xl border border-primary/35 bg-primary/8 p-5">
+          <p className="text-xs font-bold uppercase tracking-wide text-primary mb-1">Ada</p>
+          <p className="text-sm text-foreground leading-relaxed">{ada.text}</p>
         </div>
       )}
 
       {/* Progress bar */}
       <div>
-        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-slate-600">
+        <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
           <span className="font-medium">{done} of {total} milestones complete</span>
-          <div className="flex flex-wrap gap-3 text-xs text-slate-500">
+          <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
             {skipped > 0 && <span>{skipped} skipped</span>}
             {deferred > 0 && <span>{deferred} deferred</span>}
             <span>{total - done - skipped} remaining</span>
           </div>
         </div>
-        <div className="h-3 w-full overflow-hidden rounded-full bg-slate-200">
+        <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-indigo-600 transition-all duration-500"
+            className="h-full rounded-full bg-primary transition-all duration-500"
             style={{ width: total ? `${(done / total) * 100}%` : "0%" }}
           />
         </div>
@@ -238,19 +238,19 @@ export default function JourneyRoadmapPage() {
               className={cn(
                 "rounded-full px-3 py-1 text-xs font-medium transition",
                 filter === f
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted"
               )}
             >
               {f === "active" ? "Active" : f === "all" ? "All" : f === "done" ? "Completed" : f === "deferred" ? "Deferred" : "Skipped"}
             </button>
           ))}
         </div>
-        <div className="flex items-center gap-1 rounded-lg border border-slate-200 p-1">
+        <div className="flex items-center gap-1 rounded-lg border border-border p-1">
           <button
             type="button"
             onClick={() => setViewMode("ordered")}
-            className={cn("rounded p-1.5 transition", viewMode === "ordered" ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100")}
+            className={cn("rounded p-1.5 transition", viewMode === "ordered" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted")}
             title="Ordered view"
           >
             <LayoutList className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function JourneyRoadmapPage() {
           <button
             type="button"
             onClick={() => setViewMode("grouped")}
-            className={cn("rounded p-1.5 transition", viewMode === "grouped" ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-slate-100")}
+            className={cn("rounded p-1.5 transition", viewMode === "grouped" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted")}
             title="Grouped by category"
           >
             <Layers className="h-4 w-4" />
@@ -268,9 +268,9 @@ export default function JourneyRoadmapPage() {
 
       {/* Empty state */}
       {filteredMilestones.length === 0 && (
-        <div className="rounded-xl border border-dashed border-slate-300 py-12 text-center text-slate-500">
+        <div className="rounded-xl border border-dashed border-border py-12 text-center text-muted-foreground">
           <p className="font-medium">No milestones in this view.</p>
-          <button type="button" onClick={() => setFilter("all")} className="mt-2 text-sm text-indigo-600 hover:underline">
+          <button type="button" onClick={() => setFilter("all")} className="mt-2 text-sm text-primary hover:underline">
             Show all milestones
           </button>
         </div>
@@ -296,7 +296,7 @@ export default function JourneyRoadmapPage() {
           {categories.map((cat) => {
             const list = grouped.get(cat) ?? [];
             if (list.length === 0) return null;
-            const badgeClass = CATEGORY_STYLES[cat] ?? "bg-slate-100 text-slate-800 ring-slate-200";
+            const badgeClass = CATEGORY_STYLES[cat] ?? "bg-muted text-foreground ring-border";
             return (
               <section key={cat} className="space-y-3">
                 <h2 className={cn("inline-flex rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ring-1", badgeClass)}>

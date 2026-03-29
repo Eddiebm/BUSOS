@@ -51,8 +51,8 @@ export function AlertsPanel({ ventureId, maxItems = 20 }: AlertsPanelProps) {
   if (list.length === 0) return null;
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <h3 className="font-semibold text-slate-900">Alerts</h3>
+    <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+      <h3 className="font-semibold text-foreground">Alerts</h3>
       <ul className="mt-3 space-y-3">
         {list.map((a) => {
           const urgent = URGENT_TYPES.has(a.type) || a.severity === "CRITICAL";
@@ -62,14 +62,14 @@ export function AlertsPanel({ ventureId, maxItems = 20 }: AlertsPanelProps) {
               className={cn(
                 "flex items-start justify-between gap-3 rounded-lg border p-3 text-sm",
                 urgent
-                  ? "border-red-200 bg-red-50 text-red-900"
-                  : "border-blue-200 bg-blue-50 text-blue-900"
+                  ? "border-destructive/40 bg-destructive/10 text-destructive"
+                  : "border-info/35 bg-info/10 text-foreground"
               )}
             >
               <div className="min-w-0 flex-1">
                 <p className="text-xs font-semibold uppercase tracking-wide opacity-80">{a.type}</p>
                 <p className="font-medium">{a.title}</p>
-                <p className={cn("mt-1", urgent ? "text-red-800" : "text-blue-800")}>{a.message}</p>
+                <p className={cn("mt-1", urgent ? "text-destructive" : "text-info")}>{a.message}</p>
                 {a.actionUrl && (
                   <Link href={a.actionUrl} className="mt-1 inline-block text-xs underline">
                     View
@@ -82,8 +82,8 @@ export function AlertsPanel({ ventureId, maxItems = 20 }: AlertsPanelProps) {
                 className={cn(
                   "shrink-0 rounded px-2 py-1 text-xs font-medium",
                   urgent
-                    ? "text-red-700 hover:bg-red-100"
-                    : "text-blue-700 hover:bg-blue-100"
+                    ? "text-destructive hover:bg-destructive/15"
+                    : "text-info hover:bg-info/15"
                 )}
               >
                 Dismiss

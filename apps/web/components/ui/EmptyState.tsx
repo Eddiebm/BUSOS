@@ -20,22 +20,22 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 px-6 text-center",
+        "flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-background/50 py-12 px-6 text-center",
         className
       )}
       role="status"
       aria-label={title}
     >
-      {icon && <div className="mb-3 text-slate-400" aria-hidden>{icon}</div>}
-      <h3 className="text-sm font-medium text-slate-700">{title}</h3>
+      {icon && <div className="mb-3 text-muted-foreground" aria-hidden>{icon}</div>}
+      <h3 className="text-sm font-medium text-foreground">{title}</h3>
       {description && (
-        <p className="mt-1 max-w-sm text-sm text-slate-500">{description}</p>
+        <p className="mt-1 max-w-sm text-sm text-muted-foreground">{description}</p>
       )}
       {actionLabel && onAction && (
         <button
           type="button"
           onClick={onAction}
-          className="mt-4 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          className="mt-4 rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-background"
         >
           {actionLabel}
         </button>

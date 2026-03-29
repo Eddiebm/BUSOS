@@ -110,7 +110,7 @@ export function FinancialModeler({ milestone, onSave }: Props) {
       <div className="grid gap-3 sm:grid-cols-2">
         {fields.map(({ key, label }) => (
           <label key={key} className="block">
-            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-amber-200/80">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-primary">
               {label}
             </span>
             <input
@@ -118,19 +118,19 @@ export function FinancialModeler({ milestone, onSave }: Props) {
               inputMode="decimal"
               value={Number.isFinite(s[key]) ? s[key] : 0}
               onChange={(e) => setField(key, parseFloat(e.target.value) || 0)}
-              className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-zinc-100 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+              className="w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
             />
           </label>
         ))}
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-amber-500/20">
+      <div className="overflow-x-auto rounded-lg border border-primary/25">
         <table className="w-full min-w-[720px] border-collapse text-xs sm:text-sm">
           <thead>
-            <tr className="border-b border-zinc-700 bg-zinc-900/80">
+            <tr className="border-b border-border bg-card/80">
               {["Month", "Users", "Revenue", "COGS", "Gross profit", "Fixed costs", "Net profit"].map(
                 (h) => (
-                  <th key={h} className="px-2 py-2 text-left font-semibold text-amber-200/90">
+                  <th key={h} className="px-2 py-2 text-left font-semibold text-primary">
                     {h}
                   </th>
                 )
@@ -139,16 +139,16 @@ export function FinancialModeler({ milestone, onSave }: Props) {
           </thead>
           <tbody>
             {rows.map((r) => (
-              <tr key={r.month} className="border-b border-zinc-800/80">
-                <td className="px-2 py-1.5 text-zinc-300">{r.month}</td>
-                <td className="px-2 py-1.5 text-zinc-200">{fmt(r.users)}</td>
-                <td className="px-2 py-1.5 text-zinc-200">{fmt(r.revenue)}</td>
-                <td className="px-2 py-1.5 text-zinc-200">{fmt(r.cogs)}</td>
-                <td className="px-2 py-1.5 text-zinc-200">{fmt(r.grossProfit)}</td>
-                <td className="px-2 py-1.5 text-zinc-200">{fmt(r.fixedCosts)}</td>
+              <tr key={r.month} className="border-b border-border/80">
+                <td className="px-2 py-1.5 text-muted-foreground">{r.month}</td>
+                <td className="px-2 py-1.5 text-foreground">{fmt(r.users)}</td>
+                <td className="px-2 py-1.5 text-foreground">{fmt(r.revenue)}</td>
+                <td className="px-2 py-1.5 text-foreground">{fmt(r.cogs)}</td>
+                <td className="px-2 py-1.5 text-foreground">{fmt(r.grossProfit)}</td>
+                <td className="px-2 py-1.5 text-foreground">{fmt(r.fixedCosts)}</td>
                 <td
                   className={`px-2 py-1.5 font-medium ${
-                    r.netProfit >= 0 ? "text-emerald-400" : "text-red-400"
+                    r.netProfit >= 0 ? "text-success" : "text-destructive"
                   }`}
                 >
                   {fmt(r.netProfit)}

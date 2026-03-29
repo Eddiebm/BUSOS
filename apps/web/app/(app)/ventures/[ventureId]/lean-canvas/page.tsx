@@ -161,14 +161,14 @@ export default function LeanCanvasPage() {
     <div className="mx-auto max-w-4xl pb-16">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <div className="mb-2 flex items-center gap-2 text-slate-600">
+          <div className="mb-2 flex items-center gap-2 text-muted-foreground">
             <LayoutGrid className="h-6 w-6 shrink-0" aria-hidden />
             <span className="text-sm font-medium uppercase tracking-wide">Strategy</span>
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Lean Canvas</h1>
-          <p className="mt-2 max-w-2xl text-sm text-slate-600">
+          <h1 className="text-2xl font-bold text-foreground">Lean Canvas</h1>
+          <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             A one-page, living model linked to your venture and{" "}
-            <Link href={`/ventures/${ventureId}/dream`} className="font-medium text-blue-700 underline-offset-2 hover:underline">
+            <Link href={`/ventures/${ventureId}/dream`} className="font-medium text-info underline-offset-2 hover:underline">
               Venture DNA
             </Link>
             . Save edits here; use &quot;Fill from DNA&quot; to overwrite with the latest intake snapshot.
@@ -179,7 +179,7 @@ export default function LeanCanvasPage() {
             type="button"
             onClick={exportMarkdown}
             disabled={loading}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background disabled:opacity-50"
           >
             Export Markdown
           </button>
@@ -187,7 +187,7 @@ export default function LeanCanvasPage() {
             type="button"
             onClick={reseed}
             disabled={reseedLoading || loading}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-50"
+            className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm hover:bg-background disabled:opacity-50"
           >
             {reseedLoading ? "Filling…" : "Fill from DNA"}
           </button>
@@ -196,8 +196,8 @@ export default function LeanCanvasPage() {
             onClick={save}
             disabled={saving || loading || !dirty}
             className={cn(
-              "rounded-lg px-4 py-2 text-sm font-semibold text-white shadow-sm",
-              dirty ? "bg-blue-600 hover:bg-blue-700" : "bg-slate-300 cursor-not-allowed"
+              "rounded-lg px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm",
+              dirty ? "bg-info hover:bg-info/90" : "bg-muted cursor-not-allowed"
             )}
           >
             {saving ? "Saving…" : "Save"}
@@ -206,12 +206,12 @@ export default function LeanCanvasPage() {
       </div>
 
       {error && (
-        <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900" role="alert">
+        <div className="mb-6 rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive" role="alert">
           {error}
         </div>
       )}
 
-      <p className="mb-6 text-xs text-slate-500">
+      <p className="mb-6 text-xs text-muted-foreground">
         {loading && "Loading…"}
         {!loading && (
           <>
@@ -234,21 +234,21 @@ export default function LeanCanvasPage() {
       </p>
 
       {loading ? (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 p-12 text-center text-slate-500">
+        <div className="rounded-xl border border-border bg-background p-12 text-center text-muted-foreground">
           Loading canvas…
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2">
           {LEAN_CANVAS_BLOCK_KEYS.map((key) => (
             <label key={key} className="flex flex-col gap-1.5">
-              <span className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {LEAN_CANVAS_LABELS[key]}
               </span>
               <textarea
                 value={blocks[key]}
                 onChange={(e) => onChange(key, e.target.value)}
                 rows={key === "problem" || key === "uniqueValueProposition" ? 5 : 4}
-                className="min-h-[96px] w-full resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="min-h-[96px] w-full resize-y rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-1 focus:ring-ring"
                 placeholder="…"
               />
             </label>

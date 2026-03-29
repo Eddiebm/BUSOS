@@ -22,23 +22,23 @@ import { cn } from "@/lib/utils";
 import { MilestoneWorkspace } from "@/components/journey/MilestoneWorkspace";
 
 const CATEGORY_COLORS: Record<string, string> = {
-  VALIDATION: "bg-blue-50 text-blue-700 border-blue-200",
-  LEGAL: "bg-purple-50 text-purple-700 border-purple-200",
-  FINANCIAL: "bg-green-50 text-green-700 border-green-200",
-  PRODUCT: "bg-orange-50 text-orange-700 border-orange-200",
-  GROWTH: "bg-pink-50 text-pink-700 border-pink-200",
-  OPERATIONS: "bg-slate-50 text-slate-700 border-slate-200",
-  IP: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  VALIDATION: "bg-info/10 text-info border-info/35",
+  LEGAL: "bg-secondary/10 text-secondary-foreground border-secondary/40",
+  FINANCIAL: "bg-success/10 text-success border-success/35",
+  PRODUCT: "bg-warning/10 text-warning border-warning/40",
+  GROWTH: "bg-accent/20 text-accent-foreground border-accent/40",
+  OPERATIONS: "bg-background text-foreground border-border",
+  IP: "bg-warning/10 text-warning border-warning/40",
 };
 
 const CATEGORY_RING: Record<string, string> = {
-  VALIDATION: "ring-blue-200",
-  LEGAL: "ring-purple-200",
-  FINANCIAL: "ring-green-200",
-  PRODUCT: "ring-orange-200",
-  GROWTH: "ring-pink-200",
-  OPERATIONS: "ring-slate-200",
-  IP: "ring-yellow-200",
+  VALIDATION: "ring-info/35",
+  LEGAL: "ring-secondary/40",
+  FINANCIAL: "ring-success/35",
+  PRODUCT: "ring-warning/30",
+  GROWTH: "ring-accent/40",
+  OPERATIONS: "ring-border",
+  IP: "ring-warning/35",
 };
 
 export interface Milestone {
@@ -131,11 +131,11 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
   return (
     <div
       className={cn(
-        "rounded-xl border bg-white shadow-sm transition-all",
+        "rounded-xl border bg-card shadow-sm transition-all",
         m.completed && "opacity-60",
         m.skipped && "opacity-50 border-dashed",
-        m.deferred && !m.skipped && "border-amber-200 bg-amber-50/30",
-        isOverdue && !m.completed && !m.skipped && "border-red-200",
+        m.deferred && !m.skipped && "border-primary/40 bg-primary/10",
+        isOverdue && !m.completed && !m.skipped && "border-destructive/40",
         `ring-1 ${ringClass}`
       )}
     >
@@ -146,11 +146,11 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
           type="button"
           onClick={toggleComplete}
           disabled={loading || m.skipped}
-          className="mt-0.5 flex-shrink-0 text-slate-400 hover:text-indigo-600 disabled:opacity-40 transition-colors"
+          className="mt-0.5 flex-shrink-0 text-muted-foreground hover:text-primary disabled:opacity-40 transition-colors"
           aria-label={m.completed ? "Mark incomplete" : "Mark complete"}
         >
           {m.completed ? (
-            <CheckCircle2 className="h-5 w-5 text-indigo-600" />
+            <CheckCircle2 className="h-5 w-5 text-primary" />
           ) : (
             <Circle className="h-5 w-5" />
           )}
@@ -159,28 +159,28 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
         {/* Main content */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
-            <span className="text-xs font-bold text-slate-400">#{m.order}</span>
+            <span className="text-xs font-bold text-muted-foreground">#{m.order}</span>
             <span className={cn("rounded-full border px-2 py-0.5 text-xs font-semibold", colorClass)}>
               {cat}
             </span>
             {m.timeEstimate && (
-              <span className="flex items-center gap-1 text-xs text-slate-500">
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="h-3 w-3" />
                 {m.timeEstimate}
               </span>
             )}
             {m.skipped && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+              <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-primary">
                 Skipped
               </span>
             )}
             {m.deferred && !m.skipped && (
-              <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+              <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-primary">
                 Deferred{m.deferredUntil ? ` until ${new Date(m.deferredUntil).toLocaleDateString()}` : ""}
               </span>
             )}
             {isOverdue && (
-              <span className="rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-700">
+              <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-xs font-medium text-destructive">
                 Overdue
               </span>
             )}
@@ -188,21 +188,21 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
           <h3
             className={cn(
-              "font-semibold text-slate-900 leading-snug",
-              m.completed && "line-through text-slate-400",
-              m.skipped && "line-through text-slate-400"
+              "font-semibold text-foreground leading-snug",
+              m.completed && "line-through text-muted-foreground",
+              m.skipped && "line-through text-muted-foreground"
             )}
           >
             {m.title}
           </h3>
-          <p className="mt-1 text-sm text-slate-600 leading-relaxed">{m.description}</p>
+          <p className="mt-1 text-sm text-muted-foreground leading-relaxed">{m.description}</p>
         </div>
 
         {/* Expand toggle */}
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex-shrink-0 rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors"
+          className="flex-shrink-0 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
           aria-label={open ? "Collapse details" : "Expand details"}
         >
           {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -211,51 +211,51 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
       {/* Expanded detail panel */}
       {open && (
-        <div className="border-t border-slate-100 px-4 pb-5 pt-4 space-y-5">
+        <div className="border-t border-border px-4 pb-5 pt-4 space-y-5">
           {/* Why this matters */}
           {m.reason && (
             <section>
-              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">
-                <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
+              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+                <AlertTriangle className="h-3.5 w-3.5 text-primary" />
                 Why this matters for your venture
               </h4>
-              <p className="text-sm text-slate-700 leading-relaxed">{m.reason}</p>
+              <p className="text-sm text-foreground leading-relaxed">{m.reason}</p>
             </section>
           )}
 
           {/* Why this order */}
           {m.whyThisOrder && (
             <section>
-              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">
-                <ListChecks className="h-3.5 w-3.5 text-indigo-500" />
+              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+                <ListChecks className="h-3.5 w-3.5 text-primary" />
                 Why do this now (not later)
               </h4>
-              <p className="text-sm text-slate-700 leading-relaxed">{m.whyThisOrder}</p>
+              <p className="text-sm text-foreground leading-relaxed">{m.whyThisOrder}</p>
             </section>
           )}
 
           {/* Where to do it */}
           {m.whereToDoIt && (
             <section>
-              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 mb-1.5">
-                <MapPin className="h-3.5 w-3.5 text-green-500" />
+              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1.5">
+                <MapPin className="h-3.5 w-3.5 text-success" />
                 Where &amp; how to do it
               </h4>
-              <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">{m.whereToDoIt}</p>
+              <p className="text-sm text-foreground leading-relaxed whitespace-pre-line">{m.whereToDoIt}</p>
             </section>
           )}
 
           {/* Step-by-step instructions */}
           {m.howToDoIt && (
             <section>
-              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500 mb-2">
-                <ListChecks className="h-3.5 w-3.5 text-blue-500" />
+              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">
+                <ListChecks className="h-3.5 w-3.5 text-info" />
                 Step-by-step
               </h4>
               <div className="space-y-1.5">
                 {m.howToDoIt.split(/\n/).filter(Boolean).map((step, i) => (
-                  <div key={i} className="flex gap-2 text-sm text-slate-700">
-                    <span className="flex-shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+                  <div key={i} className="flex gap-2 text-sm text-foreground">
+                    <span className="flex-shrink-0 flex h-5 w-5 items-center justify-center rounded-full bg-primary/12 text-xs font-bold text-primary">
                       {i + 1}
                     </span>
                     <span className="leading-relaxed">{step.replace(/^\d+\.\s*/, "")}</span>
@@ -269,12 +269,12 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
           {/* Skip consequence warning */}
           {m.skipConsequence && (
-            <section className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-700 mb-1">
+            <section className="rounded-lg border border-primary/40 bg-warning/10 p-3">
+              <h4 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-primary mb-1">
                 <AlertTriangle className="h-3.5 w-3.5" />
                 If you skip this
               </h4>
-              <p className="text-sm text-amber-800 leading-relaxed">{m.skipConsequence}</p>
+              <p className="text-sm text-primary leading-relaxed">{m.skipConsequence}</p>
             </section>
           )}
 
@@ -285,7 +285,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
                 type="button"
                 onClick={toggleComplete}
                 disabled={loading}
-                className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50 transition"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition"
               >
                 Mark complete
               </button>
@@ -296,7 +296,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
                 type="button"
                 onClick={toggleComplete}
                 disabled={loading}
-                className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 disabled:opacity-50 transition"
+                className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-background disabled:opacity-50 transition"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Mark incomplete
@@ -308,7 +308,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
                 <button
                   type="button"
                   onClick={() => setShowDeferModal(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-background transition"
                 >
                   <CalendarClock className="h-3.5 w-3.5" />
                   Defer
@@ -316,7 +316,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
                 <button
                   type="button"
                   onClick={() => setShowSkipModal(true)}
-                  className="flex items-center gap-1.5 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-500 hover:bg-slate-50 transition"
+                  className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-background transition"
                 >
                   <SkipForward className="h-3.5 w-3.5" />
                   Skip this task
@@ -329,7 +329,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
                 type="button"
                 onClick={handleUnskip}
                 disabled={loading}
-                className="flex items-center gap-1.5 rounded-lg border border-indigo-300 px-3 py-2 text-sm font-medium text-indigo-600 hover:bg-indigo-50 disabled:opacity-50 transition"
+                className="flex items-center gap-1.5 rounded-lg border border-primary/40 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/8 disabled:opacity-50 transition"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Restore task
@@ -341,7 +341,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
                 type="button"
                 onClick={handleUndefer}
                 disabled={loading}
-                className="flex items-center gap-1.5 rounded-lg border border-amber-300 px-3 py-2 text-sm font-medium text-amber-700 hover:bg-amber-50 disabled:opacity-50 transition"
+                className="flex items-center gap-1.5 rounded-lg border border-primary/45 px-3 py-2 text-sm font-medium text-primary hover:bg-warning/10 disabled:opacity-50 transition"
               >
                 <RotateCcw className="h-3.5 w-3.5" />
                 Move back to active
@@ -351,12 +351,12 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
           {/* Skip reason if already skipped */}
           {m.skipped && m.skipReason && (
-            <p className="text-xs text-slate-500 italic">Reason: {m.skipReason}</p>
+            <p className="text-xs text-muted-foreground italic">Reason: {m.skipReason}</p>
           )}
 
           {m.workspaceType && m.workspaceType !== "NONE" && (
             <section className="pt-2">
-              <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-600">
+              <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
                 <Pencil className="h-3.5 w-3.5" aria-hidden />
                 Your Workspace
               </h4>
@@ -373,15 +373,15 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
       {/* Skip modal */}
       {showSkipModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Skip this task?</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-foreground mb-1">Skip this task?</h3>
             {m.skipConsequence && (
-              <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+              <div className="mb-4 rounded-lg border border-primary/40 bg-warning/10 p-3 text-sm text-primary">
                 <strong>Heads up:</strong> {m.skipConsequence}
               </div>
             )}
-            <p className="text-sm text-slate-600 mb-3">
+            <p className="text-sm text-muted-foreground mb-3">
               You can always restore this task later. What&apos;s your reason for skipping?
             </p>
             <textarea
@@ -389,20 +389,20 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
               onChange={(e) => setSkipReason(e.target.value)}
               placeholder="e.g. Not relevant for my business model, will revisit later…"
               rows={3}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowSkipModal(false)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-background"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleSkip}
-                className="rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700"
+                className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-muted"
               >
                 Skip task
               </button>
@@ -413,13 +413,13 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
       {/* Defer modal */}
       {showDeferModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-            <h3 className="text-lg font-bold text-slate-900 mb-1">Defer this task</h3>
-            <p className="text-sm text-slate-600 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/40 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-card p-6 shadow-xl">
+            <h3 className="text-lg font-bold text-foreground mb-1">Defer this task</h3>
+            <p className="text-sm text-muted-foreground mb-4">
               This task will be moved to your deferred list. Set a date to be reminded when to come back to it.
             </p>
-            <label className="block text-sm font-medium text-slate-700 mb-1">
+            <label className="block text-sm font-medium text-foreground mb-1">
               Come back to this on
             </label>
             <input
@@ -427,20 +427,20 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
               value={deferDate}
               onChange={(e) => setDeferDate(e.target.value)}
               min={new Date().toISOString().slice(0, 10)}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <div className="mt-4 flex justify-end gap-2">
               <button
                 type="button"
                 onClick={() => setShowDeferModal(false)}
-                className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-background"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={handleDefer}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white hover:bg-amber-700"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
               >
                 Defer task
               </button>
@@ -520,14 +520,14 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
   }
 
   return (
-    <section className="rounded-xl border border-amber-500/25 bg-zinc-950/90 p-4 shadow-inner">
-      <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-200/90">
-        <Sparkles className="h-4 w-4 text-amber-400" aria-hidden />
+    <section className="rounded-xl border border-primary/30 bg-background/90 p-4 shadow-inner">
+      <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-primary">
+        <Sparkles className="h-4 w-4 text-primary" aria-hidden />
         Ask Ada About This Task
       </h4>
 
       {loadingHistory ? (
-        <div className="flex items-center gap-2 py-6 text-sm text-zinc-500">
+        <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin" />
           Loading conversation…
         </div>
@@ -535,10 +535,10 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
         <>
           <div
             ref={listRef}
-            className="mb-3 max-h-52 space-y-2 overflow-y-auto rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-3"
+            className="mb-3 max-h-52 space-y-2 overflow-y-auto rounded-lg border border-border/80 bg-card/50 p-3"
           >
             {messages.length === 0 && !thinking && (
-              <p className="text-center text-xs text-zinc-500">Ask Ada anything about this milestone.</p>
+              <p className="text-center text-xs text-muted-foreground">Ask Ada anything about this milestone.</p>
             )}
             {messages.map((msg) => (
               <div
@@ -552,8 +552,8 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
                   className={cn(
                     "max-w-[90%] rounded-lg px-3 py-2 text-sm leading-relaxed",
                     msg.role === "USER"
-                      ? "border border-amber-500/35 bg-amber-500/15 text-amber-50"
-                      : "border border-zinc-700 bg-zinc-800/90 text-zinc-100"
+                      ? "border border-primary/40 bg-primary/15 text-primary-foreground"
+                      : "border border-border bg-muted/90 text-foreground"
                   )}
                 >
                   {msg.content}
@@ -562,7 +562,7 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
             ))}
             {thinking && (
               <div className="flex justify-start">
-                <div className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-2 text-sm italic text-zinc-400">
+                <div className="rounded-lg border border-border bg-muted/80 px-3 py-2 text-sm italic text-muted-foreground">
                   Ada is thinking...
                 </div>
               </div>
@@ -576,14 +576,14 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
                 type="button"
                 disabled={sending}
                 onClick={() => void sendQuestion(q)}
-                className="rounded-full border border-amber-500/25 bg-amber-500/5 px-3 py-1.5 text-xs font-medium text-amber-100/90 hover:bg-amber-500/15 disabled:opacity-50"
+                className="rounded-full border border-primary/30 bg-primary/5 px-3 py-1.5 text-xs font-medium text-primary/90 hover:bg-primary/15 disabled:opacity-50"
               >
                 {q}
               </button>
             ))}
           </div>
 
-          {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+          {error && <p className="mb-2 text-xs text-destructive">{error}</p>}
 
           <div className="flex gap-2">
             <input
@@ -598,13 +598,13 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
               }}
               placeholder="Ask Ada…"
               disabled={sending}
-              className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30 disabled:opacity-50"
+              className="min-w-0 flex-1 rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30 disabled:opacity-50"
             />
             <button
               type="button"
               disabled={sending || !input.trim()}
               onClick={() => void sendQuestion(input)}
-              className="flex shrink-0 items-center justify-center rounded-lg bg-amber-500/90 px-3 py-2 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
+              className="flex shrink-0 items-center justify-center rounded-lg bg-primary px-3 py-2 text-primary-foreground hover:bg-primary/85 disabled:opacity-40"
               aria-label="Send"
             >
               {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}

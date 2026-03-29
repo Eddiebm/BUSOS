@@ -49,9 +49,9 @@ export function MilestoneWorkspace({ milestone: m, ventureId, onUpdate, disabled
   if (type === "NONE") return null;
 
   const shell = (children: ReactNode) => (
-    <div className="rounded-xl border border-amber-500/25 bg-zinc-950/80 p-4 shadow-inner">
+    <div className="rounded-xl border border-primary/30 bg-background/80 p-4 shadow-inner">
       <div className="mb-3 flex min-h-[1.25rem] justify-end">
-        {saving ? <span className="text-xs text-zinc-500">Saving…</span> : null}
+        {saving ? <span className="text-xs text-muted-foreground">Saving…</span> : null}
       </div>
       <div
         className={

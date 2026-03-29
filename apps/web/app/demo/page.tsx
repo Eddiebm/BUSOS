@@ -25,12 +25,12 @@ const EXPERIENCE_OPTIONS = [
 ] as const;
 
 const CATEGORY_RING: Record<string, string> = {
-  VALIDATION: "ring-indigo-300 bg-indigo-50",
-  PRODUCT: "ring-blue-300 bg-blue-50",
-  LEGAL: "ring-amber-300 bg-amber-50",
-  FINANCIAL: "ring-green-300 bg-green-50",
-  GROWTH: "ring-purple-300 bg-purple-50",
-  IP: "ring-rose-300 bg-rose-50",
+  VALIDATION: "ring-ring bg-primary/8",
+  PRODUCT: "ring-info/40 bg-info/10",
+  LEGAL: "ring-primary/40 bg-warning/10",
+  FINANCIAL: "ring-success/40 bg-success/10",
+  GROWTH: "ring-secondary/40 bg-secondary/10",
+  IP: "ring-destructive/40 bg-destructive/8",
 };
 
 export default function DemoPage() {
@@ -83,17 +83,17 @@ export default function DemoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-muted">
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col lg:flex-row">
-        <div className="flex-1 bg-white p-8 md:p-12 lg:max-w-none">
-          <h1 className="text-2xl font-bold text-slate-900">Try BUSOS in 60 seconds</h1>
-          <p className="mt-2 text-slate-600">
+        <div className="flex-1 bg-card p-8 md:p-12 lg:max-w-none">
+          <h1 className="text-2xl font-bold text-foreground">Try BUSOS in 60 seconds</h1>
+          <p className="mt-2 text-muted-foreground">
             No account required. Ada will respond to your real situation.
           </p>
 
           <form onSubmit={onSubmit} className="mt-10 space-y-8">
             <div>
-              <label htmlFor="problem" className="block text-sm font-medium text-slate-800">
+              <label htmlFor="problem" className="block text-sm font-medium text-foreground">
                 What problem are you solving?
               </label>
               <textarea
@@ -102,15 +102,15 @@ export default function DemoPage() {
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
                 placeholder="e.g. Small businesses in Ghana can't access working capital without collateral"
-                className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                className="mt-2 w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
               />
             </div>
 
             <div>
-              <p className="text-sm font-medium text-slate-800">Your resources</p>
+              <p className="text-sm font-medium text-foreground">Your resources</p>
               <div className="mt-3 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="hours" className="block text-xs text-slate-600">
+                  <label htmlFor="hours" className="block text-xs text-muted-foreground">
                     Hours per week
                   </label>
                   <input
@@ -121,18 +121,18 @@ export default function DemoPage() {
                     placeholder="e.g. 15"
                     value={hoursPerWeek}
                     onChange={(e) => setHoursPerWeek(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   />
                 </div>
                 <div>
-                  <label htmlFor="capital" className="block text-xs text-slate-600">
+                  <label htmlFor="capital" className="block text-xs text-muted-foreground">
                     Capital available
                   </label>
                   <select
                     id="capital"
                     value={capitalAvailable}
                     onChange={(e) => setCapitalAvailable(e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+                    className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
                   >
                     {CAPITAL_OPTIONS.map((opt) => (
                       <option key={opt} value={opt}>
@@ -145,12 +145,12 @@ export default function DemoPage() {
             </div>
 
             <fieldset>
-              <legend className="text-sm font-medium text-slate-800">Your experience</legend>
+              <legend className="text-sm font-medium text-foreground">Your experience</legend>
               <div className="mt-3 space-y-2">
                 {EXPERIENCE_OPTIONS.map((opt) => (
                   <label
                     key={opt.value}
-                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm hover:bg-slate-50"
+                    className="flex cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm hover:bg-background"
                   >
                     <input
                       type="radio"
@@ -158,7 +158,7 @@ export default function DemoPage() {
                       value={opt.value}
                       checked={founderExperience === opt.value}
                       onChange={() => setFounderExperience(opt.value)}
-                      className="text-indigo-600 focus:ring-indigo-500"
+                      className="text-primary focus:ring-ring"
                     />
                     {opt.label}
                   </label>
@@ -166,12 +166,12 @@ export default function DemoPage() {
               </div>
             </fieldset>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-destructive">{error}</p>}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-lg bg-indigo-600 py-3 text-center text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60 sm:w-auto sm:px-8"
+              className="w-full rounded-lg bg-primary py-3 text-center text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 disabled:opacity-60 sm:w-auto sm:px-8"
             >
               {loading ? "Ada is thinking…" : "Show me my roadmap →"}
             </button>
@@ -180,12 +180,12 @@ export default function DemoPage() {
 
         <div
           className={cn(
-            "flex-1 border-t border-slate-200 bg-slate-50 p-8 transition-opacity duration-500 md:border-t-0 md:border-l lg:max-w-none",
+            "flex-1 border-t border-border bg-background p-8 transition-opacity duration-500 md:border-t-0 md:border-l lg:max-w-none",
             showOutput ? "opacity-100" : "opacity-40"
           )}
         >
           {!showOutput && !loading && (
-            <div className="flex h-full min-h-[240px] flex-col items-center justify-center text-center text-slate-500">
+            <div className="flex h-full min-h-[240px] flex-col items-center justify-center text-center text-muted-foreground">
               <p className="max-w-sm text-sm">
                 Submit the form to see Ada&apos;s assessment and your first seven milestones.
               </p>
@@ -194,11 +194,11 @@ export default function DemoPage() {
 
           {loading && (
             <div className="space-y-4 py-4">
-              <p className="text-sm font-medium text-slate-600">Ada is thinking…</p>
+              <p className="text-sm font-medium text-muted-foreground">Ada is thinking…</p>
               <div className="space-y-2">
-                <div className="h-3 w-full animate-pulse rounded bg-slate-200" />
-                <div className="h-3 w-[80%] animate-pulse rounded bg-slate-200" />
-                <div className="h-3 w-[60%] animate-pulse rounded bg-slate-200" />
+                <div className="h-3 w-full animate-pulse rounded bg-muted" />
+                <div className="h-3 w-[80%] animate-pulse rounded bg-muted" />
+                <div className="h-3 w-[60%] animate-pulse rounded bg-muted" />
               </div>
             </div>
           )}
@@ -206,29 +206,29 @@ export default function DemoPage() {
           {showOutput && adaResponse && !loading && (
             <div className="space-y-10">
               <section>
-                <h2 className="text-lg font-bold text-slate-900">Ada&apos;s Assessment</h2>
-                <p className="mt-3 text-sm leading-relaxed text-slate-700">{adaResponse}</p>
+                <h2 className="text-lg font-bold text-foreground">Ada&apos;s Assessment</h2>
+                <p className="mt-3 text-sm leading-relaxed text-foreground">{adaResponse}</p>
               </section>
 
               <section>
-                <h2 className="text-lg font-bold text-slate-900">Your First Steps</h2>
+                <h2 className="text-lg font-bold text-foreground">Your First Steps</h2>
                 <ul className="mt-4 space-y-3">
                   {milestones.map((m) => {
                     const cat = (m.category || "VALIDATION").toUpperCase();
-                    const ring = CATEGORY_RING[cat] ?? "ring-slate-300 bg-slate-50";
+                    const ring = CATEGORY_RING[cat] ?? "ring-border bg-background";
                     return (
                       <li
                         key={m.step}
                         className={cn(
-                          "rounded-xl border border-slate-200 p-4 ring-1",
+                          "rounded-xl border border-border p-4 ring-1",
                           ring
                         )}
                       >
-                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                           Step {m.step} · {cat}
                         </p>
-                        <p className="mt-1 font-semibold text-slate-900">{m.title}</p>
-                        <p className="mt-1 text-sm text-slate-600">{m.description}</p>
+                        <p className="mt-1 font-semibold text-foreground">{m.title}</p>
+                        <p className="mt-1 text-sm text-muted-foreground">{m.description}</p>
                       </li>
                     );
                   })}
@@ -238,7 +238,7 @@ export default function DemoPage() {
               <div>
                 <Link
                   href="/sign-up"
-                  className="inline-flex w-full justify-center rounded-lg bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 sm:w-auto"
+                  className="inline-flex w-full justify-center rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-primary/90 sm:w-auto"
                 >
                   Start your full journey — free
                 </Link>

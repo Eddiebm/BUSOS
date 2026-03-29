@@ -187,19 +187,19 @@ export default function CrmPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-amber-500/90 hover:text-amber-400">
+        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-primary/90 hover:text-primary">
           ← Dashboard
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-zinc-50">CRM</h1>
-        <p className="text-sm text-zinc-400">Sales pipeline and contacts</p>
+        <h1 className="mt-2 text-2xl font-bold text-foreground">CRM</h1>
+        <p className="text-sm text-muted-foreground">Sales pipeline and contacts</p>
       </div>
 
-      <div className="flex gap-2 border-b border-zinc-800 pb-2">
+      <div className="flex gap-2 border-b border-border pb-2">
         <button
           type="button"
           onClick={() => setTab("board")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-            tab === "board" ? "bg-amber-500/20 text-amber-100" : "text-zinc-400 hover:bg-zinc-800"
+            tab === "board" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-muted"
           }`}
         >
           Kanban
@@ -208,7 +208,7 @@ export default function CrmPage() {
           type="button"
           onClick={() => setTab("contacts")}
           className={`rounded-lg px-3 py-1.5 text-sm font-medium ${
-            tab === "contacts" ? "bg-amber-500/20 text-amber-100" : "text-zinc-400 hover:bg-zinc-800"
+            tab === "contacts" ? "bg-primary/20 text-primary" : "text-muted-foreground hover:bg-muted"
           }`}
         >
           Contacts
@@ -220,11 +220,11 @@ export default function CrmPage() {
           {SALES_STAGES.map((stage) => (
             <div
               key={stage}
-              className="min-w-[220px] flex-1 rounded-xl border border-zinc-800 bg-zinc-900/50 p-2"
+              className="min-w-[220px] flex-1 rounded-xl border border-border bg-card/50 p-2"
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => onDropColumn(stage)}
             >
-              <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-zinc-500">
+              <p className="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 {STAGE_LABEL[stage] ?? stage}
               </p>
               <div className="space-y-2">
@@ -238,13 +238,13 @@ export default function CrmPage() {
                       onDragStart={() => setDragId(d.id)}
                       onDragEnd={() => setDragId(null)}
                       onClick={() => setSelectedId(d.id)}
-                      className="w-full rounded-lg border border-zinc-700/80 bg-zinc-950 p-3 text-left text-sm hover:border-amber-500/40"
+                      className="w-full rounded-lg border border-border/80 bg-background p-3 text-left text-sm hover:border-primary/45"
                     >
-                      <p className="font-medium text-zinc-100">{d.name}</p>
-                      <p className="text-xs text-zinc-500">
+                      <p className="font-medium text-foreground">{d.name}</p>
+                      <p className="text-xs text-muted-foreground">
                         {new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(d.value)}
                       </p>
-                      {d.contact && <p className="mt-1 text-xs text-amber-200/70">{d.contact.name}</p>}
+                      {d.contact && <p className="mt-1 text-xs text-primary/70">{d.contact.name}</p>}
                     </button>
                   ))}
               </div>
@@ -254,10 +254,10 @@ export default function CrmPage() {
       )}
 
       {tab === "contacts" && (
-        <div className="overflow-x-auto rounded-xl border border-zinc-800">
+        <div className="overflow-x-auto rounded-xl border border-border">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-500">
+              <tr className="border-b border-border bg-card/80 text-muted-foreground">
                 <th className="p-3">Name</th>
                 <th className="p-3">Email</th>
                 <th className="p-3">Company</th>
@@ -267,7 +267,7 @@ export default function CrmPage() {
             </thead>
             <tbody>
               {contacts.map((c) => (
-                <tr key={c.id} className="border-b border-zinc-800/80 text-zinc-300">
+                <tr key={c.id} className="border-b border-border/80 text-muted-foreground">
                   <td className="p-3">{c.name}</td>
                   <td className="p-3">{c.email}</td>
                   <td className="p-3">{c.company ?? "—"}</td>
@@ -276,7 +276,7 @@ export default function CrmPage() {
                     <button
                       type="button"
                       onClick={() => deleteContact(c.id)}
-                      className="text-xs text-red-400 hover:text-red-300"
+                      className="text-xs text-destructive hover:text-destructive/80"
                     >
                       Delete
                     </button>
@@ -289,13 +289,13 @@ export default function CrmPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <form onSubmit={addContact} className="rounded-xl border border-amber-500/15 bg-zinc-900/60 p-4 space-y-3">
-          <h2 className="font-semibold text-zinc-100">New contact</h2>
+        <form onSubmit={addContact} className="rounded-xl border border-primary/15 bg-card/60 p-4 space-y-3">
+          <h2 className="font-semibold text-foreground">New contact</h2>
           <input
             placeholder="Name"
             value={contactForm.name}
             onChange={(e) => setContactForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             required
           />
           <input
@@ -303,36 +303,36 @@ export default function CrmPage() {
             type="email"
             value={contactForm.email}
             onChange={(e) => setContactForm((f) => ({ ...f, email: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             required
           />
           <input
             placeholder="Company"
             value={contactForm.company}
             onChange={(e) => setContactForm((f) => ({ ...f, company: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
           <input
             placeholder="Role"
             value={contactForm.role}
             onChange={(e) => setContactForm((f) => ({ ...f, role: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
           <button
             type="submit"
-            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             Add contact
           </button>
         </form>
 
-        <form onSubmit={addDeal} className="rounded-xl border border-amber-500/15 bg-zinc-900/60 p-4 space-y-3">
-          <h2 className="font-semibold text-zinc-100">New deal</h2>
+        <form onSubmit={addDeal} className="rounded-xl border border-primary/15 bg-card/60 p-4 space-y-3">
+          <h2 className="font-semibold text-foreground">New deal</h2>
           <input
             placeholder="Deal name"
             value={dealForm.name}
             onChange={(e) => setDealForm((f) => ({ ...f, name: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             required
           />
           <input
@@ -341,12 +341,12 @@ export default function CrmPage() {
             min={0}
             value={dealForm.value}
             onChange={(e) => setDealForm((f) => ({ ...f, value: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
           <select
             value={dealForm.contactId}
             onChange={(e) => setDealForm((f) => ({ ...f, contactId: e.target.value }))}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
           >
             <option value="">No contact</option>
             {contacts.map((c) => (
@@ -357,7 +357,7 @@ export default function CrmPage() {
           </select>
           <button
             type="submit"
-            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
           >
             Create deal
           </button>
@@ -365,16 +365,16 @@ export default function CrmPage() {
       </div>
 
       {selected && (
-        <div className="rounded-xl border border-amber-500/25 bg-zinc-900/80 p-6">
+        <div className="rounded-xl border border-primary/30 bg-card/80 p-6">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h2 className="text-xl font-semibold text-zinc-50">{selected.name}</h2>
-              <p className="text-sm text-zinc-400">
+              <h2 className="text-xl font-semibold text-foreground">{selected.name}</h2>
+              <p className="text-sm text-muted-foreground">
                 {new Intl.NumberFormat(undefined, { style: "currency", currency: "USD" }).format(selected.value)} ·{" "}
                 {STAGE_LABEL[selected.stage] ?? selected.stage}
               </p>
               {selected.contact && (
-                <p className="mt-2 text-sm text-zinc-300">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Contact: {selected.contact.name} ({selected.contact.email})
                   {selected.contact.company && ` · ${selected.contact.company}`}
                 </p>
@@ -383,23 +383,23 @@ export default function CrmPage() {
             <button
               type="button"
               onClick={() => setSelectedId(null)}
-              className="text-sm text-zinc-500 hover:text-zinc-300"
+              className="text-sm text-muted-foreground hover:text-muted-foreground"
             >
               Close
             </button>
           </div>
 
-          <div className="mt-6 border-t border-zinc-800 pt-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-200/80">Interactions</h3>
-            <ul className="mt-2 space-y-2 text-sm text-zinc-400">
+          <div className="mt-6 border-t border-border pt-4">
+            <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">Interactions</h3>
+            <ul className="mt-2 space-y-2 text-sm text-muted-foreground">
               {(selected.interactions ?? []).map((i) => (
-                <li key={i.id} className="border-b border-zinc-800/60 pb-2">
-                  <span className="text-zinc-200">{i.type}</span> ·{" "}
+                <li key={i.id} className="border-b border-border/60 pb-2">
+                  <span className="text-foreground">{i.type}</span> ·{" "}
                   {viewerTz ? formatUserDateTime(i.date, viewerTz) : i.date}
-                  <p className="mt-1 whitespace-pre-wrap text-zinc-400">{i.notes}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-muted-foreground">{i.notes}</p>
                 </li>
               ))}
-              {(selected.interactions ?? []).length === 0 && <li className="text-zinc-600">No interactions yet.</li>}
+              {(selected.interactions ?? []).length === 0 && <li className="text-muted-foreground">No interactions yet.</li>}
             </ul>
           </div>
 
@@ -409,7 +409,7 @@ export default function CrmPage() {
               onChange={(e) =>
                 setInteractionForm((f) => ({ ...f, type: e.target.value as CrmInteractionType }))
               }
-              className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
             >
               <option value="EMAIL">Email</option>
               <option value="CALL">Call</option>
@@ -419,18 +419,18 @@ export default function CrmPage() {
               type="date"
               value={interactionForm.date}
               onChange={(e) => setInteractionForm((f) => ({ ...f, date: e.target.value }))}
-              className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+              className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
             />
             <input
               placeholder="Notes"
               value={interactionForm.notes}
               onChange={(e) => setInteractionForm((f) => ({ ...f, notes: e.target.value }))}
-              className="sm:col-span-2 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+              className="sm:col-span-2 rounded-lg border border-border bg-background px-3 py-2 text-sm"
               required
             />
             <button
               type="submit"
-              className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950 sm:col-span-4"
+              className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground sm:col-span-4"
             >
               Log interaction
             </button>

@@ -185,33 +185,33 @@ export default function DreamIntakePage() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center bg-slate-50 text-slate-600">
+      <div className="flex min-h-[60vh] items-center justify-center bg-background text-muted-foreground">
         Loading…
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-10">
+    <div className="min-h-screen bg-background px-4 py-10">
       <div className="mx-auto max-w-[680px]">
         <div className="mb-8">
-          <div className="mb-2 flex h-2 overflow-hidden rounded-full bg-slate-200">
+          <div className="mb-2 flex h-2 overflow-hidden rounded-full bg-muted">
             {Array.from({ length: STEPS }).map((_, i) => (
               <div
                 key={i}
                 className={cn(
                   "h-full flex-1 border-r border-white last:border-0 transition-colors",
-                  i <= step ? "bg-indigo-600" : "bg-transparent"
+                  i <= step ? "bg-primary" : "bg-transparent"
                 )}
               />
             ))}
           </div>
-          <p className="text-center text-sm text-slate-600">
+          <p className="text-center text-sm text-muted-foreground">
             Step {step + 1} of {STEPS}
           </p>
         </div>
 
-        <h1 className="mb-2 text-center text-2xl font-bold text-slate-900">
+        <h1 className="mb-2 text-center text-2xl font-bold text-foreground">
           {hasExisting ? "Update your founding story" : "Tell Ada your dream"}
         </h1>
 
@@ -236,7 +236,7 @@ export default function DreamIntakePage() {
         </div>
 
         {error && (
-          <p className="mt-4 text-center text-sm text-red-600" role="alert">
+          <p className="mt-4 text-center text-sm text-destructive" role="alert">
             {error}
           </p>
         )}
@@ -247,14 +247,14 @@ export default function DreamIntakePage() {
               <button
                 type="button"
                 onClick={goBack}
-                className="rounded-lg px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200/80"
+                className="rounded-lg px-4 py-2 text-sm font-medium text-foreground hover:bg-muted/80"
               >
                 Back
               </button>
             ) : (
               <Link
                 href={`/ventures/${ventureId}/journey`}
-                className="text-sm text-slate-500 hover:text-slate-800"
+                className="text-sm text-muted-foreground hover:text-foreground"
               >
                 Skip for now
               </Link>
@@ -266,7 +266,7 @@ export default function DreamIntakePage() {
                 type="button"
                 onClick={goNext}
                 disabled={!canNext()}
-                className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 Continue
               </button>
@@ -275,7 +275,7 @@ export default function DreamIntakePage() {
                 type="button"
                 onClick={submit}
                 disabled={submitting || !canNext()}
-                className="rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 disabled:opacity-50"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
               >
                 {submitting ? "Saving…" : "Start My Journey →"}
               </button>
@@ -299,8 +299,8 @@ function StepDream({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">What does the world look like if you win?</h2>
-        <p className="mt-2 text-slate-600">
+        <h2 className="text-2xl font-bold text-foreground">What does the world look like if you win?</h2>
+        <p className="mt-2 text-muted-foreground">
           Don&apos;t describe your product. Describe the world after your product exists and succeeds.
         </p>
         <label htmlFor="dream" className="sr-only">
@@ -312,7 +312,7 @@ function StepDream({
             value={form.dreamStatement}
             onChange={(e) => update("dreamStatement", e.target.value)}
             rows={6}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
             placeholder="Paint the picture…"
           />
           <VoiceInputButton
@@ -322,7 +322,7 @@ function StepDream({
         </div>
       </div>
       <div>
-        <p className="text-slate-700">
+        <p className="text-foreground">
           What specific problem are you solving, and who feels it most painfully?
         </p>
         <label htmlFor="problem" className="sr-only">
@@ -334,7 +334,7 @@ function StepDream({
             value={form.problemStatement}
             onChange={(e) => update("problemStatement", e.target.value)}
             rows={5}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("problemStatement", text)}
@@ -343,7 +343,7 @@ function StepDream({
         </div>
       </div>
       <div>
-        <p className="text-slate-700">Who exactly is your target customer? Be as specific as possible.</p>
+        <p className="text-foreground">Who exactly is your target customer? Be as specific as possible.</p>
         <label htmlFor="target" className="sr-only">
           Target customer
         </label>
@@ -353,7 +353,7 @@ function StepDream({
             value={form.targetCustomer}
             onChange={(e) => update("targetCustomer", e.target.value)}
             rows={4}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("targetCustomer", text)}
@@ -377,8 +377,8 @@ function StepOpportunity({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Why is now the right time?</h2>
-        <p className="mt-2 text-slate-600">
+        <h2 className="text-2xl font-bold text-foreground">Why is now the right time?</h2>
+        <p className="mt-2 text-muted-foreground">
           What changed in the world — technology, regulation, behavior, cost — that makes this possible
           today when it wasn&apos;t 5 years ago?
         </p>
@@ -387,7 +387,7 @@ function StepOpportunity({
             value={form.whyNow}
             onChange={(e) => update("whyNow", e.target.value)}
             rows={5}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("whyNow", text)}
@@ -396,7 +396,7 @@ function StepOpportunity({
         </div>
       </div>
       <div>
-        <label htmlFor="market" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="market" className="block text-sm font-medium text-foreground">
           How big is the market opportunity?
         </label>
         <div className="relative mt-1">
@@ -406,7 +406,7 @@ function StepOpportunity({
             onChange={(e) => update("marketSize", e.target.value)}
             rows={3}
             placeholder="e.g. $2B TAM in the US"
-            className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-3 pl-4 pr-14 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("marketSize", text)}
@@ -415,7 +415,7 @@ function StepOpportunity({
         </div>
       </div>
       <div>
-        <label htmlFor="vertical" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="vertical" className="block text-sm font-medium text-foreground">
           What industry or vertical?
         </label>
         <div className="relative mt-1">
@@ -425,7 +425,7 @@ function StepOpportunity({
             onChange={(e) => update("industryVertical", e.target.value)}
             rows={3}
             placeholder="e.g. fintech, healthtech, edtech, logistics"
-            className="block w-full rounded-xl border border-slate-200 bg-white py-3 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-3 pl-4 pr-14 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("industryVertical", text)}
@@ -449,8 +449,8 @@ function StepWhy({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Why are YOU the one to build this?</h2>
-        <p className="mt-2 text-slate-600">
+        <h2 className="text-2xl font-bold text-foreground">Why are YOU the one to build this?</h2>
+        <p className="mt-2 text-muted-foreground">
           The most important question any investor — or co-founder — will ask you.
         </p>
         <div className="relative mt-4">
@@ -458,7 +458,7 @@ function StepWhy({
             value={form.founderWhy}
             onChange={(e) => update("founderWhy", e.target.value)}
             rows={6}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("founderWhy", text)}
@@ -467,10 +467,10 @@ function StepWhy({
         </div>
       </div>
       <div>
-        <label htmlFor="unfair" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="unfair" className="block text-sm font-medium text-foreground">
           What&apos;s your unfair advantage?
         </label>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-muted-foreground">
           Domain expertise, network, proprietary data, lived experience — what do you have that a
           well-funded competitor can&apos;t easily replicate?
         </p>
@@ -480,7 +480,7 @@ function StepWhy({
             value={form.unfairAdvantage}
             onChange={(e) => update("unfairAdvantage", e.target.value)}
             rows={4}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("unfairAdvantage", text)}
@@ -509,13 +509,13 @@ function StepAbout({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Tell Ada about yourself</h2>
-        <p className="mt-2 text-slate-600">
+        <h2 className="text-2xl font-bold text-foreground">Tell Ada about yourself</h2>
+        <p className="mt-2 text-muted-foreground">
           Ada uses this to calibrate every piece of advice to your actual situation.
         </p>
       </div>
       <div>
-        <label htmlFor="bg" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="bg" className="block text-sm font-medium text-foreground">
           Your background & experience
         </label>
         <div className="relative mt-1">
@@ -525,7 +525,7 @@ function StepAbout({
             onChange={(e) => update("founderBackground", e.target.value)}
             placeholder="e.g. 10 years in banking, built 2 startups before, deep network in healthcare"
             rows={4}
-            className="block w-full rounded-xl border border-slate-200 bg-white py-4 pl-4 pr-14 text-slate-900 shadow-sm placeholder:text-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            className="block w-full rounded-xl border border-border bg-card py-4 pl-4 pr-14 text-foreground shadow-sm placeholder:text-muted-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
           />
           <VoiceInputButton
             onTranscript={(text) => appendField("founderBackground", text)}
@@ -534,23 +534,23 @@ function StepAbout({
         </div>
       </div>
       <fieldset className="space-y-3">
-        <legend className="text-sm font-medium text-slate-700">Founder experience level</legend>
+        <legend className="text-sm font-medium text-foreground">Founder experience level</legend>
         {levels.map((l) => (
-          <label key={l.value} className="flex cursor-pointer gap-3 rounded-xl border border-slate-200 bg-white p-3 hover:bg-slate-50">
+          <label key={l.value} className="flex cursor-pointer gap-3 rounded-xl border border-border bg-card p-3 hover:bg-background">
             <input
               type="radio"
               name="founderExperience"
               value={l.value}
               checked={form.founderExperience === l.value}
               onChange={() => update("founderExperience", l.value)}
-              className="mt-1 text-indigo-600"
+              className="mt-1 text-primary"
             />
-            <span className="text-sm text-slate-800">{l.label}</span>
+            <span className="text-sm text-foreground">{l.label}</span>
           </label>
         ))}
       </fieldset>
       <div>
-        <label htmlFor="cofounders" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="cofounders" className="block text-sm font-medium text-foreground">
           Co-founders
         </label>
         <input
@@ -559,11 +559,11 @@ function StepAbout({
           value={form.coFounders}
           onChange={(e) => update("coFounders", e.target.value)}
           placeholder="e.g. Jane Smith (CTO), John Doe (CMO) — or leave blank if solo"
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
       </div>
       <div>
-        <label htmlFor="loc" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="loc" className="block text-sm font-medium text-foreground">
           Location
         </label>
         <input
@@ -572,7 +572,7 @@ function StepAbout({
           value={form.location}
           onChange={(e) => update("location", e.target.value)}
           placeholder="e.g. Lagos, Nigeria"
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
       </div>
     </div>
@@ -589,13 +589,13 @@ function StepResources({
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900">Let&apos;s be real about your resources</h2>
-        <p className="mt-2 text-slate-600">
+        <h2 className="text-2xl font-bold text-foreground">Let&apos;s be real about your resources</h2>
+        <p className="mt-2 text-muted-foreground">
           Ada won&apos;t give you advice that ignores your constraints.
         </p>
       </div>
       <div>
-        <label htmlFor="hours" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="hours" className="block text-sm font-medium text-foreground">
           Hours per week you can dedicate to this venture
         </label>
         <input
@@ -605,18 +605,18 @@ function StepResources({
           max={168}
           value={form.hoursPerWeek}
           onChange={(e) => update("hoursPerWeek", e.target.value)}
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
       </div>
       <div>
-        <label htmlFor="capital" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="capital" className="block text-sm font-medium text-foreground">
           Capital available
         </label>
         <select
           id="capital"
           value={form.capitalAvailable}
           onChange={(e) => update("capitalAvailable", e.target.value as CapitalOption)}
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         >
           <option value="">Select…</option>
           <option value="bootstrapped">Bootstrapped — using personal savings</option>
@@ -626,7 +626,7 @@ function StepResources({
         </select>
       </div>
       <div>
-        <label htmlFor="team" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="team" className="block text-sm font-medium text-foreground">
           Team size (including you)
         </label>
         <input
@@ -635,34 +635,34 @@ function StepResources({
           min={1}
           value={form.teamSize}
           onChange={(e) => update("teamSize", e.target.value)}
-          className="mt-1 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+          className="mt-1 w-full rounded-xl border border-border bg-card px-4 py-3 text-foreground shadow-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-ring/30"
         />
       </div>
-      <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
         <input
           id="patent"
           type="checkbox"
           checked={form.hasPatentableIP}
           onChange={(e) => update("hasPatentableIP", e.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-ring"
         />
-        <label htmlFor="patent" className="text-sm text-slate-800">
+        <label htmlFor="patent" className="text-sm text-foreground">
           Does your venture involve patentable technology or processes?
         </label>
       </div>
-      <div className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
         <input
           id="tm"
           type="checkbox"
           checked={form.hasTrademarkNeeds}
           onChange={(e) => update("hasTrademarkNeeds", e.target.checked)}
-          className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+          className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-ring"
         />
-        <label htmlFor="tm" className="text-sm text-slate-800">
+        <label htmlFor="tm" className="text-sm text-foreground">
           Does your venture need trademark protection?
         </label>
       </div>
-      <p className="text-sm text-slate-500">
+      <p className="text-sm text-muted-foreground">
         Ada will automatically schedule IP filings and legal steps in your Journey Roadmap based on your
         answers.
       </p>

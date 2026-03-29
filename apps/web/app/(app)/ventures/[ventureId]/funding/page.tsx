@@ -152,17 +152,17 @@ export default function FundingHubPage() {
   return (
     <div className="mx-auto max-w-4xl pb-20">
       <div className="mb-8">
-        <div className="mb-2 flex items-center gap-2 text-amber-700">
+        <div className="mb-2 flex items-center gap-2 text-primary">
           <Banknote className="h-7 w-7" aria-hidden />
           <span className="text-sm font-semibold uppercase tracking-wide">Capital</span>
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-slate-900">Funding Hub</h1>
-        <p className="mt-3 max-w-2xl text-slate-600">
-          Each path below explains tradeoffs and includes <strong className="font-medium text-slate-800">how Ada helps</strong> for
+        <h1 className="text-3xl font-bold tracking-tight text-foreground">Funding Hub</h1>
+        <p className="mt-3 max-w-2xl text-muted-foreground">
+          Each path below explains tradeoffs and includes <strong className="font-medium text-foreground">how Ada helps</strong> for
           that strategy. Ada recommends investor matches from a 50+ entry directory (local → international),
-          and can generate a <strong className="font-medium text-slate-800">12-slide pitch deck</strong> from your Venture DNA into
+          and can generate a <strong className="font-medium text-foreground">12-slide pitch deck</strong> from your Venture DNA into
           Documents for{" "}
-          <span className="font-medium text-slate-800">{ventureName ?? "this venture"}</span>.
+          <span className="font-medium text-foreground">{ventureName ?? "this venture"}</span>.
         </p>
 
         <div className="mt-6 flex flex-wrap gap-3">
@@ -173,7 +173,7 @@ export default function FundingHubPage() {
               void findInvestors();
             }}
             disabled={investorsLoading}
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md transition hover:from-amber-600 hover:to-amber-700 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md transition hover:from-primary/90 hover:to-primary/85 disabled:opacity-60"
           >
             <Sparkles className="h-4 w-4" aria-hidden />
             {investorsLoading ? "Ada is matching…" : "Find investors — Ada picks best fit"}
@@ -182,20 +182,20 @@ export default function FundingHubPage() {
             type="button"
             onClick={generatePitchDeck}
             disabled={pitchLoading}
-            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-800 shadow-sm hover:bg-slate-50 disabled:opacity-60"
+            className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground shadow-sm hover:bg-background disabled:opacity-60"
           >
             <TrendingUp className="h-4 w-4" aria-hidden />
             {pitchLoading ? "Generating…" : "Generate 12-slide pitch deck"}
           </button>
           <Link
             href={`/ventures/${ventureId}/documents`}
-            className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-blue-700 hover:underline"
+            className="inline-flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium text-info hover:underline"
           >
             Open Documents
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-muted-foreground">
           Pitch decks are generated from Venture DNA + venture metrics as a 12-slide markdown deck in
           Documents. Investor picks are educational — verify fund status and geography yourself.
         </p>
@@ -203,7 +203,7 @@ export default function FundingHubPage() {
 
       {/* Tab bar */}
       <div
-        className="mb-8 flex gap-1 rounded-xl border border-slate-200 bg-slate-100/80 p-1"
+        className="mb-8 flex gap-1 rounded-xl border border-border bg-muted/80 p-1"
         role="tablist"
         aria-label="Funding types"
       >
@@ -217,12 +217,12 @@ export default function FundingHubPage() {
             className={cn(
               "flex-1 rounded-lg px-3 py-3 text-center text-sm font-semibold transition",
               tab === t.id
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
+                ? "bg-card text-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
             <span className="block">{t.label}</span>
-            <span className="mt-0.5 block text-xs font-normal text-slate-500">{t.short}</span>
+            <span className="mt-0.5 block text-xs font-normal text-muted-foreground">{t.short}</span>
           </button>
         ))}
       </div>
@@ -247,9 +247,9 @@ function BootstrapPanel() {
   return (
     <div className="space-y-10">
       <section>
-        <h2 className="text-xl font-bold text-slate-900">The Path of Control</h2>
-        <p className="mt-3 leading-relaxed text-slate-600">
-          <strong className="text-slate-800">Bootstrapping</strong> means growing your company with your own
+        <h2 className="text-xl font-bold text-foreground">The Path of Control</h2>
+        <p className="mt-3 leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">Bootstrapping</strong> means growing your company with your own
           savings, early customer revenue, and reinvested profits — without bringing in outside equity
           investors. You trade dilution and board dynamics for speed of decision-making and ownership.
         </p>
@@ -258,12 +258,12 @@ function BootstrapPanel() {
       <HowAdaHelps path="bootstrap" />
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50/80 p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-emerald-900">
+        <div className="rounded-2xl border border-success/35 bg-success/10/80 p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-success">
             <TrendingUp className="h-5 w-5" aria-hidden />
             Pros
           </h3>
-          <ul className="mt-4 space-y-3 text-sm text-emerald-950/90">
+          <ul className="mt-4 space-y-3 text-sm text-success/90">
             <li>
               <strong>100% ownership</strong> — no equity given away to outsiders.
             </li>
@@ -276,12 +276,12 @@ function BootstrapPanel() {
             </li>
           </ul>
         </div>
-        <div className="rounded-2xl border border-rose-200 bg-rose-50/80 p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-rose-900">
+        <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-destructive">
             <Building2 className="h-5 w-5" aria-hidden />
             Cons
           </h3>
-          <ul className="mt-4 space-y-3 text-sm text-rose-950/90">
+          <ul className="mt-4 space-y-3 text-sm text-destructive/90">
             <li>
               <strong>Slower growth</strong> — less fuel for hiring and marketing vs. a funded peer.
             </li>
@@ -297,12 +297,12 @@ function BootstrapPanel() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-6">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-indigo-900">
-          <Sparkles className="h-5 w-5 text-indigo-600" aria-hidden />
+      <section className="rounded-2xl border border-primary/35 bg-primary/8/60 p-6">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <Sparkles className="h-5 w-5 text-primary" aria-hidden />
           Ada&apos;s advice · cash flow &amp; when to switch
         </h3>
-        <ul className="mt-4 list-inside list-disc space-y-2 text-sm leading-relaxed text-indigo-950/90">
+        <ul className="mt-4 list-inside list-disc space-y-2 text-sm leading-relaxed text-foreground/90">
           <li>
             <strong>Cash flow first</strong> — track runway weekly; defer non-essential spend until
             revenue repeats.
@@ -343,9 +343,9 @@ function VentureCapitalPanel({
   return (
     <div className="space-y-10">
       <section>
-        <h2 className="text-xl font-bold text-slate-900">The Path of Speed</h2>
-        <p className="mt-3 leading-relaxed text-slate-600">
-          <strong className="text-slate-800">Venture capital</strong> means trading minority ownership for
+        <h2 className="text-xl font-bold text-foreground">The Path of Speed</h2>
+        <p className="mt-3 leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">Venture capital</strong> means trading minority ownership for
           institutional capital to grow faster than organic cash flow would allow. Investors expect
           outsized returns and usually board rights; in exchange you get capital, networks, and pressure
           to scale.
@@ -355,8 +355,8 @@ function VentureCapitalPanel({
       <HowAdaHelps path="vc" />
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">Stage timeline</h3>
-        <p className="mt-1 text-xs text-slate-500">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Stage timeline</h3>
+        <p className="mt-1 text-xs text-muted-foreground">
           Typical ranges are illustrative; actual rounds vary widely by sector and year.
         </p>
         <div className="mt-4 overflow-x-auto pb-2">
@@ -368,8 +368,8 @@ function VentureCapitalPanel({
               >
                 <span className="text-xs font-medium text-violet-600">Step {i + 1}</span>
                 <span className="mt-1 font-bold text-violet-950">{s.name}</span>
-                <span className="mt-2 text-sm font-semibold text-slate-800">{s.size}</span>
-                <p className="mt-2 text-xs leading-snug text-slate-600">{s.expect}</p>
+                <span className="mt-2 text-sm font-semibold text-foreground">{s.size}</span>
+                <p className="mt-2 text-xs leading-snug text-muted-foreground">{s.expect}</p>
               </div>
             ))}
           </div>
@@ -377,38 +377,38 @@ function VentureCapitalPanel({
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           From first meeting to close
         </h3>
         <ol className="mt-4 space-y-3">
           {VC_PROCESS.map((step, i) => (
             <li
               key={step}
-              className="flex gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+              className="flex gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
             >
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-bold text-white">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-foreground text-sm font-bold text-background">
                 {i + 1}
               </span>
-              <p className="text-sm leading-relaxed text-slate-700">{step}</p>
+              <p className="text-sm leading-relaxed text-foreground">{step}</p>
             </li>
           ))}
         </ol>
       </section>
 
-      <section className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/80 p-6">
-        <h3 className="text-lg font-bold text-amber-950">AI investor matching</h3>
-        <p className="mt-2 text-sm text-amber-950/80">
-          50+ investors and programs with <strong className="font-semibold text-amber-950">Local</strong>,{" "}
-          <strong className="font-semibold text-amber-950">Regional</strong>,{" "}
-          <strong className="font-semibold text-amber-950">National</strong>, and{" "}
-          <strong className="font-semibold text-amber-950">International</strong> reach — Ada recommends the best
+      <section className="rounded-2xl border border-primary/40 bg-gradient-to-br from-primary/10 to-primary/15 p-6">
+        <h3 className="text-lg font-bold text-foreground">AI investor matching</h3>
+        <p className="mt-2 text-sm text-foreground/80">
+          50+ investors and programs with <strong className="font-semibold text-foreground">Local</strong>,{" "}
+          <strong className="font-semibold text-foreground">Regional</strong>,{" "}
+          <strong className="font-semibold text-foreground">National</strong>, and{" "}
+          <strong className="font-semibold text-foreground">International</strong> reach — Ada recommends the best
           fit for your venture using stage, stress mode, and Venture DNA.
         </p>
         <button
           type="button"
           onClick={onFindInvestors}
           disabled={investorsLoading}
-          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:from-amber-600 hover:to-amber-700 disabled:opacity-60 sm:w-auto"
+          className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary px-6 py-3 text-base font-semibold text-primary-foreground shadow-lg transition hover:from-primary/90 hover:to-primary/85 disabled:opacity-60 sm:w-auto"
         >
           <Sparkles className="h-5 w-5" aria-hidden />
           {investorsLoading ? "Ada is finding matches…" : "Find investors for my venture"}
@@ -417,31 +417,31 @@ function VentureCapitalPanel({
       </section>
 
       {investorsError && (
-        <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900">
+        <div className="rounded-xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
           {investorsError}
         </div>
       )}
 
       {matchSummary && (
-        <div className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          <strong className="text-slate-900">Ada:</strong> {matchSummary}
+        <div className="rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground">
+          <strong className="text-foreground">Ada:</strong> {matchSummary}
         </div>
       )}
 
       {investors.length > 0 && (
         <section>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Ada&apos;s top picks for your venture
           </h3>
           <ul className="mt-4 space-y-3">
             {investors.map((inv) => (
               <li
                 key={`${inv.name}-${inv.website}`}
-                className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+                className="rounded-xl border border-border bg-card p-4 shadow-sm"
               >
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div>
-                    <span className="font-semibold text-slate-900">{inv.name}</span>
+                    <span className="font-semibold text-foreground">{inv.name}</span>
                     <div className="mt-1 flex flex-wrap gap-2">
                       <Tag>{inv.type}</Tag>
                       <Tag>{inv.location}</Tag>
@@ -452,18 +452,18 @@ function VentureCapitalPanel({
                     href={inv.website}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-blue-700 hover:underline"
+                    className="text-sm font-medium text-info hover:underline"
                   >
                     Website
                   </a>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">{inv.thesis}</p>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                <p className="mt-2 text-sm text-muted-foreground">{inv.thesis}</p>
+                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                   <span>
-                    <strong className="text-slate-700">Check:</strong> {inv.checkSize}
+                    <strong className="text-foreground">Check:</strong> {inv.checkSize}
                   </span>
                   <span>
-                    <strong className="text-slate-700">Stage:</strong> {inv.stage}
+                    <strong className="text-foreground">Stage:</strong> {inv.stage}
                   </span>
                 </div>
               </li>
@@ -472,7 +472,7 @@ function VentureCapitalPanel({
         </section>
       )}
 
-      <p className="text-center text-xs text-slate-400">
+      <p className="text-center text-xs text-muted-foreground">
         Directory ID: {ventureId.slice(0, 8)}… — for education only, not investment advice.
       </p>
     </div>
@@ -481,7 +481,7 @@ function VentureCapitalPanel({
 
 function Tag({ children }: { children: ReactNode }) {
   return (
-    <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-700">
+    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-foreground">
       {children}
     </span>
   );
@@ -491,9 +491,9 @@ function DebtPanel() {
   return (
     <div className="space-y-10">
       <section>
-        <h2 className="text-xl font-bold text-slate-900">The Path of Leverage</h2>
-        <p className="mt-3 leading-relaxed text-slate-600">
-          <strong className="text-slate-800">Debt financing</strong> means borrowing money you agree to
+        <h2 className="text-xl font-bold text-foreground">The Path of Leverage</h2>
+        <p className="mt-3 leading-relaxed text-muted-foreground">
+          <strong className="text-foreground">Debt financing</strong> means borrowing money you agree to
           repay with interest — through government-backed programs, specialized venture lenders,
           revenue-based structures, or bank facilities. You keep more equity than a priced equity round,
           but you add repayment obligations, covenants, and sometimes guarantees.
@@ -520,12 +520,12 @@ function DebtPanel() {
             </li>
           </ul>
         </div>
-        <div className="rounded-2xl border border-orange-200 bg-orange-50/80 p-6 shadow-sm">
-          <h3 className="flex items-center gap-2 text-lg font-semibold text-orange-900">
+        <div className="rounded-2xl border border-warning/40 bg-warning/10 p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
             <Banknote className="h-5 w-5" aria-hidden />
             Cons
           </h3>
-          <ul className="mt-4 space-y-3 text-sm text-orange-950/90">
+          <ul className="mt-4 space-y-3 text-sm text-foreground/90">
             <li>
               <strong>Repayment pressure</strong> — cash must cover debt service even in a slow month.
             </li>
@@ -540,40 +540,40 @@ function DebtPanel() {
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+        <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
           Core instruments
         </h3>
-        <p className="mt-1 text-xs text-slate-500">
+        <p className="mt-1 text-xs text-muted-foreground">
           US-heavy examples below; adapt for your jurisdiction with a qualified advisor.
         </p>
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h4 className="font-semibold text-slate-900">SBA loans (e.g. 7(a), 504)</h4>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h4 className="font-semibold text-foreground">SBA loans (e.g. 7(a), 504)</h4>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Government-backed term loans and real-estate / equipment programs that can reduce lender
               risk and improve terms for qualifying small businesses. Often used for working capital,
               acquisitions, or owner-occupied assets after you have financials and a bank relationship.
             </p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h4 className="font-semibold text-slate-900">Venture debt</h4>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h4 className="font-semibold text-foreground">Venture debt</h4>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Non-bank lenders to VC-backed companies—usually <strong>after</strong> institutional equity.
               Often includes warrants or conversion features; covenants tie to runway and revenue. Cheaper
               than equity at the margin but still expensive if you miss plan.
             </p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h4 className="font-semibold text-slate-900">Revenue-based financing (RBF)</h4>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h4 className="font-semibold text-foreground">Revenue-based financing (RBF)</h4>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Repay as a percentage of revenue until a defined return cap—common for recurring-revenue
               businesses. Less dilutive than equity; cost depends on growth and payback speed—model the
               effective APR carefully.
             </p>
           </div>
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-            <h4 className="font-semibold text-slate-900">Bank lines of credit</h4>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600">
+          <div className="rounded-xl border border-border bg-card p-5 shadow-sm">
+            <h4 className="font-semibold text-foreground">Bank lines of credit</h4>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               Revolving facilities secured by receivables, inventory, or cash—classic for smoothing
               working capital. Typically requires profitability or strong collateral; covenant-light
               versions exist for relationship-heavy SMBs.
@@ -582,12 +582,12 @@ function DebtPanel() {
         </div>
       </section>
 
-      <section className="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-6">
-        <h3 className="flex items-center gap-2 text-lg font-semibold text-indigo-900">
-          <Sparkles className="h-5 w-5 text-indigo-600" aria-hidden />
+      <section className="rounded-2xl border border-primary/35 bg-primary/8/60 p-6">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <Sparkles className="h-5 w-5 text-primary" aria-hidden />
           Ada&apos;s advice · debt discipline
         </h3>
-        <ul className="mt-4 list-inside list-disc space-y-2 text-sm leading-relaxed text-indigo-950/90">
+        <ul className="mt-4 list-inside list-disc space-y-2 text-sm leading-relaxed text-foreground/90">
           <li>
             Match structure to <strong>use of funds</strong> — don&apos;t fund 9-month experiments with
             5-year amortization you can&apos;t support.

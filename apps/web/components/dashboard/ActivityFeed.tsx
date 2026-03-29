@@ -23,16 +23,16 @@ export function ActivityFeed({ ventureId }: { ventureId: string }) {
   if (rows.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-amber-500/20 bg-zinc-900/80 p-4">
-      <h3 className="text-sm font-semibold uppercase tracking-wide text-amber-200/90">Team activity</h3>
-      <ul className="mt-3 space-y-2 text-sm text-zinc-300">
+    <div className="rounded-xl border border-primary/25 bg-card/80 p-4">
+      <h3 className="text-sm font-semibold uppercase tracking-wide text-primary">Team activity</h3>
+      <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
         {rows.map((a) => (
-          <li key={a.id} className="flex gap-2 border-b border-zinc-800/80 pb-2 last:border-0">
-            <span className="shrink-0 text-amber-500/80">•</span>
+          <li key={a.id} className="flex gap-2 border-b border-border/80 pb-2 last:border-0">
+            <span className="shrink-0 text-primary/80">•</span>
             <span>
-              <span className="font-medium text-zinc-100">{a.user?.name ?? a.user?.email ?? "Someone"}</span>{" "}
+              <span className="font-medium text-foreground">{a.user?.name ?? a.user?.email ?? "Someone"}</span>{" "}
               {a.description}{" "}
-              <time className="text-zinc-500" dateTime={a.createdAt}>
+              <time className="text-muted-foreground" dateTime={a.createdAt}>
                 {formatRelative(a.createdAt)}
               </time>
             </span>

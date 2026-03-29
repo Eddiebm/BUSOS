@@ -32,28 +32,28 @@ function NdaGateContent() {
 
   if (!mounted) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        <div className="text-slate-500">Loading…</div>
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="text-muted-foreground">Loading…</div>
       </div>
     );
   }
 
   if (declined) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-slate-100 px-4 py-8">
-        <div className="max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-          <h1 className="text-xl font-semibold text-slate-800">Access not granted</h1>
-          <p className="mt-3 text-slate-600">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-muted px-4 py-8">
+        <div className="max-w-md rounded-xl border border-border bg-card p-8 shadow-sm">
+          <h1 className="text-xl font-semibold text-foreground">Access not granted</h1>
+          <p className="mt-3 text-muted-foreground">
             You must accept the Confidentiality and Non-Disclosure terms to access BUSOS. Your
             access has not been recorded.
           </p>
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-4 text-sm text-muted-foreground">
             If you change your mind, you may refresh this page to review and accept the terms.
           </p>
           <button
             type="button"
             onClick={() => setDeclined(false)}
-            className="mt-6 rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="mt-6 rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:bg-background"
           >
             Back to terms
           </button>
@@ -63,18 +63,18 @@ function NdaGateContent() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8">
+    <div className="min-h-screen bg-muted px-4 py-8">
       <div className="mx-auto max-w-2xl">
-        <div className="rounded-xl border border-slate-200 bg-white shadow-sm">
-          <div className="border-b border-slate-200 px-6 py-4">
-            <h1 className="text-2xl font-bold text-slate-900">Confidentiality & Non-Disclosure</h1>
-            <p className="mt-1 text-sm text-slate-600">
+        <div className="rounded-xl border border-border bg-card shadow-sm">
+          <div className="border-b border-border px-6 py-4">
+            <h1 className="text-2xl font-bold text-foreground">Confidentiality & Non-Disclosure</h1>
+            <p className="mt-1 text-sm text-muted-foreground">
               You must accept the terms below before accessing BUSOS.
             </p>
           </div>
 
-          <div className="max-h-[60vh] overflow-y-auto px-6 py-5 text-sm text-slate-700">
-            <p className="mb-4 font-medium text-slate-800">
+          <div className="max-h-[60vh] overflow-y-auto px-6 py-5 text-sm text-foreground">
+            <p className="mb-4 font-medium text-foreground">
               This website and the product it describes are confidential and are disclosed solely
               for the purpose of evaluating or using BUSOS under the following terms.
             </p>
@@ -121,32 +121,32 @@ function NdaGateContent() {
               </li>
             </ol>
 
-            <p className="mt-4 text-slate-600">
+            <p className="mt-4 text-muted-foreground">
               By clicking &quot;I Accept&quot; you confirm that you have read, understood, and agree to be
               bound by these terms. If you do not agree, click &quot;I Do Not Accept&quot; and you will not
               be granted access.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-slate-200 px-6 py-4 sm:flex-row sm:justify-end">
+          <div className="flex flex-col gap-3 border-t border-border px-6 py-4 sm:flex-row sm:justify-end">
             <button
               type="button"
               onClick={decline}
-              className="rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              className="rounded-lg border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground hover:bg-background"
             >
               I Do Not Accept
             </button>
             <button
               type="button"
               onClick={accept}
-              className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-medium text-white hover:bg-slate-800"
+              className="rounded-lg bg-foreground px-5 py-2.5 text-sm font-medium text-background hover:bg-foreground"
             >
               I Accept
             </button>
           </div>
         </div>
 
-        <p className="mt-4 text-center text-xs text-slate-500">
+        <p className="mt-4 text-center text-xs text-muted-foreground">
           Acceptance is recorded in your browser. Do not accept on behalf of others without
           authority.
         </p>
@@ -158,8 +158,8 @@ function NdaGateContent() {
 export default function NdaGatePage() {
   return (
     <Suspense fallback={
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        <div className="text-slate-500">Loading…</div>
+      <div className="flex min-h-screen items-center justify-center bg-muted">
+        <div className="text-muted-foreground">Loading…</div>
       </div>
     }>
       <NdaGateContent />

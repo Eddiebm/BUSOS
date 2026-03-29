@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { getStageName } from "@/lib/stage-names";
 import type { StressMode } from "@/types/api";
 import {
@@ -108,7 +109,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         onClick={() => onNavigate?.()}
         className={cn(
           "flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-          active ? "bg-amber-500/15 text-amber-100" : "text-zinc-400 hover:bg-zinc-800/80 hover:text-zinc-200"
+          active ? "bg-primary/15 text-primary" : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
         )}
       >
         {icon}
@@ -120,30 +121,30 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
   const base = ventureId ? `/ventures/${ventureId}` : "/dashboard";
 
   return (
-    <div className="flex h-full flex-col bg-zinc-950">
-      <div className="flex h-14 items-center border-b border-zinc-800 px-4">
+    <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
+      <div className="flex h-14 items-center border-b border-sidebar-border px-4">
         <Link
           href="/"
-          className="flex items-center gap-2 font-bold tracking-tight text-zinc-100"
+          className="flex items-center gap-2 font-bold tracking-tight text-sidebar-foreground"
           onClick={() => onNavigate?.()}
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-500/20 text-xs font-bold text-amber-200">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-xs font-bold text-primary">
             B
           </span>
-          <span className="text-lg text-amber-50">BUSOS</span>
+          <span className="text-lg text-primary">BUSOS</span>
         </Link>
       </div>
 
       <div className="flex-1 space-y-4 overflow-y-auto p-4">
         <div>
-          <label htmlFor="venture-switcher" className="mb-1 block text-xs font-medium uppercase text-zinc-500">
+          <label htmlFor="venture-switcher" className="mb-1 block text-xs font-medium uppercase text-muted-foreground">
             Venture
           </label>
           <select
             id="venture-switcher"
             value={ventureId ?? ""}
             onChange={(e) => e.target.value && onVentureChange(e.target.value)}
-            className="w-full rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100"
+            className="w-full rounded-lg border border-sidebar-border bg-background px-3 py-2 text-sm text-foreground"
           >
             <option value="">Select venture…</option>
             {ventures.map((v) => (
@@ -157,14 +158,14 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
         {ventureId && (
           <>
             <div>
-              <p className="mb-1 text-xs font-medium uppercase text-zinc-500">Stage</p>
-              <p className="text-sm font-medium text-zinc-100">{stageLabel}</p>
-              <p className="mb-2 text-xs text-zinc-500">
+              <p className="mb-1 text-xs font-medium uppercase text-muted-foreground">Stage</p>
+              <p className="text-sm font-medium text-foreground">{stageLabel}</p>
+              <p className="mb-2 text-xs text-muted-foreground">
                 Stage {stage} of 13
               </p>
-              <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800">
+              <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-amber-500/80 transition-all"
+                  className="h-full rounded-full bg-primary/80 transition-all"
                   style={{ width: `${(stage / 13) * 100}%` }}
                 />
               </div>
@@ -174,19 +175,19 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               <span
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase",
-                  stressMode === "DISCOVERY" && "bg-blue-500/20 text-blue-200",
-                  stressMode === "EXECUTION" && "bg-zinc-700 text-zinc-200",
-                  stressMode === "SURVIVAL" && "bg-red-500/20 text-red-200"
+                  stressMode === "DISCOVERY" && "bg-info/100/20 text-info",
+                  stressMode === "EXECUTION" && "bg-muted text-foreground",
+                  stressMode === "SURVIVAL" && "bg-destructive/100/20 text-destructive-foreground"
                 )}
               >
                 {stressMode}
               </span>
-              <span className="text-sm text-zinc-500">Stress {stressLevel}%</span>
+              <span className="text-sm text-muted-foreground">Stress {stressLevel}%</span>
             </div>
           </>
         )}
 
-        <nav className="space-y-1 border-t border-zinc-800 pt-4" aria-label="Main">
+        <nav className="space-y-1 border-t border-sidebar-border pt-4" aria-label="Main">
           {nav("/dashboard" + (ventureId ? `?ventureId=${ventureId}` : ""), "Dashboard")}
           {ventureId ? (
             <>
@@ -239,43 +240,49 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
             </>
           ) : (
             <>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">
                 Snapshot
               </span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Dream</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Journey</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Blue Ocean</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Lean Canvas</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Financials</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">CRM</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Cap table</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Investors</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Growth</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Learn</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Funding</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Roadmap</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Documents</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Intelligence</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Settings</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Team</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Integrations</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Dream</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Journey</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Blue Ocean</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Lean Canvas</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Financials</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">CRM</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Cap table</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Investors</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Growth</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Learn</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Funding</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Roadmap</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Documents</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Intelligence</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Settings</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Team</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-muted-foreground">Integrations</span>
             </>
           )}
           <Link
             href="/ventures"
             onClick={() => onNavigate?.()}
-            className="block rounded-lg px-3 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+            className="block rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             All ventures
           </Link>
         </nav>
       </div>
 
-      <div className="border-t border-zinc-800 p-4">
+      <div className="border-t border-sidebar-border p-4">
+        <div className="mb-3 flex items-center justify-between gap-2">
+          <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Appearance
+          </span>
+          <ThemeToggle />
+        </div>
         <form action="/api/auth/logout" method="POST">
           <button
             type="submit"
-            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+            className="w-full rounded-lg px-3 py-2 text-left text-sm font-medium text-muted-foreground hover:bg-sidebar-accent hover:text-sidebar-foreground"
           >
             Sign out
           </button>

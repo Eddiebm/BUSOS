@@ -284,11 +284,11 @@ const FEATURE_ROWS: FeatureRow[] = [
 ───────────────────────────────────────────── */
 
 const CATEGORY_STYLES: Record<Category, string> = {
-  "AI Co-Founder": "bg-indigo-50 text-indigo-700 border-indigo-200",
-  "Startup OS": "bg-blue-50 text-blue-700 border-blue-200",
-  "Methodology": "bg-amber-50 text-amber-700 border-amber-200",
-  "Fundraising": "bg-green-50 text-green-700 border-green-200",
-  "Productivity": "bg-slate-50 text-slate-700 border-slate-200",
+  "AI Co-Founder": "bg-primary/8 text-primary border-primary/35",
+  "Startup OS": "bg-info/10 text-info border-info/35",
+  "Methodology": "bg-warning/10 text-primary border-primary/40",
+  "Fundraising": "bg-success/10 text-success border-success/35",
+  "Productivity": "bg-background text-foreground border-border",
 };
 
 const CATEGORIES: Category[] = [
@@ -304,61 +304,61 @@ const CATEGORIES: Category[] = [
 ───────────────────────────────────────────── */
 
 function FeatureIcon({ value }: { value: FeatureValue | string }) {
-  if (value === "yes") return <CheckCircle2 className="mx-auto h-5 w-5 text-green-500" />;
-  if (value === "no") return <XCircle className="mx-auto h-5 w-5 text-slate-300" />;
-  if (value === "partial") return <MinusCircle className="mx-auto h-5 w-5 text-amber-400" />;
-  return <span className="block text-center text-xs text-slate-500">{value}</span>;
+  if (value === "yes") return <CheckCircle2 className="mx-auto h-5 w-5 text-success" />;
+  if (value === "no") return <XCircle className="mx-auto h-5 w-5 text-muted-foreground" />;
+  if (value === "partial") return <MinusCircle className="mx-auto h-5 w-5 text-primary" />;
+  return <span className="block text-center text-xs text-muted-foreground">{value}</span>;
 }
 
 function CompetitorCard({ c }: { c: Competitor }) {
   const badgeClass = CATEGORY_STYLES[c.category];
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm flex flex-col gap-3">
+    <div className="rounded-xl border border-border bg-card p-5 shadow-sm flex flex-col gap-3">
       <div className="flex items-start justify-between gap-2">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="font-bold text-slate-900 text-base">{c.name}</h3>
+            <h3 className="font-bold text-foreground text-base">{c.name}</h3>
             <a
               href={c.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-400 hover:text-indigo-600 transition-colors"
+              className="text-muted-foreground hover:text-primary transition-colors"
               aria-label={`Visit ${c.name}`}
             >
               <ExternalLink className="h-3.5 w-3.5" />
             </a>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5 italic">{c.tagline}</p>
+          <p className="text-xs text-muted-foreground mt-0.5 italic">{c.tagline}</p>
         </div>
         <span className={cn("shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold", badgeClass)}>
           {c.category}
         </span>
       </div>
 
-      <p className="text-sm text-slate-600 leading-relaxed">{c.description}</p>
+      <p className="text-sm text-muted-foreground leading-relaxed">{c.description}</p>
 
-      <div className="rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
-        <span className="font-semibold text-slate-700">Pricing: </span>{c.pricing}
+      <div className="rounded-lg bg-background px-3 py-2 text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground">Pricing: </span>{c.pricing}
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div>
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-green-700">Strengths</p>
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-success">Strengths</p>
           <ul className="space-y-1">
             {c.strengths.map((s, i) => (
-              <li key={i} className="flex gap-1.5 text-xs text-slate-700">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-500" />
+              <li key={i} className="flex gap-1.5 text-xs text-foreground">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-success" />
                 {s}
               </li>
             ))}
           </ul>
         </div>
         <div>
-          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-red-600">Weaknesses</p>
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wide text-destructive">Weaknesses</p>
           <ul className="space-y-1">
             {c.weaknesses.map((w, i) => (
-              <li key={i} className="flex gap-1.5 text-xs text-slate-700">
-                <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-red-400" />
+              <li key={i} className="flex gap-1.5 text-xs text-foreground">
+                <XCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-destructive" />
                 {w}
               </li>
             ))}
@@ -381,23 +381,23 @@ export default function IntelligencePage() {
 
       {/* Header */}
       <div className="flex items-start gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-primary">
           <Brain className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Competitive Intelligence</h1>
-          <p className="mt-1 text-slate-600">Where BUSOS stands in the market — and why it wins.</p>
+          <h1 className="text-3xl font-bold text-foreground">Competitive Intelligence</h1>
+          <p className="mt-1 text-muted-foreground">Where BUSOS stands in the market — and why it wins.</p>
         </div>
       </div>
 
       {/* ── Section 1: Positioning ── */}
       <section>
-        <h2 className="mb-4 text-xl font-bold text-slate-900">Where We Stand</h2>
-        <div className="rounded-2xl border border-indigo-200 bg-gradient-to-br from-indigo-50 to-white p-6 shadow-sm">
-          <p className="text-base leading-relaxed text-indigo-950">
+        <h2 className="mb-4 text-xl font-bold text-foreground">Where We Stand</h2>
+        <div className="rounded-2xl border border-primary/35 bg-gradient-to-br from-accent/30 to-card p-6 shadow-sm">
+          <p className="text-base leading-relaxed text-foreground">
             <strong>BUSOS is the only platform that combines a personalized AI co-founder (Ada) with a full operating system for the founder journey</strong> — explaining not just <em>what</em> to do, but <em>why</em> it matters, <em>why</em> now, <em>how</em> to do it, and <em>where</em> to go.
           </p>
-          <p className="mt-3 text-sm leading-relaxed text-indigo-800">
+          <p className="mt-3 text-sm leading-relaxed text-primary">
             Every competitor either generates assets (ZigZag), automates tasks (Cofounder.co), teaches frameworks (LEANSTACK), or manages fundraising (Visible.vc). BUSOS does all of this within a single, guided, memory-aware journey built specifically for first-time entrepreneurs — the 300 million people who start a business each year without a mentor, a co-founder, or an MBA.
           </p>
           <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -407,9 +407,9 @@ export default function IntelligencePage() {
               { label: "Target market", value: "First-time founders" },
               { label: "Core advantage", value: "Ada's guided journey" },
             ].map((stat) => (
-              <div key={stat.label} className="rounded-xl border border-indigo-100 bg-white p-3 text-center">
-                <p className="text-lg font-bold text-indigo-700">{stat.value}</p>
-                <p className="text-xs text-slate-500">{stat.label}</p>
+              <div key={stat.label} className="rounded-xl border border-primary/20 bg-card p-3 text-center">
+                <p className="text-lg font-bold text-primary">{stat.value}</p>
+                <p className="text-xs text-muted-foreground">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -418,7 +418,7 @@ export default function IntelligencePage() {
 
       {/* ── Section 2: Competitor Cards ── */}
       <section>
-        <h2 className="mb-6 text-xl font-bold text-slate-900">The Landscape</h2>
+        <h2 className="mb-6 text-xl font-bold text-foreground">The Landscape</h2>
         <div className="space-y-8">
           {CATEGORIES.map((cat) => {
             const list = COMPETITORS.filter((c) => c.category === cat);
@@ -430,7 +430,7 @@ export default function IntelligencePage() {
                   <span className={cn("rounded-full border px-3 py-1 text-xs font-bold uppercase tracking-wide", badgeClass)}>
                     {cat}
                   </span>
-                  <span className="text-xs text-slate-400">{list.length} competitor{list.length > 1 ? "s" : ""}</span>
+                  <span className="text-xs text-muted-foreground">{list.length} competitor{list.length > 1 ? "s" : ""}</span>
                 </div>
                 <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                   {list.map((c) => (
@@ -445,19 +445,19 @@ export default function IntelligencePage() {
 
       {/* ── Section 3: Feature Comparison Table ── */}
       <section>
-        <h2 className="mb-2 text-xl font-bold text-slate-900">Feature Comparison</h2>
-        <p className="mb-5 text-sm text-slate-500">BUSOS vs. the most relevant competitors across key founder-facing features.</p>
-        <div className="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+        <h2 className="mb-2 text-xl font-bold text-foreground">Feature Comparison</h2>
+        <p className="mb-5 text-sm text-muted-foreground">BUSOS vs. the most relevant competitors across key founder-facing features.</p>
+        <div className="overflow-x-auto rounded-xl border border-border shadow-sm">
           <table className="w-full min-w-[700px] text-sm">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50">
-                <th className="px-4 py-3 text-left font-semibold text-slate-700 w-52">Feature</th>
-                <th className="px-3 py-3 text-center font-bold text-indigo-700 bg-indigo-50">BUSOS</th>
-                <th className="px-3 py-3 text-center font-semibold text-slate-600">ZigZag</th>
-                <th className="px-3 py-3 text-center font-semibold text-slate-600">Cofounder.co</th>
-                <th className="px-3 py-3 text-center font-semibold text-slate-600">LEANSTACK</th>
-                <th className="px-3 py-3 text-center font-semibold text-slate-600">Visible.vc</th>
-                <th className="px-3 py-3 text-center font-semibold text-slate-600">Notion</th>
+              <tr className="border-b border-border bg-background">
+                <th className="px-4 py-3 text-left font-semibold text-foreground w-52">Feature</th>
+                <th className="px-3 py-3 text-center font-bold text-primary bg-primary/8">BUSOS</th>
+                <th className="px-3 py-3 text-center font-semibold text-muted-foreground">ZigZag</th>
+                <th className="px-3 py-3 text-center font-semibold text-muted-foreground">Cofounder.co</th>
+                <th className="px-3 py-3 text-center font-semibold text-muted-foreground">LEANSTACK</th>
+                <th className="px-3 py-3 text-center font-semibold text-muted-foreground">Visible.vc</th>
+                <th className="px-3 py-3 text-center font-semibold text-muted-foreground">Notion</th>
               </tr>
             </thead>
             <tbody>
@@ -465,12 +465,12 @@ export default function IntelligencePage() {
                 <tr
                   key={row.feature}
                   className={cn(
-                    "border-b border-slate-100 transition-colors hover:bg-slate-50",
-                    i % 2 === 0 ? "bg-white" : "bg-slate-50/40"
+                    "border-b border-border transition-colors hover:bg-background",
+                    i % 2 === 0 ? "bg-card" : "bg-background/40"
                   )}
                 >
-                  <td className="px-4 py-3 text-sm font-medium text-slate-700">{row.feature}</td>
-                  <td className="px-3 py-3 bg-indigo-50/50"><FeatureIcon value={row.busos} /></td>
+                  <td className="px-4 py-3 text-sm font-medium text-foreground">{row.feature}</td>
+                  <td className="px-3 py-3 bg-primary/8/50"><FeatureIcon value={row.busos} /></td>
                   <td className="px-3 py-3"><FeatureIcon value={row.zigzag} /></td>
                   <td className="px-3 py-3"><FeatureIcon value={row.cofounder} /></td>
                   <td className="px-3 py-3"><FeatureIcon value={row.leanstack} /></td>
@@ -481,15 +481,15 @@ export default function IntelligencePage() {
             </tbody>
           </table>
         </div>
-        <div className="mt-3 flex flex-wrap gap-4 text-xs text-slate-500">
-          <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> Full support</span>
-          <span className="flex items-center gap-1"><MinusCircle className="h-3.5 w-3.5 text-amber-400" /> Partial support</span>
-          <span className="flex items-center gap-1"><XCircle className="h-3.5 w-3.5 text-slate-300" /> Not supported</span>
+        <div className="mt-3 flex flex-wrap gap-4 text-xs text-muted-foreground">
+          <span className="flex items-center gap-1"><CheckCircle2 className="h-3.5 w-3.5 text-success" /> Full support</span>
+          <span className="flex items-center gap-1"><MinusCircle className="h-3.5 w-3.5 text-primary" /> Partial support</span>
+          <span className="flex items-center gap-1"><XCircle className="h-3.5 w-3.5 text-muted-foreground" /> Not supported</span>
         </div>
       </section>
 
       {/* Footer */}
-      <p className="text-xs text-slate-400 text-right">Last updated: March 2026 · Based on publicly available information</p>
+      <p className="text-xs text-muted-foreground text-right">Last updated: March 2026 · Based on publicly available information</p>
     </div>
   );
 }

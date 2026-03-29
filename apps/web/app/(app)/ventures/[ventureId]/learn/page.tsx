@@ -40,11 +40,11 @@ export default function LearnPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-amber-500/90 hover:text-amber-400">
+        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-primary/90 hover:text-primary">
           ← Dashboard
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-zinc-50">Learn</h1>
-        <p className="text-sm text-zinc-400">Founder knowledge base — search and filter</p>
+        <h1 className="mt-2 text-2xl font-bold text-foreground">Learn</h1>
+        <p className="text-sm text-muted-foreground">Founder knowledge base — search and filter</p>
       </div>
 
       <div className="flex flex-wrap gap-3">
@@ -52,12 +52,12 @@ export default function LearnPage() {
           placeholder="Search articles…"
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          className="min-w-[200px] flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2 text-sm text-zinc-100 placeholder:text-zinc-600"
+          className="min-w-[200px] flex-1 rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground placeholder:text-muted-foreground"
         />
         <select
           value={category}
           onChange={(e) => setCategory(e.target.value)}
-          className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm text-zinc-100"
+          className="rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground"
         >
           <option value="">All categories</option>
           {categories.map((c) => (
@@ -74,15 +74,15 @@ export default function LearnPage() {
             <button
               type="button"
               onClick={() => router.push(`/ventures/${ventureId}/learn/${a.slug}`)}
-              className="w-full rounded-xl border border-zinc-800 bg-zinc-900/60 px-4 py-3 text-left transition hover:border-amber-500/30"
+              className="w-full rounded-xl border border-border bg-card/60 px-4 py-3 text-left transition hover:border-primary/35"
             >
-              <p className="font-medium text-zinc-100">{a.title}</p>
-              <p className="text-xs text-amber-200/70">{a.category}</p>
+              <p className="font-medium text-foreground">{a.title}</p>
+              <p className="text-xs text-primary/70">{a.category}</p>
             </button>
           </li>
         ))}
       </ul>
-      {articles.length === 0 && <p className="text-sm text-zinc-600">No articles match.</p>}
+      {articles.length === 0 && <p className="text-sm text-muted-foreground">No articles match.</p>}
     </div>
   );
 }

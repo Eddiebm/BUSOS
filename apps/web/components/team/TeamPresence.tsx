@@ -49,8 +49,8 @@ export function TeamPresence({ ventureId }: { ventureId: string }) {
           className={cn(
             "flex h-9 w-9 items-center justify-center rounded-full border-2 text-xs font-bold",
             online(m.lastActiveAt)
-              ? "border-amber-400 bg-zinc-800 text-amber-100"
-              : "border-zinc-600 bg-zinc-800 text-zinc-400"
+              ? "border-primary/50 bg-muted text-primary"
+              : "border-border bg-muted text-muted-foreground"
           )}
         >
           {m.imageUrl ? (
@@ -62,7 +62,7 @@ export function TeamPresence({ ventureId }: { ventureId: string }) {
         </div>
       ))}
       {members.length > 6 && (
-        <span className="pl-1 text-xs text-zinc-500">+{members.length - 6}</span>
+        <span className="pl-1 text-xs text-muted-foreground">+{members.length - 6}</span>
       )}
     </div>
   );

@@ -12,13 +12,13 @@ export default async function AppLayout({
 
   if (!session) {
     return (
-      <div className="min-h-screen bg-slate-50">
-        <header className="border-b border-slate-200 bg-white px-4 py-3">
+      <div className="min-h-screen bg-background">
+        <header className="border-b border-border bg-card px-4 py-3">
           <div className="mx-auto flex max-w-6xl items-center justify-between">
-            <span className="text-xl font-bold text-slate-900">BUSOS</span>
+            <span className="text-xl font-bold text-foreground">BUSOS</span>
             <Link
               href="/sign-in"
-              className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+              className="rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background hover:bg-foreground"
             >
               Sign in
             </Link>
@@ -32,14 +32,14 @@ export default async function AppLayout({
   }
 
     return (
-      <div className="min-h-screen bg-zinc-950 text-zinc-100">
+      <div className="min-h-screen bg-background text-foreground">
         <a
         href="#main"
-        className="absolute -top-full left-4 z-50 rounded bg-slate-900 px-3 py-2 text-white transition-[top] focus:top-4 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+        className="absolute -top-full left-4 z-50 rounded bg-foreground px-3 py-2 text-background transition-[top] focus:top-4 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-background"
       >
         Skip to main content
       </a>
-      <Suspense fallback={<div className="min-h-screen bg-zinc-950 p-6 text-zinc-400">Loading…</div>}>
+      <Suspense fallback={<div className="min-h-screen bg-background p-6 text-muted-foreground">Loading…</div>}>
         <AppShell>{children}</AppShell>
       </Suspense>
     </div>

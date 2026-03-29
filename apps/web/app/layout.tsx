@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Toaster } from "sonner";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { ClientToaster } from "@/components/ClientToaster";
 
 export const metadata: Metadata = {
   title: "BUSOS — Founder Operating System",
@@ -14,10 +15,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full min-h-screen bg-slate-50 text-slate-900 antialiased">
-        {children}
-        <Toaster position="top-center" richColors closeButton />
+    <html lang="en" className="h-full" suppressHydrationWarning>
+      <body className="h-full min-h-screen bg-background text-foreground antialiased">
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          {children}
+          <ClientToaster />
+        </ThemeProvider>
       </body>
     </html>
   );

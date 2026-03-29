@@ -132,54 +132,54 @@ export default function CapTablePage() {
   return (
     <div className="space-y-8">
       <div>
-        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-amber-500/90 hover:text-amber-400">
+        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-primary/90 hover:text-primary">
           ← Dashboard
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-zinc-50">Cap table</h1>
-        <p className="text-sm text-zinc-400">Ownership, grants, and round dilution</p>
+        <h1 className="mt-2 text-2xl font-bold text-foreground">Cap table</h1>
+        <p className="text-sm text-muted-foreground">Ownership, grants, and round dilution</p>
       </div>
 
-      <div className="rounded-xl border border-amber-500/15 bg-zinc-900/60 p-6">
-        <h2 className="text-lg font-semibold text-zinc-100">Financing round modeler</h2>
-        <p className="mt-1 text-sm text-zinc-500">
+      <div className="rounded-xl border border-primary/15 bg-card/60 p-6">
+        <h2 className="text-lg font-semibold text-foreground">Financing round modeler</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
           Assumes new money at pre-money valuation; existing shareholders diluted by{" "}
-          <code className="text-amber-200/80">pre / (pre + investment)</code>.
+          <code className="text-primary">pre / (pre + investment)</code>.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <label className="text-sm">
-            <span className="text-zinc-400">Investment ($)</span>
+            <span className="text-muted-foreground">Investment ($)</span>
             <input
               type="number"
               min={0}
               value={round.investment}
               onChange={(e) => setRound((r) => ({ ...r, investment: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             />
           </label>
           <label className="text-sm">
-            <span className="text-zinc-400">Pre-money valuation ($)</span>
+            <span className="text-muted-foreground">Pre-money valuation ($)</span>
             <input
               type="number"
               min={0}
               value={round.preMoney}
               onChange={(e) => setRound((r) => ({ ...r, preMoney: e.target.value }))}
-              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm"
             />
           </label>
         </div>
         {dilution && totals.total > 0 && (
           <div className="mt-4 space-y-2 text-sm">
-            <p className="text-zinc-300">
+            <p className="text-muted-foreground">
               New investor ownership:{" "}
-              <span className="font-semibold text-amber-200">{dilution.newInvestorPct.toFixed(2)}%</span>
+              <span className="font-semibold text-primary">{dilution.newInvestorPct.toFixed(2)}%</span>
             </p>
-            <ul className="space-y-1 border-t border-zinc-800 pt-2">
+            <ul className="space-y-1 border-t border-border pt-2">
               {rows.map((s) => {
                 const sh = totals.bySh[s.id] ?? 0;
                 const before = (sh / totals.total) * 100;
                 const after = before * dilution.factor;
                 return (
-                  <li key={s.id} className="flex justify-between text-zinc-400">
+                  <li key={s.id} className="flex justify-between text-muted-foreground">
                     <span>{s.name}</span>
                     <span>
                       {before.toFixed(2)}% → {after.toFixed(2)}%
@@ -190,13 +190,13 @@ export default function CapTablePage() {
             </ul>
           </div>
         )}
-        {totals.total === 0 && <p className="mt-3 text-sm text-zinc-600">Add shares below to model dilution.</p>}
+        {totals.total === 0 && <p className="mt-3 text-sm text-muted-foreground">Add shares below to model dilution.</p>}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-zinc-800">
+      <div className="overflow-x-auto rounded-xl border border-border">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-zinc-800 bg-zinc-900/80 text-zinc-500">
+            <tr className="border-b border-border bg-card/80 text-muted-foreground">
               <th className="p-3">Shareholder</th>
               <th className="p-3">Type</th>
               <th className="p-3 text-right">Shares</th>
@@ -209,8 +209,8 @@ export default function CapTablePage() {
               const sh = totals.bySh[s.id] ?? 0;
               const pct = totals.total > 0 ? (sh / totals.total) * 100 : 0;
               return (
-                <tr key={s.id} className="border-b border-zinc-800/80 text-zinc-300">
-                  <td className="p-3 font-medium text-zinc-100">{s.name}</td>
+                <tr key={s.id} className="border-b border-border/80 text-muted-foreground">
+                  <td className="p-3 font-medium text-foreground">{s.name}</td>
                   <td className="p-3">{KIND_LABEL[s.type]}</td>
                   <td className="p-3 text-right tabular-nums">{sh.toLocaleString()}</td>
                   <td className="p-3 text-right tabular-nums">{pct.toFixed(2)}%</td>
@@ -218,7 +218,7 @@ export default function CapTablePage() {
                     <button
                       type="button"
                       onClick={() => removeShareholder(s.id)}
-                      className="text-xs text-red-400 hover:text-red-300"
+                      className="text-xs text-destructive hover:text-destructive/80"
                     >
                       Remove
                     </button>
@@ -228,7 +228,7 @@ export default function CapTablePage() {
             })}
           </tbody>
           <tfoot>
-            <tr className="bg-zinc-900/50 font-medium text-zinc-200">
+            <tr className="bg-card/50 font-medium text-foreground">
               <td className="p-3" colSpan={2}>
                 Total
               </td>
@@ -240,33 +240,33 @@ export default function CapTablePage() {
         </table>
       </div>
 
-      <form onSubmit={addShareholder} className="rounded-xl border border-amber-500/15 bg-zinc-900/60 p-4 space-y-3">
-        <h2 className="font-semibold text-zinc-100">Add shareholder</h2>
+      <form onSubmit={addShareholder} className="rounded-xl border border-primary/15 bg-card/60 p-4 space-y-3">
+        <h2 className="font-semibold text-foreground">Add shareholder</h2>
         <div className="flex flex-wrap gap-2">
           <input
             placeholder="Name"
             value={shForm.name}
             onChange={(e) => setShForm((f) => ({ ...f, name: e.target.value }))}
-            className="min-w-[200px] flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="min-w-[200px] flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
             required
           />
           <select
             value={shForm.type}
             onChange={(e) => setShForm((f) => ({ ...f, type: e.target.value as ShareholderKind }))}
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
           >
             <option value="FOUNDER">Founder</option>
             <option value="INVESTOR">Investor</option>
             <option value="EMPLOYEE">Employee</option>
           </select>
-          <button type="submit" className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950">
+          <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
             Add
           </button>
         </div>
       </form>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold text-zinc-100">Equity grants</h2>
+        <h2 className="text-lg font-semibold text-foreground">Equity grants</h2>
         {rows.map((s) => {
           const g =
             grantBySh[s.id] ??
@@ -278,9 +278,9 @@ export default function CapTablePage() {
           return (
             <div
               key={s.id}
-              className="flex flex-wrap items-end gap-2 rounded-xl border border-zinc-800 bg-zinc-950/50 p-4"
+              className="flex flex-wrap items-end gap-2 rounded-xl border border-border bg-background/50 p-4"
             >
-              <span className="w-full text-sm font-medium text-zinc-200 sm:w-auto">{s.name}</span>
+              <span className="w-full text-sm font-medium text-foreground sm:w-auto">{s.name}</span>
               <input
                 type="number"
                 min={0}
@@ -292,7 +292,7 @@ export default function CapTablePage() {
                     [s.id]: { ...g, shares: e.target.value },
                   }))
                 }
-                className="w-32 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+                className="w-32 rounded-lg border border-border bg-background px-3 py-2 text-sm"
               />
               <select
                 value={g.equityType}
@@ -302,7 +302,7 @@ export default function CapTablePage() {
                     [s.id]: { ...g, equityType: e.target.value as EquityKind },
                   }))
                 }
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               >
                 <option value="COMMON">Common</option>
                 <option value="PREFERRED">Preferred</option>
@@ -317,16 +317,16 @@ export default function CapTablePage() {
                     [s.id]: { ...g, date: e.target.value },
                   }))
                 }
-                className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+                className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               />
               <button
                 type="button"
                 onClick={() => addGrant(s.id)}
-                className="rounded-lg bg-zinc-800 px-3 py-2 text-sm text-zinc-100 hover:bg-zinc-700"
+                className="rounded-lg bg-muted px-3 py-2 text-sm text-foreground hover:bg-muted"
               >
                 Add grant
               </button>
-              <div className="w-full text-xs text-zinc-600 sm:w-auto">
+              <div className="w-full text-xs text-muted-foreground sm:w-auto">
                 {(s.grants ?? []).map((gr) => (
                   <span key={gr.id} className="mr-3">
                     {gr.equityType} {gr.shares.toLocaleString()} @ {gr.date.slice(0, 10)}
@@ -336,7 +336,7 @@ export default function CapTablePage() {
             </div>
           );
         })}
-        {rows.length === 0 && <p className="text-sm text-zinc-600">No shareholders yet.</p>}
+        {rows.length === 0 && <p className="text-sm text-muted-foreground">No shareholders yet.</p>}
       </div>
     </div>
   );

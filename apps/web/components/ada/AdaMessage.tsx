@@ -41,7 +41,7 @@ function ReasoningBlock({
       <button
         type="button"
         onClick={onToggle}
-        className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-800"
+        className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground"
       >
         Why this recommendation{" "}
         {open ? (
@@ -51,7 +51,7 @@ function ReasoningBlock({
         )}
       </button>
       {open && (
-        <div className="mt-2 rounded-md bg-slate-100 p-3 text-sm text-slate-700">
+        <div className="mt-2 rounded-md bg-muted p-3 text-sm text-foreground">
           <ul className="list-disc space-y-1 pl-4">
             {reasoning.map((line, i) => (
               <li key={i}>{line}</li>
@@ -153,32 +153,32 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
 
   const accent = {
     SURVIVAL: {
-      border: "border-red-300",
-      header: "bg-red-100 border-red-200",
-      dot: "bg-red-500",
-      pill: "bg-red-100 text-red-800 hover:bg-red-200",
-      btn: "bg-red-600 hover:bg-red-700",
+      border: "border-destructive/45",
+      header: "bg-destructive/15 border-destructive/40",
+      dot: "bg-destructive",
+      pill: "bg-destructive/15 text-destructive hover:bg-destructive/25",
+      btn: "bg-destructive hover:bg-destructive/90",
     },
     EXECUTION: {
-      border: "border-blue-200",
-      header: "bg-blue-100 border-blue-200",
-      dot: "bg-blue-600",
-      pill: "bg-blue-100 text-blue-800 hover:bg-blue-200",
-      btn: "bg-blue-600 hover:bg-blue-700",
+      border: "border-info/35",
+      header: "bg-info/15 border-info/35",
+      dot: "bg-info",
+      pill: "bg-info/15 text-info hover:bg-info/25",
+      btn: "bg-info hover:bg-info/90",
     },
     DISCOVERY: {
-      border: "border-indigo-200",
-      header: "bg-indigo-100 border-indigo-200",
-      dot: "bg-indigo-600",
-      pill: "bg-indigo-100 text-indigo-800 hover:bg-indigo-200",
-      btn: "bg-indigo-600 hover:bg-indigo-700",
+      border: "border-primary/35",
+      header: "bg-primary/12 border-primary/35",
+      dot: "bg-primary",
+      pill: "bg-primary/12 text-primary hover:bg-primary/20",
+      btn: "bg-primary hover:bg-primary/90",
     },
   }[mode] ?? {
-    border: "border-slate-200",
-    header: "bg-slate-100 border-slate-200",
-    dot: "bg-slate-500",
-    pill: "bg-slate-100 text-slate-700 hover:bg-slate-200",
-    btn: "bg-slate-800 hover:bg-slate-700",
+    border: "border-border",
+    header: "bg-muted border-border",
+    dot: "bg-muted-foreground",
+    pill: "bg-muted text-foreground hover:bg-muted",
+    btn: "bg-foreground hover:bg-muted",
   };
 
   const proactiveReasoning = proactive?.reasoning ?? [];
@@ -187,22 +187,22 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
     <div className={cn("rounded-xl border shadow-sm overflow-hidden", accent.border)}>
       <div className={cn("px-4 py-3 border-b flex items-center gap-2", accent.header)}>
         <span className={cn("h-2 w-2 rounded-full animate-pulse", accent.dot)} />
-        <span className="text-sm font-semibold text-slate-900">Ada</span>
-        <span className="ml-auto text-xs text-slate-500 capitalize">
+        <span className="text-sm font-semibold text-foreground">Ada</span>
+        <span className="ml-auto text-xs text-muted-foreground capitalize">
           {mode.toLowerCase()} mode
         </span>
       </div>
 
-      <div className="bg-white px-4 py-4 border-b border-slate-100">
+      <div className="bg-card px-4 py-4 border-b border-border">
         {proactiveLoading ? (
           <div className="space-y-2">
-            <div className="h-3 w-3/4 animate-pulse rounded bg-slate-200" />
-            <div className="h-3 w-1/2 animate-pulse rounded bg-slate-200" />
-            <div className="h-3 w-2/3 animate-pulse rounded bg-slate-200" />
+            <div className="h-3 w-3/4 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-1/2 animate-pulse rounded bg-muted" />
+            <div className="h-3 w-2/3 animate-pulse rounded bg-muted" />
           </div>
         ) : proactive?.text ? (
           <>
-            <p className="text-sm leading-relaxed text-slate-700">{proactive.text}</p>
+            <p className="text-sm leading-relaxed text-foreground">{proactive.text}</p>
             <ReasoningBlock
               reasoning={proactiveReasoning}
               open={proactiveReasonOpen}
@@ -226,13 +226,13 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
             )}
           </>
         ) : (
-          <p className="text-sm text-slate-500 italic">Ask me anything about your venture.</p>
+          <p className="text-sm text-muted-foreground italic">Ask me anything about your venture.</p>
         )}
       </div>
 
-      <div className="max-h-72 overflow-y-auto bg-white px-4 py-3 space-y-3">
+      <div className="max-h-72 overflow-y-auto bg-card px-4 py-3 space-y-3">
         {historyLoaded && chatMessages.length === 0 && (
-          <p className="text-center text-xs text-slate-400 py-2">
+          <p className="text-center text-xs text-muted-foreground py-2">
             Your conversation with Ada will appear here and persist across sessions.
           </p>
         )}
@@ -249,8 +249,8 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
                 className={cn(
                   "max-w-[85%] rounded-2xl px-3 py-2 text-sm leading-relaxed",
                   m.role === "user"
-                    ? "bg-slate-800 text-white rounded-br-sm"
-                    : "bg-slate-100 text-slate-800 rounded-bl-sm"
+                    ? "bg-foreground text-background rounded-br-sm"
+                    : "bg-muted text-foreground rounded-bl-sm"
                 )}
               >
                 {m.content}
@@ -271,11 +271,11 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
         })}
         {chatLoading && (
           <div className="flex justify-start">
-            <div className="rounded-2xl rounded-bl-sm bg-slate-100 px-4 py-3">
+            <div className="rounded-2xl rounded-bl-sm bg-muted px-4 py-3">
               <span className="flex gap-1">
-                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.3s]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400 [animation-delay:-0.15s]" />
-                <span className="h-2 w-2 animate-bounce rounded-full bg-slate-400" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.3s]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground [animation-delay:-0.15s]" />
+                <span className="h-2 w-2 animate-bounce rounded-full bg-muted-foreground" />
               </span>
             </div>
           </div>
@@ -283,7 +283,7 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t border-slate-100 bg-white px-4 py-3">
+      <div className="border-t border-border bg-card px-4 py-3">
         <div className="flex gap-2">
           <input
             ref={inputRef}
@@ -292,7 +292,7 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage()}
             placeholder="Ask Ada anything about your venture…"
-            className="flex-1 rounded-full border border-slate-300 bg-slate-50 px-4 py-2 text-sm focus:border-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-200"
+            className="flex-1 rounded-full border border-border bg-background px-4 py-2 text-sm focus:border-primary focus:bg-card focus:outline-none focus:ring-2 focus:ring-border"
             disabled={chatLoading}
           />
           <button
@@ -300,7 +300,7 @@ export function AdaMessage({ ventureId, mode }: AdaMessageProps) {
             onClick={sendMessage}
             disabled={chatLoading || !input.trim()}
             className={cn(
-              "rounded-full px-4 py-2 text-sm font-medium text-white transition-colors disabled:opacity-40",
+              "rounded-full px-4 py-2 text-sm font-medium text-primary-foreground transition-colors disabled:opacity-40",
               accent.btn
             )}
           >

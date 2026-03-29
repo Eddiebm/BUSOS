@@ -55,29 +55,29 @@ export function Checklist({ milestone, onSave }: Props) {
   return (
     <div className="space-y-3">
       <div>
-        <div className="mb-1 flex justify-between text-xs text-zinc-400">
+        <div className="mb-1 flex justify-between text-xs text-muted-foreground">
           <span>
             {done} of {total} complete
           </span>
           <span>{pct}%</span>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-zinc-800">
+        <div className="h-2 overflow-hidden rounded-full bg-muted">
           <div
-            className="h-full rounded-full bg-amber-500/70 transition-[width]"
+            className="h-full rounded-full bg-primary/70 transition-[width]"
             style={{ width: `${pct}%` }}
           />
         </div>
       </div>
       <ul className="space-y-2">
         {items.map((it, i) => (
-          <li key={i} className="flex items-start gap-3 rounded-lg border border-zinc-700/80 bg-zinc-900/40 p-2">
+          <li key={i} className="flex items-start gap-3 rounded-lg border border-border/80 bg-card/40 p-2">
             <input
               type="checkbox"
               checked={it.checked}
               onChange={() => toggle(i)}
-              className="mt-1 h-4 w-4 rounded border-zinc-600"
+              className="mt-1 h-4 w-4 rounded border-border"
             />
-            <span className="text-sm leading-relaxed text-zinc-200">{it.label || "—"}</span>
+            <span className="text-sm leading-relaxed text-foreground">{it.label || "—"}</span>
           </li>
         ))}
       </ul>

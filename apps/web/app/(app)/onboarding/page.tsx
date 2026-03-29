@@ -47,7 +47,7 @@ export default function OnboardingPage() {
   if (checking) {
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
-        <p className="text-slate-500">Loading…</p>
+        <p className="text-muted-foreground">Loading…</p>
       </div>
     );
   }
@@ -55,18 +55,18 @@ export default function OnboardingPage() {
   return (
     <div className="mx-auto max-w-md space-y-8 py-12">
       <div className="text-center">
-        <h1 className="text-2xl font-bold text-slate-900">Create your first venture</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="text-2xl font-bold text-foreground">Create your first venture</h1>
+        <p className="mt-2 text-muted-foreground">
           Give your startup or project a name. You can add details and runway later.
         </p>
       </div>
 
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
+        className="rounded-xl border border-border bg-card p-6 shadow-sm"
         aria-label="Create first venture"
       >
-        <label htmlFor="onboarding-venture-name" className="block text-sm font-medium text-slate-700">
+        <label htmlFor="onboarding-venture-name" className="block text-sm font-medium text-foreground">
           Venture name
         </label>
         <input
@@ -75,23 +75,23 @@ export default function OnboardingPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Acme Inc"
-          className="mt-2 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="mt-2 w-full rounded-lg border border-border px-3 py-2 focus:border-border focus:outline-none focus:ring-1 focus:ring-ring"
           autoFocus
         />
         <button
           type="submit"
           disabled={loading || !name.trim()}
-          className="mt-6 w-full rounded-lg bg-slate-900 py-2.5 text-sm font-medium text-white disabled:opacity-50 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          className="mt-6 w-full rounded-lg bg-foreground py-2.5 text-sm font-medium text-background disabled:opacity-50 hover:bg-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-background"
         >
           {loading ? "Creating…" : "Create and go to dashboard"}
         </button>
       </form>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-muted-foreground">
         <button
           type="button"
           onClick={() => router.push("/ventures")}
-          className="underline hover:text-slate-700"
+          className="underline hover:text-foreground"
         >
           Skip to ventures
         </button>

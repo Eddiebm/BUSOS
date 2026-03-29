@@ -40,8 +40,8 @@ export function VoiceInputButton({ onTranscript, className }: VoiceInputButtonPr
   // Permission denied — show a helpful inline message instead of an alert
   if (permissionState === "denied") {
     return (
-      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
-        <MicBlocked className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />
+      <div className="flex items-center gap-2 rounded-lg border border-primary/40 bg-warning/10 px-3 py-2 text-xs text-primary">
+        <MicBlocked className="h-4 w-4 shrink-0 text-primary" aria-hidden />
         <span>
           Mic blocked.{" "}
           <button
@@ -76,9 +76,9 @@ export function VoiceInputButton({ onTranscript, className }: VoiceInputButtonPr
       disabled={isTranscribing}
       title={isRecording ? "Tap to stop — we'll transcribe what you said" : "Tap to speak your answer"}
       className={cn(
-        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400",
+        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-colors hover:bg-background focus:outline-none focus:ring-2 focus:ring-ring",
         isRecording &&
-          "animate-pulse border-red-300 bg-red-50 text-red-600 hover:bg-red-100",
+          "animate-pulse border-destructive/45 bg-destructive/10 text-destructive hover:bg-destructive/15",
         isTranscribing && "cursor-wait opacity-70",
         className
       )}

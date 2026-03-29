@@ -10,10 +10,10 @@ export function RunwayGauge({ months }: RunwayGaugeProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <span className="text-xs font-medium text-zinc-500">Runway</span>
+      <span className="text-xs font-medium text-muted-foreground">Runway</span>
       <span
         className={
-          value < 6 ? "font-semibold text-red-400" : value < 12 ? "text-amber-400" : "text-emerald-400"
+          value < 6 ? "font-semibold text-destructive" : value < 12 ? "text-primary" : "text-success"
         }
       >
         {display}

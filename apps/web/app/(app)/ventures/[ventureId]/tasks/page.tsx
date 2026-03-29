@@ -27,32 +27,32 @@ function MilestoneRoadmapCard({
     <button
       type="button"
       onClick={onNavigate}
-      className="group w-full rounded-xl border border-amber-500/20 bg-zinc-900/80 p-4 text-left transition hover:border-amber-500/40 hover:bg-zinc-900"
+      className="group w-full rounded-xl border border-primary/25 bg-card/80 p-4 text-left transition hover:border-primary/45 hover:bg-card"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-amber-200/90">
+        <span className="rounded-full border border-primary/35 bg-primary/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
           {cat}
         </span>
         <span
           className={cn(
             "rounded-full px-2 py-0.5 text-[10px] font-semibold",
-            m.completed && "bg-emerald-500/15 text-emerald-300",
-            m.skipped && "bg-zinc-700 text-zinc-400",
-            m.deferred && !m.skipped && !m.completed && "bg-amber-500/10 text-amber-200/80",
-            !m.completed && !m.skipped && !m.deferred && "bg-zinc-800 text-zinc-300"
+            m.completed && "bg-success/15 text-success",
+            m.skipped && "bg-muted text-muted-foreground",
+            m.deferred && !m.skipped && !m.completed && "bg-primary/10 text-primary",
+            !m.completed && !m.skipped && !m.deferred && "bg-muted text-muted-foreground"
           )}
         >
           {statusLabel(m)}
         </span>
         {m.timeEstimate && (
-          <span className="text-xs text-zinc-500">{m.timeEstimate}</span>
+          <span className="text-xs text-muted-foreground">{m.timeEstimate}</span>
         )}
       </div>
-      <h3 className="mt-2 font-semibold leading-snug text-zinc-100 group-hover:text-amber-100">
+      <h3 className="mt-2 font-semibold leading-snug text-foreground group-hover:text-primary">
         {m.title}
       </h3>
-      <p className="mt-1 line-clamp-2 text-sm text-zinc-400">{m.description}</p>
-      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-amber-400/90">
+      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{m.description}</p>
+      <span className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-primary">
         Open full journey <ArrowRight className="h-3.5 w-3.5" />
       </span>
     </button>
@@ -126,14 +126,14 @@ export default function VentureRoadmapTasksPage() {
         <div>
           <Link
             href={`/dashboard?ventureId=${ventureId}`}
-            className="text-sm text-zinc-500 hover:text-amber-200/90"
+            className="text-sm text-muted-foreground hover:text-primary"
           >
             ← Back
           </Link>
-          <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-50">
+          <h1 className="mt-2 text-3xl font-bold tracking-tight text-foreground">
             Your AI-Generated Roadmap
           </h1>
-          <p className="mt-1 text-zinc-400">
+          <p className="mt-1 text-muted-foreground">
             Focus on what matters next — pulled from your journey milestones.
           </p>
         </div>
@@ -141,7 +141,7 @@ export default function VentureRoadmapTasksPage() {
           <button
             type="button"
             onClick={goJourney}
-            className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm font-medium text-amber-100 hover:bg-amber-500/20"
+            className="inline-flex items-center gap-2 rounded-lg border border-primary/35 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20"
           >
             <Map className="h-4 w-4" />
             View Full Journey
@@ -150,15 +150,15 @@ export default function VentureRoadmapTasksPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center gap-2 text-zinc-400">
+        <div className="flex items-center gap-2 text-muted-foreground">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading roadmap…
         </div>
       ) : milestones.length === 0 ? (
-        <div className="rounded-2xl border border-amber-500/20 bg-zinc-900/60 p-10 text-center">
-          <Sparkles className="mx-auto h-10 w-10 text-amber-400/80" />
-          <h2 className="mt-4 text-lg font-semibold text-zinc-100">No milestones yet</h2>
-          <p className="mt-2 text-sm text-zinc-400">
+        <div className="rounded-2xl border border-primary/25 bg-card/60 p-10 text-center">
+          <Sparkles className="mx-auto h-10 w-10 text-primary/80" />
+          <h2 className="mt-4 text-lg font-semibold text-foreground">No milestones yet</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
             {dnaOk === false
               ? "Complete your Venture DNA first so Ada can generate a personalized roadmap."
               : "Generate your 23-step AI roadmap in one click."}
@@ -167,7 +167,7 @@ export default function VentureRoadmapTasksPage() {
             {dnaOk === false ? (
               <Link
                 href={`/ventures/${ventureId}/dream`}
-                className="rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-amber-400"
+                className="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/85"
               >
                 Complete Venture DNA
               </Link>
@@ -176,7 +176,7 @@ export default function VentureRoadmapTasksPage() {
                 type="button"
                 disabled={generating}
                 onClick={() => void generateMilestones()}
-                className="inline-flex items-center gap-2 rounded-lg bg-amber-500 px-5 py-2.5 text-sm font-semibold text-zinc-950 hover:bg-amber-400 disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/85 disabled:opacity-60"
               >
                 {generating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -189,7 +189,7 @@ export default function VentureRoadmapTasksPage() {
             <button
               type="button"
               onClick={goJourney}
-              className="rounded-lg border border-zinc-600 px-5 py-2.5 text-sm font-medium text-zinc-200 hover:bg-zinc-800"
+              className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-foreground hover:bg-muted"
             >
               Open journey page
             </button>
@@ -198,11 +198,11 @@ export default function VentureRoadmapTasksPage() {
       ) : (
         <>
           <section>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-200/70">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary/70">
               Active
             </h2>
             {active.length === 0 ? (
-              <p className="text-sm text-zinc-500">No active milestone — you may have finished or skipped items.</p>
+              <p className="text-sm text-muted-foreground">No active milestone — you may have finished or skipped items.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-1 lg:grid-cols-2">
                 {active.map((m) => (
@@ -213,11 +213,11 @@ export default function VentureRoadmapTasksPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-200/70">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary/70">
               Up Next
             </h2>
             {upNext.length === 0 ? (
-              <p className="text-sm text-zinc-500">Nothing queued — you&apos;re caught up on the next few steps.</p>
+              <p className="text-sm text-muted-foreground">Nothing queued — you&apos;re caught up on the next few steps.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-3">
                 {upNext.map((m) => (
@@ -228,11 +228,11 @@ export default function VentureRoadmapTasksPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-amber-200/70">
+            <h2 className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary/70">
               Later
             </h2>
             {later.length === 0 ? (
-              <p className="text-sm text-zinc-500">No further steps in queue.</p>
+              <p className="text-sm text-muted-foreground">No further steps in queue.</p>
             ) : (
               <div className="grid gap-3 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                 {later.map((m) => (

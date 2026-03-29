@@ -67,7 +67,7 @@ export default function VenturesPage() {
   if (loading)
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">Ventures</h1>
+        <h1 className="text-2xl font-bold text-foreground">Ventures</h1>
         <VenturesListSkeleton />
       </div>
     );
@@ -75,14 +75,14 @@ export default function VenturesPage() {
   if (error)
     return (
       <div className="space-y-6">
-        <h1 className="text-2xl font-bold text-slate-900">Ventures</h1>
+        <h1 className="text-2xl font-bold text-foreground">Ventures</h1>
         <ErrorState message={error} onRetry={fetchVentures} />
       </div>
     );
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Ventures</h1>
+      <h1 className="text-2xl font-bold text-foreground">Ventures</h1>
 
       <form onSubmit={handleCreate} className="flex gap-2" aria-label="Create venture">
         <label htmlFor="venture-name-input" className="sr-only">
@@ -94,12 +94,12 @@ export default function VenturesPage() {
           value={createName}
           onChange={(e) => setCreateName(e.target.value)}
           placeholder="New venture name"
-          className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none focus:ring-1 focus:ring-slate-500"
+          className="rounded-lg border border-border px-3 py-2 text-sm focus:border-border focus:outline-none focus:ring-1 focus:ring-ring"
         />
         <button
           type="submit"
           disabled={creating || !createName.trim()}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+          className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background disabled:opacity-50 hover:bg-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-background"
         >
           {creating ? "Creating…" : "Create"}
         </button>
@@ -117,14 +117,14 @@ export default function VenturesPage() {
           {ventures.map((v) => (
             <li
               key={v.id}
-              className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow"
+              className="rounded-xl border border-border bg-card p-4 shadow-sm transition hover:shadow"
             >
               <Link href={`/dashboard?ventureId=${v.id}`} className="block">
-                <h2 className="font-semibold text-slate-900">{v.name}</h2>
+                <h2 className="font-semibold text-foreground">{v.name}</h2>
                 {v.description && (
-                  <p className="mt-1 text-sm text-slate-600 line-clamp-2">{v.description}</p>
+                  <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{v.description}</p>
                 )}
-                <div className="mt-3 flex items-center gap-3 text-xs text-slate-500">
+                <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">
                   <span>Stage {v.stage}</span>
                   <span>Stress {v.stressLevel}%</span>
                   {v.cashRunwayMonths != null && (

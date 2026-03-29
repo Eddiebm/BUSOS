@@ -20,7 +20,7 @@ function renderContent(content: string) {
     const line = lines[i];
     if (line.startsWith("## ")) {
       out.push(
-        <h2 key={i} className="mt-8 text-xl font-semibold text-amber-100 first:mt-0">
+        <h2 key={i} className="mt-8 text-xl font-semibold text-primary first:mt-0">
           {line.slice(3)}
         </h2>
       );
@@ -29,7 +29,7 @@ function renderContent(content: string) {
     }
     if (line.startsWith("# ")) {
       out.push(
-        <h1 key={i} className="mt-6 text-2xl font-bold text-zinc-50 first:mt-0">
+        <h1 key={i} className="mt-6 text-2xl font-bold text-foreground first:mt-0">
           {line.slice(2)}
         </h1>
       );
@@ -43,7 +43,7 @@ function renderContent(content: string) {
         i += 1;
       }
       out.push(
-        <ul key={`ul-${i}`} className="my-3 list-disc space-y-1 pl-6 text-zinc-300">
+        <ul key={`ul-${i}`} className="my-3 list-disc space-y-1 pl-6 text-muted-foreground">
           {items.map((t, j) => (
             <li key={j}>{t}</li>
           ))}
@@ -56,7 +56,7 @@ function renderContent(content: string) {
       continue;
     }
     out.push(
-      <p key={i} className="my-3 leading-relaxed text-zinc-300">
+      <p key={i} className="my-3 leading-relaxed text-muted-foreground">
         {line}
       </p>
     );
@@ -88,10 +88,10 @@ export default function ArticlePage() {
   if (loading) {
     return (
       <div className="space-y-4">
-        <Link href={`/ventures/${ventureId}/learn`} className="text-sm text-amber-500/90 hover:text-amber-400">
+        <Link href={`/ventures/${ventureId}/learn`} className="text-sm text-primary/90 hover:text-primary">
           ← Learn
         </Link>
-        <p className="text-zinc-400">Loading…</p>
+        <p className="text-muted-foreground">Loading…</p>
       </div>
     );
   }
@@ -99,24 +99,24 @@ export default function ArticlePage() {
   if (err || !article) {
     return (
       <div className="space-y-4">
-        <Link href={`/ventures/${ventureId}/learn`} className="text-sm text-amber-500/90 hover:text-amber-400">
+        <Link href={`/ventures/${ventureId}/learn`} className="text-sm text-primary/90 hover:text-primary">
           ← Learn
         </Link>
-        <p className="text-zinc-400">Article not found.</p>
+        <p className="text-muted-foreground">Article not found.</p>
       </div>
     );
   }
 
   return (
     <article className="mx-auto max-w-3xl space-y-6">
-      <Link href={`/ventures/${ventureId}/learn`} className="text-sm text-amber-500/90 hover:text-amber-400">
+      <Link href={`/ventures/${ventureId}/learn`} className="text-sm text-primary/90 hover:text-primary">
         ← Learn library
       </Link>
       <header>
-        <p className="text-sm uppercase tracking-wide text-amber-200/80">{article.category}</p>
-        <h1 className="mt-2 text-3xl font-bold text-zinc-50">{article.title}</h1>
+        <p className="text-sm uppercase tracking-wide text-primary">{article.category}</p>
+        <h1 className="mt-2 text-3xl font-bold text-foreground">{article.title}</h1>
       </header>
-      <div className="border-t border-zinc-800 pt-6">{renderContent(article.content)}</div>
+      <div className="border-t border-border pt-6">{renderContent(article.content)}</div>
     </article>
   );
 }

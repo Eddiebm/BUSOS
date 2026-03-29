@@ -70,15 +70,15 @@ export function Dashboard({ ventureId }: DashboardProps) {
 
   const containerClasses = cn(
     "min-h-screen transition-colors duration-500",
-    mode === "DISCOVERY" && "bg-gradient-to-br from-zinc-950 via-zinc-950 to-blue-950/40",
-    mode === "EXECUTION" && "bg-gradient-to-br from-zinc-950 to-zinc-900",
-    mode === "SURVIVAL" && "border-t-4 border-red-600 bg-gradient-to-br from-zinc-950 to-rose-950/50"
+    mode === "DISCOVERY" && "bg-gradient-to-br from-background via-background to-info/20",
+    mode === "EXECUTION" && "bg-gradient-to-br from-background to-card",
+    mode === "SURVIVAL" && "border-t-4 border-destructive bg-gradient-to-br from-background to-destructive/25"
   );
 
   const headerIcon = {
-    DISCOVERY: <Rocket className="h-8 w-8 text-amber-400" aria-hidden />,
-    EXECUTION: <Focus className="h-8 w-8 text-zinc-300" aria-hidden />,
-    SURVIVAL: <AlertTriangle className="h-8 w-8 animate-pulse text-red-500" aria-hidden />,
+    DISCOVERY: <Rocket className="h-8 w-8 text-primary" aria-hidden />,
+    EXECUTION: <Focus className="h-8 w-8 text-muted-foreground" aria-hidden />,
+    SURVIVAL: <AlertTriangle className="h-8 w-8 animate-pulse text-destructive" aria-hidden />,
   };
 
   const stageTitle = getStageName(venture.stage);
@@ -88,19 +88,19 @@ export function Dashboard({ ventureId }: DashboardProps) {
       <div className="px-6 pt-6">
         <IntelligenceBanner ventureId={venture.id} />
       </div>
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-800/80 p-6">
+      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border/80 p-6">
         <div className="flex items-center gap-3">
           {headerIcon[mode]}
           <div>
-            <h1 className="text-2xl font-bold text-zinc-50">{venture.name}</h1>
-            <p className="text-sm text-zinc-400">Current stage: {stageTitle}</p>
+            <h1 className="text-2xl font-bold text-foreground">{venture.name}</h1>
+            <p className="text-sm text-muted-foreground">Current stage: {stageTitle}</p>
           </div>
           <span
             className={cn(
               "rounded-full px-3 py-1 text-sm font-medium",
-              mode === "DISCOVERY" && "bg-amber-500/15 text-amber-200",
-              mode === "EXECUTION" && "bg-zinc-800 text-zinc-200",
-              mode === "SURVIVAL" && "animate-pulse bg-red-500/20 text-red-200"
+              mode === "DISCOVERY" && "bg-primary/15 text-primary",
+              mode === "EXECUTION" && "bg-muted text-foreground",
+              mode === "SURVIVAL" && "animate-pulse bg-destructive/100/20 text-destructive-foreground"
             )}
           >
             {mode} MODE
@@ -109,7 +109,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
         <div className="flex flex-wrap items-center gap-4">
           <TeamPresence ventureId={venture.id} />
           <RunwayGauge months={venture.cashRunwayMonths} />
-          <div className="text-sm text-zinc-400">Stress Level: {stressLevel}%</div>
+          <div className="text-sm text-muted-foreground">Stress Level: {stressLevel}%</div>
         </div>
       </header>
 
@@ -121,16 +121,16 @@ export function Dashboard({ ventureId }: DashboardProps) {
           <AlertsPanel ventureId={venture.id} />
 
           {mode === "SURVIVAL" && (
-            <div className="rounded-lg border border-red-500/30 bg-red-950/40 p-4">
-              <h3 className="flex items-center gap-2 font-bold text-red-200">
+            <div className="rounded-lg border border-destructive/35 bg-destructive/15 p-4">
+              <h3 className="flex items-center gap-2 font-bold text-destructive-foreground">
                 <Shell className="h-4 w-4" /> Emergency Kit
               </h3>
-              <ul className="mt-2 space-y-1 text-sm text-red-200/90">
+              <ul className="mt-2 space-y-1 text-sm text-destructive-foreground/90">
                 <li>
                   •{" "}
                   <Link
                     href={`/ventures/${venture.id}/emergency/bridge-financing`}
-                    className="font-medium underline underline-offset-2 hover:text-red-100"
+                    className="font-medium underline underline-offset-2 hover:text-destructive-foreground"
                   >
                     Bridge financing plan
                   </Link>
@@ -139,7 +139,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
                   •{" "}
                   <Link
                     href={`/ventures/${venture.id}/emergency/pivot-canvas`}
-                    className="font-medium underline underline-offset-2 hover:text-red-100"
+                    className="font-medium underline underline-offset-2 hover:text-destructive-foreground"
                   >
                     Pivot canvas
                   </Link>
@@ -148,7 +148,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
                   •{" "}
                   <Link
                     href={`/ventures/${venture.id}/emergency/cost-reduction`}
-                    className="font-medium underline underline-offset-2 hover:text-red-100"
+                    className="font-medium underline underline-offset-2 hover:text-destructive-foreground"
                   >
                     Cost reduction checklist
                   </Link>
@@ -158,9 +158,9 @@ export function Dashboard({ ventureId }: DashboardProps) {
           )}
 
           {mode === "DISCOVERY" && (
-            <div className="rounded-lg border border-blue-500/25 bg-blue-950/40 p-4">
-              <h3 className="font-medium text-blue-200">Discovery Tip</h3>
-              <p className="mt-1 text-sm text-blue-200/80">
+            <div className="rounded-lg border border-info/25 bg-info/15 p-4">
+              <h3 className="font-medium text-info">Discovery Tip</h3>
+              <p className="mt-1 text-sm text-info/80">
                 Complete customer interviews to validate your problem. We recommend 10-20 interviews.
               </p>
             </div>
@@ -176,7 +176,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
                 type="button"
                 onClick={completeStage}
                 disabled={advancing}
-                className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:opacity-50"
+                className="rounded-lg bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-foreground disabled:opacity-50"
               >
                 {advancing ? "Updating…" : "Complete this stage"}
               </button>

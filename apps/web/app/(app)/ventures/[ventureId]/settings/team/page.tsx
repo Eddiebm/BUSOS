@@ -125,20 +125,20 @@ export default function TeamSettingsPage() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl space-y-8 pb-16 text-zinc-100">
+    <div className="mx-auto max-w-3xl space-y-8 pb-16 text-foreground">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <Link href={`/ventures/${ventureId}/settings`} className="text-sm text-amber-500/90 hover:text-amber-400">
+          <Link href={`/ventures/${ventureId}/settings`} className="text-sm text-primary/90 hover:text-primary">
             ← Venture settings
           </Link>
-          <h1 className="mt-2 text-2xl font-bold text-white">Team</h1>
-          <p className="text-sm text-zinc-400">Roles, invites, and presence — global-first collaboration.</p>
+          <h1 className="mt-2 text-2xl font-bold text-foreground">Team</h1>
+          <p className="text-sm text-muted-foreground">Roles, invites, and presence — global-first collaboration.</p>
         </div>
         {canManage && (
           <button
             type="button"
             onClick={() => setModal(true)}
-            className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-zinc-950 hover:bg-amber-400"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
           >
             Invite member
           </button>
@@ -146,35 +146,35 @@ export default function TeamSettingsPage() {
       </div>
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-          <div className="w-full max-w-md rounded-xl border border-amber-500/30 bg-zinc-900 p-6 shadow-xl">
-            <h2 className="text-lg font-semibold text-white">Invite by email</h2>
-            <label className="mt-4 block text-sm text-zinc-400">Email</label>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/70 p-4">
+          <div className="w-full max-w-md rounded-xl border border-primary/35 bg-card p-6 shadow-xl">
+            <h2 className="text-lg font-semibold text-foreground">Invite by email</h2>
+            <label className="mt-4 block text-sm text-muted-foreground">Email</label>
             <input
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
               placeholder="founder@company.com"
             />
-            <label className="mt-3 block text-sm text-zinc-400">Role</label>
+            <label className="mt-3 block text-sm text-muted-foreground">Role</label>
             <select
               value={inviteRole}
               onChange={(e) => setInviteRole(e.target.value)}
-              className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
             >
               <option value="ADMIN">Admin</option>
               <option value="MEMBER">Member</option>
               <option value="VIEWER">Viewer</option>
             </select>
             <div className="mt-6 flex justify-end gap-2">
-              <button type="button" onClick={() => setModal(false)} className="rounded-lg px-3 py-2 text-zinc-400 hover:text-white">
+              <button type="button" onClick={() => setModal(false)} className="rounded-lg px-3 py-2 text-muted-foreground hover:text-foreground">
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={invite}
                 disabled={sending}
-                className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-semibold text-zinc-950 disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
               >
                 {sending ? "Sending…" : "Send invite"}
               </button>
@@ -183,16 +183,16 @@ export default function TeamSettingsPage() {
         </div>
       )}
 
-      <section className="rounded-xl border border-amber-500/20 bg-zinc-900/90 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-200/80">Members</h2>
+      <section className="rounded-xl border border-primary/25 bg-card/90 p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Members</h2>
         {loading ? (
-          <p className="mt-4 text-zinc-500">Loading…</p>
+          <p className="mt-4 text-muted-foreground">Loading…</p>
         ) : (
-          <ul className="mt-4 divide-y divide-zinc-800">
+          <ul className="mt-4 divide-y divide-border">
             {members.map((m) => (
               <li key={m.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-800 text-xs font-bold text-amber-200">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-xs font-bold text-primary">
                     {m.imageUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={m.imageUrl} alt="" className="h-full w-full rounded-full object-cover" />
@@ -201,9 +201,9 @@ export default function TeamSettingsPage() {
                     )}
                   </div>
                   <div>
-                    <p className="font-medium text-white">{m.name ?? m.email}</p>
-                    <p className="text-xs text-zinc-500">{m.email}</p>
-                    <p className="text-xs text-zinc-500">
+                    <p className="font-medium text-foreground">{m.name ?? m.email}</p>
+                    <p className="text-xs text-muted-foreground">{m.email}</p>
+                    <p className="text-xs text-muted-foreground">
                       Last active:{" "}
                       {m.lastActiveAt || m.lastLoginAt
                         ? formatUserDateTime(m.lastActiveAt ?? m.lastLoginAt ?? "", viewerTz)
@@ -213,13 +213,13 @@ export default function TeamSettingsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   {m.id.startsWith("owner:") ? (
-                    <span className="rounded-full bg-amber-500/20 px-2 py-1 text-xs font-medium text-amber-200">OWNER</span>
+                    <span className="rounded-full bg-primary/20 px-2 py-1 text-xs font-medium text-primary">OWNER</span>
                   ) : canManage ? (
                     <>
                       <select
                         value={m.role}
                         onChange={(e) => changeRole(m.id, e.target.value)}
-                        className="rounded-lg border border-zinc-700 bg-zinc-950 px-2 py-1 text-sm text-white"
+                        className="rounded-lg border border-border bg-background px-2 py-1 text-sm text-foreground"
                       >
                         <option value="ADMIN">Admin</option>
                         <option value="MEMBER">Member</option>
@@ -228,13 +228,13 @@ export default function TeamSettingsPage() {
                       <button
                         type="button"
                         onClick={() => removeMember(m.id)}
-                        className="text-sm text-red-400 hover:text-red-300"
+                        className="text-sm text-destructive hover:text-destructive/80"
                       >
                         Remove
                       </button>
                     </>
                   ) : (
-                    <span className="rounded-full bg-zinc-800 px-2 py-1 text-xs text-amber-200/90">{m.role}</span>
+                    <span className="rounded-full bg-muted px-2 py-1 text-xs text-primary">{m.role}</span>
                   )}
                 </div>
               </li>
@@ -243,19 +243,19 @@ export default function TeamSettingsPage() {
         )}
       </section>
 
-      <section className="rounded-xl border border-amber-500/20 bg-zinc-900/90 p-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wide text-amber-200/80">Pending invites</h2>
+      <section className="rounded-xl border border-primary/25 bg-card/90 p-4">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-primary">Pending invites</h2>
         {invites.length === 0 ? (
-          <p className="mt-3 text-sm text-zinc-500">No pending invites.</p>
+          <p className="mt-3 text-sm text-muted-foreground">No pending invites.</p>
         ) : (
-          <ul className="mt-3 divide-y divide-zinc-800">
+          <ul className="mt-3 divide-y divide-border">
             {invites.map((i) => (
               <li key={i.id} className="flex items-center justify-between py-2 text-sm">
-                <span className="text-zinc-300">
-                  {i.email} <span className="text-zinc-500">({i.role})</span>
+                <span className="text-muted-foreground">
+                  {i.email} <span className="text-muted-foreground">({i.role})</span>
                 </span>
                 {canManage && (
-                  <button type="button" onClick={() => revoke(i.id)} className="text-amber-500/90 hover:text-amber-400">
+                  <button type="button" onClick={() => revoke(i.id)} className="text-primary/90 hover:text-primary">
                     Revoke
                   </button>
                 )}

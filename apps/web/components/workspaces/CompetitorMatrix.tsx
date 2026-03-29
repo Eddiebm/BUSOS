@@ -85,26 +85,26 @@ export function CompetitorMatrix({ milestone, onSave }: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="overflow-x-auto rounded-lg border border-amber-500/20">
+      <div className="overflow-x-auto rounded-lg border border-primary/25">
         <table className="w-full min-w-[640px] border-collapse text-sm">
           <thead>
-            <tr className="border-b border-zinc-700 bg-zinc-900/80">
-              <th className="px-2 py-2 text-left font-semibold text-amber-200/90">Competitor</th>
-              <th className="px-2 py-2 text-left font-semibold text-amber-200/90">Pricing</th>
-              <th className="px-2 py-2 text-left font-semibold text-amber-200/90">Strengths</th>
-              <th className="px-2 py-2 text-left font-semibold text-amber-200/90">Weaknesses</th>
+            <tr className="border-b border-border bg-card/80">
+              <th className="px-2 py-2 text-left font-semibold text-primary">Competitor</th>
+              <th className="px-2 py-2 text-left font-semibold text-primary">Pricing</th>
+              <th className="px-2 py-2 text-left font-semibold text-primary">Strengths</th>
+              <th className="px-2 py-2 text-left font-semibold text-primary">Weaknesses</th>
               <th className="w-10 px-1" aria-hidden />
             </tr>
           </thead>
           <tbody>
             {rows.map((row, i) => (
-              <tr key={i} className="border-b border-zinc-800/80">
+              <tr key={i} className="border-b border-border/80">
                 <td className="p-1 align-top">
                   <textarea
                     value={row.name}
                     onChange={(e) => updateRow(i, { name: e.target.value })}
                     rows={2}
-                    className="w-full resize-y rounded border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="w-full resize-y rounded border border-border bg-card px-2 py-1.5 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
                     placeholder="Name"
                   />
                 </td>
@@ -113,7 +113,7 @@ export function CompetitorMatrix({ milestone, onSave }: Props) {
                     value={row.pricing}
                     onChange={(e) => updateRow(i, { pricing: e.target.value })}
                     rows={2}
-                    className="w-full resize-y rounded border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="w-full resize-y rounded border border-border bg-card px-2 py-1.5 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
                     placeholder="Pricing"
                   />
                 </td>
@@ -122,7 +122,7 @@ export function CompetitorMatrix({ milestone, onSave }: Props) {
                     value={row.strengths}
                     onChange={(e) => updateRow(i, { strengths: e.target.value })}
                     rows={2}
-                    className="w-full resize-y rounded border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="w-full resize-y rounded border border-border bg-card px-2 py-1.5 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
                     placeholder="Strengths"
                   />
                 </td>
@@ -131,7 +131,7 @@ export function CompetitorMatrix({ milestone, onSave }: Props) {
                     value={row.weaknesses}
                     onChange={(e) => updateRow(i, { weaknesses: e.target.value })}
                     rows={2}
-                    className="w-full resize-y rounded border border-zinc-700 bg-zinc-900 px-2 py-1.5 text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+                    className="w-full resize-y rounded border border-border bg-card px-2 py-1.5 text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:outline-none focus:ring-1 focus:ring-primary/30"
                     placeholder="Weaknesses"
                   />
                 </td>
@@ -139,7 +139,7 @@ export function CompetitorMatrix({ milestone, onSave }: Props) {
                   <button
                     type="button"
                     onClick={() => removeRow(i)}
-                    className="rounded px-2 py-1 text-lg leading-none text-zinc-500 hover:bg-zinc-800 hover:text-amber-400"
+                    className="rounded px-2 py-1 text-lg leading-none text-muted-foreground hover:bg-muted hover:text-primary"
                     aria-label="Remove row"
                   >
                     ×
@@ -153,7 +153,7 @@ export function CompetitorMatrix({ milestone, onSave }: Props) {
       <button
         type="button"
         onClick={addRow}
-        className="inline-flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm font-medium text-amber-100 hover:bg-amber-500/20"
+        className="inline-flex items-center gap-2 rounded-lg border border-primary/35 bg-primary/10 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/20"
       >
         <Plus className="h-4 w-4" />
         Add competitor

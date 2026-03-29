@@ -30,7 +30,7 @@ export function IntelligenceBanner({ ventureId }: { ventureId: string }) {
   if (loading) {
     return (
       <div
-        className="mb-6 h-14 animate-pulse rounded-lg bg-slate-100"
+        className="mb-6 h-14 animate-pulse rounded-lg bg-muted"
         aria-hidden
       />
     );
@@ -42,24 +42,24 @@ export function IntelligenceBanner({ ventureId }: { ventureId: string }) {
     return (
       <div
         className={cn(
-          "mb-6 flex flex-col gap-3 rounded-lg border border-red-200 bg-red-50 p-4 text-red-900 sm:flex-row sm:items-center sm:justify-between"
+          "mb-6 flex flex-col gap-3 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-destructive sm:flex-row sm:items-center sm:justify-between"
         )}
       >
         <div className="flex gap-3">
           <AlertTriangle
-            className="h-5 w-5 shrink-0 text-red-600"
+            className="h-5 w-5 shrink-0 text-destructive"
             aria-hidden
           />
           <div>
-            <p className="text-sm font-semibold text-red-900">
+            <p className="text-sm font-semibold text-destructive">
               Critical gap identified
             </p>
-            <p className="mt-1 text-sm text-red-800">{intel.message}</p>
+            <p className="mt-1 text-sm text-destructive">{intel.message}</p>
           </div>
         </div>
         <Link
           href={`/ventures/${ventureId}/journey`}
-          className="shrink-0 text-sm font-medium text-red-800 underline underline-offset-2 hover:text-red-950"
+          className="shrink-0 text-sm font-medium text-destructive underline underline-offset-2 hover:text-destructive"
         >
           View your roadmap →
         </Link>
@@ -71,11 +71,11 @@ export function IntelligenceBanner({ ventureId }: { ventureId: string }) {
     return (
       <div
         className={cn(
-          "mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4 text-green-900"
+          "mb-6 flex items-start gap-3 rounded-lg border border-success/35 bg-success/10 p-4 text-foreground"
         )}
       >
-        <Check className="h-5 w-5 shrink-0 text-green-600" aria-hidden />
-        <p className="text-sm font-medium text-green-900">{intel.message}</p>
+        <Check className="h-5 w-5 shrink-0 text-success" aria-hidden />
+        <p className="text-sm font-medium text-foreground">{intel.message}</p>
       </div>
     );
   }
@@ -83,16 +83,16 @@ export function IntelligenceBanner({ ventureId }: { ventureId: string }) {
   return (
     <div
       className={cn(
-        "mb-6 flex flex-col gap-3 rounded-lg border border-indigo-200 bg-indigo-50 p-4 text-indigo-900 sm:flex-row sm:items-center sm:justify-between"
+        "mb-6 flex flex-col gap-3 rounded-lg border border-primary/35 bg-primary/8 p-4 text-foreground sm:flex-row sm:items-center sm:justify-between"
       )}
     >
       <div className="flex gap-3">
-        <Sparkles className="h-5 w-5 shrink-0 text-indigo-600" aria-hidden />
-        <p className="text-sm font-medium text-indigo-900">{intel.message}</p>
+        <Sparkles className="h-5 w-5 shrink-0 text-primary" aria-hidden />
+        <p className="text-sm font-medium text-foreground">{intel.message}</p>
       </div>
       <Link
         href={`/ventures/${ventureId}/dream`}
-        className="shrink-0 text-sm font-semibold text-indigo-800 underline underline-offset-2 hover:text-indigo-950"
+        className="shrink-0 text-sm font-semibold text-primary underline underline-offset-2 hover:text-foreground"
       >
         Start Dream Intake →
       </Link>

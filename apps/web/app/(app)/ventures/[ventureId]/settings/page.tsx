@@ -58,23 +58,23 @@ export default function VentureSettingsPage() {
       <div className="flex items-center gap-4">
         <Link
           href={`/dashboard?ventureId=${ventureId}`}
-          className="text-sm text-amber-500/90 hover:text-amber-400"
+          className="text-sm text-primary/90 hover:text-primary"
         >
           ← Dashboard
         </Link>
-        <h1 className="text-2xl font-bold text-zinc-50">Venture settings</h1>
+        <h1 className="text-2xl font-bold text-foreground">Venture settings</h1>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <Link
           href={`/ventures/${ventureId}/settings/team`}
-          className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 hover:border-amber-500/40"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:border-primary/45"
         >
           Team & access
         </Link>
         <Link
           href={`/ventures/${ventureId}/settings/integrations`}
-          className="rounded-lg border border-zinc-700 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 hover:border-amber-500/40"
+          className="rounded-lg border border-border bg-card px-4 py-2 text-sm font-medium text-foreground hover:border-primary/45"
         >
           Integrations
         </Link>
@@ -82,10 +82,10 @@ export default function VentureSettingsPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="space-y-4 rounded-xl border border-amber-500/15 bg-zinc-900/60 p-6"
+        className="space-y-4 rounded-xl border border-primary/15 bg-card/60 p-6"
       >
         <div>
-          <label htmlFor="vs-name" className="block text-sm font-medium text-zinc-400">
+          <label htmlFor="vs-name" className="block text-sm font-medium text-muted-foreground">
             Venture name
           </label>
           <input
@@ -93,11 +93,11 @@ export default function VentureSettingsPage() {
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
           />
         </div>
         <div>
-          <label htmlFor="vs-desc" className="block text-sm font-medium text-zinc-400">
+          <label htmlFor="vs-desc" className="block text-sm font-medium text-muted-foreground">
             Description
           </label>
           <textarea
@@ -105,11 +105,11 @@ export default function VentureSettingsPage() {
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={4}
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
           />
         </div>
         <div>
-          <label htmlFor="vs-burn" className="block text-sm font-medium text-zinc-400">
+          <label htmlFor="vs-burn" className="block text-sm font-medium text-muted-foreground">
             Monthly burn (USD)
           </label>
           <input
@@ -119,11 +119,11 @@ export default function VentureSettingsPage() {
             step={100}
             value={monthlyBurn}
             onChange={(e) => setMonthlyBurn(e.target.value === "" ? "" : Number(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
           />
         </div>
         <div>
-          <label htmlFor="vs-rev" className="block text-sm font-medium text-zinc-400">
+          <label htmlFor="vs-rev" className="block text-sm font-medium text-muted-foreground">
             Monthly revenue (USD)
           </label>
           <input
@@ -133,11 +133,11 @@ export default function VentureSettingsPage() {
             step={100}
             value={monthlyRevenue}
             onChange={(e) => setMonthlyRevenue(e.target.value === "" ? "" : Number(e.target.value))}
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
           />
         </div>
         <div>
-          <label htmlFor="vs-runway" className="block text-sm font-medium text-zinc-400">
+          <label htmlFor="vs-runway" className="block text-sm font-medium text-muted-foreground">
             Cash runway (months)
           </label>
           <input
@@ -150,13 +150,13 @@ export default function VentureSettingsPage() {
               setCashRunwayMonths(e.target.value === "" ? "" : Number(e.target.value))
             }
             placeholder="e.g. 12"
-            className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-zinc-100"
+            className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-foreground"
           />
         </div>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-amber-500 disabled:opacity-50"
+          className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
         >
           {saving ? "Saving…" : "Save"}
         </button>

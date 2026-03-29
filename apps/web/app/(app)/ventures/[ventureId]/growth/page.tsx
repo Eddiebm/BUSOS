@@ -138,27 +138,27 @@ export default function GrowthPage() {
   return (
     <div className="space-y-10">
       <div>
-        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-amber-500/90 hover:text-amber-400">
+        <Link href={`/dashboard?ventureId=${ventureId}`} className="text-sm text-primary/90 hover:text-primary">
           ← Dashboard
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-zinc-50">Growth</h1>
-        <p className="text-sm text-zinc-400">Content calendar and SEO keywords</p>
+        <h1 className="mt-2 text-2xl font-bold text-foreground">Growth</h1>
+        <p className="text-sm text-muted-foreground">Content calendar and SEO keywords</p>
       </div>
 
-      <section className="rounded-xl border border-amber-500/15 bg-zinc-900/60 p-6">
-        <h2 className="text-lg font-semibold text-zinc-100">Content calendar</h2>
+      <section className="rounded-xl border border-primary/15 bg-card/60 p-6">
+        <h2 className="text-lg font-semibold text-foreground">Content calendar</h2>
         <form onSubmit={addPiece} className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
           <input
             placeholder="Title"
             value={pieceForm.title}
             onChange={(e) => setPieceForm((f) => ({ ...f, title: e.target.value }))}
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm lg:col-span-2"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm lg:col-span-2"
             required
           />
           <select
             value={pieceForm.status}
             onChange={(e) => setPieceForm((f) => ({ ...f, status: e.target.value as ContentStatus }))}
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
           >
             <option value="DRAFT">Draft</option>
             <option value="PUBLISHED">Published</option>
@@ -166,7 +166,7 @@ export default function GrowthPage() {
           <select
             value={pieceForm.channel}
             onChange={(e) => setPieceForm((f) => ({ ...f, channel: e.target.value as ContentChannel }))}
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
           >
             <option value="BLOG">Blog</option>
             <option value="TWITTER">Twitter</option>
@@ -176,11 +176,11 @@ export default function GrowthPage() {
             type="datetime-local"
             value={pieceForm.publishAt}
             onChange={(e) => setPieceForm((f) => ({ ...f, publishAt: e.target.value }))}
-            className="rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
           <button
             type="submit"
-            className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950 sm:col-span-2 lg:col-span-1"
+            className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground sm:col-span-2 lg:col-span-1"
           >
             Add
           </button>
@@ -188,12 +188,12 @@ export default function GrowthPage() {
 
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {pieces.map((p) => (
-            <div key={p.id} className="rounded-lg border border-zinc-800 bg-zinc-950/80 p-4">
-              <p className="font-medium text-zinc-100">{p.title}</p>
-              <p className="text-xs text-zinc-500">
+            <div key={p.id} className="rounded-lg border border-border bg-background/80 p-4">
+              <p className="font-medium text-foreground">{p.title}</p>
+              <p className="text-xs text-muted-foreground">
                 {p.channel} · {p.status}
               </p>
-              <p className="mt-1 text-xs text-zinc-600">
+              <p className="mt-1 text-xs text-muted-foreground">
                 {p.publishAt
                   ? viewerTz
                     ? formatUserDateTime(p.publishAt, viewerTz)
@@ -206,14 +206,14 @@ export default function GrowthPage() {
                   onClick={() =>
                     patchPiece(p.id, { status: p.status === "DRAFT" ? "PUBLISHED" : "DRAFT" })
                   }
-                  className="text-xs text-amber-400 hover:text-amber-300"
+                  className="text-xs text-primary hover:text-primary"
                 >
                   Toggle publish
                 </button>
                 <button
                   type="button"
                   onClick={() => deletePiece(p.id)}
-                  className="text-xs text-red-400 hover:text-red-300"
+                  className="text-xs text-destructive hover:text-destructive/80"
                 >
                   Delete
                 </button>
@@ -221,17 +221,17 @@ export default function GrowthPage() {
             </div>
           ))}
         </div>
-        {pieces.length === 0 && <p className="mt-4 text-sm text-zinc-600">No content scheduled.</p>}
+        {pieces.length === 0 && <p className="mt-4 text-sm text-muted-foreground">No content scheduled.</p>}
       </section>
 
-      <section className="rounded-xl border border-amber-500/15 bg-zinc-900/60 p-6">
-        <h2 className="text-lg font-semibold text-zinc-100">SEO keywords</h2>
+      <section className="rounded-xl border border-primary/15 bg-card/60 p-6">
+        <h2 className="text-lg font-semibold text-foreground">SEO keywords</h2>
         <form onSubmit={addKeyword} className="mt-4 flex flex-wrap gap-2">
           <input
             placeholder="Keyword"
             value={kwForm.term}
             onChange={(e) => setKwForm((f) => ({ ...f, term: e.target.value }))}
-            className="min-w-[160px] flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="min-w-[160px] flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm"
             required
           />
           <input
@@ -240,7 +240,7 @@ export default function GrowthPage() {
             min={0}
             value={kwForm.volume}
             onChange={(e) => setKwForm((f) => ({ ...f, volume: e.target.value }))}
-            className="w-28 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-28 rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
           <input
             placeholder="Difficulty 0–100"
@@ -249,16 +249,16 @@ export default function GrowthPage() {
             max={100}
             value={kwForm.difficulty}
             onChange={(e) => setKwForm((f) => ({ ...f, difficulty: e.target.value }))}
-            className="w-36 rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-sm"
+            className="w-36 rounded-lg border border-border bg-background px-3 py-2 text-sm"
           />
-          <button type="submit" className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950">
+          <button type="submit" className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground">
             Add keyword
           </button>
         </form>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-left text-sm">
             <thead>
-              <tr className="border-b border-zinc-800 text-zinc-500">
+              <tr className="border-b border-border text-muted-foreground">
                 <th className="pb-2 pr-4">Term</th>
                 <th className="pb-2 pr-4">Volume</th>
                 <th className="pb-2 pr-4">Difficulty</th>
@@ -267,7 +267,7 @@ export default function GrowthPage() {
             </thead>
             <tbody>
               {keywords.map((k) => (
-                <tr key={k.id} className="border-b border-zinc-800/80 text-zinc-300">
+                <tr key={k.id} className="border-b border-border/80 text-muted-foreground">
                   <td className="py-2 pr-4">{k.term}</td>
                   <td className="py-2 pr-4">{k.volume ?? "—"}</td>
                   <td className="py-2 pr-4">{k.difficulty ?? "—"}</td>
@@ -275,7 +275,7 @@ export default function GrowthPage() {
                     <button
                       type="button"
                       onClick={() => deleteKeyword(k.id)}
-                      className="text-xs text-red-400 hover:text-red-300"
+                      className="text-xs text-destructive hover:text-destructive/80"
                     >
                       Remove
                     </button>
@@ -284,7 +284,7 @@ export default function GrowthPage() {
               ))}
             </tbody>
           </table>
-          {keywords.length === 0 && <p className="mt-2 text-sm text-zinc-600">No keywords tracked.</p>}
+          {keywords.length === 0 && <p className="mt-2 text-sm text-muted-foreground">No keywords tracked.</p>}
         </div>
       </section>
     </div>

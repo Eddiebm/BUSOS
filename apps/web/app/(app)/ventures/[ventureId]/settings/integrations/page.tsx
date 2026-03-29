@@ -14,19 +14,19 @@ const CARDS: { provider: IntegrationProvider; title: string; body: string; icon:
     provider: "SLACK",
     title: "Slack",
     body: "OAuth: workspace token for notifications (configure SLACK_CLIENT_ID in production).",
-    icon: <MessageSquare className="h-6 w-6 text-amber-400" aria-hidden />,
+    icon: <MessageSquare className="h-6 w-6 text-primary" aria-hidden />,
   },
   {
     provider: "GITHUB",
     title: "GitHub",
     body: "OAuth: link repos and issues (configure GITHUB_CLIENT_ID).",
-    icon: <Github className="h-6 w-6 text-amber-400" aria-hidden />,
+    icon: <Github className="h-6 w-6 text-primary" aria-hidden />,
   },
   {
     provider: "GOOGLE_CALENDAR",
     title: "Google Calendar",
     body: "OAuth: sync milestone due dates (configure GOOGLE_CLIENT_ID).",
-    icon: <Calendar className="h-6 w-6 text-amber-400" aria-hidden />,
+    icon: <Calendar className="h-6 w-6 text-primary" aria-hidden />,
   },
 ];
 
@@ -94,12 +94,12 @@ function IntegrationsPageInner() {
       <div>
         <Link
           href={`/ventures/${ventureId}/settings`}
-          className="text-sm text-amber-500/90 hover:text-amber-400"
+          className="text-sm text-primary/90 hover:text-primary"
         >
           ← Settings
         </Link>
-        <h1 className="mt-2 text-2xl font-bold text-zinc-50">Integrations</h1>
-        <p className="text-sm text-zinc-400">
+        <h1 className="mt-2 text-2xl font-bold text-foreground">Integrations</h1>
+        <p className="text-sm text-muted-foreground">
           Use OAuth when client IDs are set; otherwise use demo connect for testing.
         </p>
       </div>
@@ -108,15 +108,15 @@ function IntegrationsPageInner() {
         {CARDS.map((c) => (
           <div
             key={c.provider}
-            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-amber-500/15 bg-zinc-900/60 p-5"
+            className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-primary/15 bg-card/60 p-5"
           >
             <div className="flex gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-800">{c.icon}</div>
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">{c.icon}</div>
               <div>
-                <h2 className="font-semibold text-zinc-100">{c.title}</h2>
-                <p className="mt-1 text-sm text-zinc-500">{c.body}</p>
+                <h2 className="font-semibold text-foreground">{c.title}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{c.body}</p>
                 {status(c.provider) && (
-                  <p className="mt-2 text-xs text-emerald-400/90">
+                  <p className="mt-2 text-xs text-success/90">
                     Connected{meta(c.provider)?.stub ? " (demo)" : " (OAuth)"}
                   </p>
                 )}
@@ -127,7 +127,7 @@ function IntegrationsPageInner() {
                 type="button"
                 disabled={busy !== null}
                 onClick={() => startOAuth(c.provider)}
-                className="rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-zinc-950 hover:bg-amber-500 disabled:opacity-50"
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary disabled:opacity-50"
               >
                 {busy === c.provider ? "…" : status(c.provider) ? "Reconnect (OAuth)" : "Connect (OAuth)"}
               </button>
@@ -135,7 +135,7 @@ function IntegrationsPageInner() {
                 type="button"
                 disabled={busy !== null}
                 onClick={() => connectStub(c.provider)}
-                className="rounded-lg border border-zinc-600 px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-800 disabled:opacity-50"
+                className="rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:bg-muted disabled:opacity-50"
               >
                 Demo
               </button>
@@ -149,7 +149,7 @@ function IntegrationsPageInner() {
 
 export default function IntegrationsPage() {
   return (
-    <Suspense fallback={<div className="p-6 text-zinc-500">Loading…</div>}>
+    <Suspense fallback={<div className="p-6 text-muted-foreground">Loading…</div>}>
       <IntegrationsPageInner />
     </Suspense>
   );
