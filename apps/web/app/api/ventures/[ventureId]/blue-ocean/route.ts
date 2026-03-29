@@ -3,8 +3,7 @@ import type { Prisma } from "@prisma/client";
 import OpenAI from "openai";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser } from "@/lib/venture-access";
-import { requireVentureWriter } from "@/lib/venture-guard";
+import { canRead, canWrite, getVentureAccess } from "@/lib/venture-access";
 
 const MODEL = "gpt-4.1-mini";
 
@@ -25,15 +24,6 @@ function getOpenAI(): OpenAI | null {
   return new OpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL });
 }
 
-async function ensureVentureMember(ventureId: string, userId: string) {
-  const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
-    include: { dna: true },
-  });
-  if (!v) throw new Error("NOT_FOUND");
-  return v;
-}
-
 /**
  * GET — Past Blue Ocean scans for this venture (newest first).
  */
@@ -46,10 +36,16 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
     });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     const scans = await prisma.blueOceanScan.findMany({
       where: { ventureId },
@@ -82,10 +78,18 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const write = await requireVentureWriter(ventureId, userId);
-    if (!write.ok) return write.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const venture = await ensureVentureMember(ventureId, userId);
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
+      include: { dna: true },
+    });
+    if (!venture)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     const jobId = `blue_${Date.now()}_${ventureId}`;
     const dna = venture.dna;
@@ -187,8 +191,6 @@ export async function POST(
       analysis,
     });
   } catch (e) {
-    if ((e as Error).message === "NOT_FOUND")
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
     console.error("[blue-ocean/POST]", e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }

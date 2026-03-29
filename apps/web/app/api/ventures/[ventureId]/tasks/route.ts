@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requireVentureReader, requireVentureWriter } from "@/lib/venture-guard";
+import { canRead, canWrite, getVentureAccess } from "@/lib/venture-access";
 import { auditLog } from "@/lib/audit-log";
 
 export async function GET(
@@ -13,8 +13,11 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const gate = await requireVentureReader(ventureId, userId);
-    if (!gate.ok) return gate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const { searchParams } = new URL(request.url);
     const urgentOnly = searchParams.get("urgentOnly") === "true";
@@ -45,8 +48,11 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const gate = await requireVentureWriter(ventureId, userId);
-    if (!gate.ok) return gate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const body = await request.json();
     const title = String(body?.title ?? "").trim();

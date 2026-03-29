@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
-import { getVentureForUser } from "@/lib/venture";
 import { prisma } from "@/lib/prisma";
-import { requireVentureWriter } from "@/lib/venture-guard";
+import { canRead, canWrite, getVentureAccess } from "@/lib/venture-access";
 
 export async function GET(
   request: Request,
@@ -14,7 +13,16 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await getVentureForUser(ventureId, userId);
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized", code: "NOT_FOUND" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden", code: "FORBIDDEN" }, { status: 403 });
+
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
+      include: { stages: { orderBy: { stageNumber: "asc" } } },
+    });
     if (!venture)
       return NextResponse.json({ error: "Not found", code: "NOT_FOUND" }, { status: 404 });
 
@@ -51,12 +59,11 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
 
     const { ventureId } = await params;
-    const existing = await getVentureForUser(ventureId, userId);
-    if (!existing)
-      return NextResponse.json({ error: "Not found", code: "NOT_FOUND" }, { status: 404 });
-
-    const write = await requireVentureWriter(ventureId, userId);
-    if (!write.ok) return write.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized", code: "NOT_FOUND" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden", code: "FORBIDDEN" }, { status: 403 });
 
     const body = await request.json();
     const data: Record<string, unknown> = {};
@@ -72,6 +79,33 @@ export async function PATCH(
       data,
     });
     return NextResponse.json(venture);
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json(
+      { error: "Internal error", code: "INTERNAL_ERROR" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ ventureId: string }> }
+) {
+  try {
+    const userId = await getOrCreateUserFromClerk();
+    if (!userId)
+      return NextResponse.json({ error: "Unauthorized", code: "UNAUTHORIZED" }, { status: 401 });
+
+    const { ventureId } = await params;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized", code: "NOT_FOUND" }, { status: 404 });
+    if (access.role !== "OWNER")
+      return NextResponse.json({ error: "Forbidden", code: "FORBIDDEN" }, { status: 403 });
+
+    await prisma.venture.delete({ where: { id: ventureId } });
+    return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);
     return NextResponse.json(

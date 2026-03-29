@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { FUNDING_INVESTORS, matchInvestorsForVenture } from "@/lib/funding-investors";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser } from "@/lib/venture-access";
-import { requireVentureReader } from "@/lib/venture-guard";
+import { canWrite, getVentureAccess } from "@/lib/venture-access";
 
 export async function POST(
   _request: Request,
@@ -14,14 +13,17 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const gate = await requireVentureReader(ventureId, userId);
-    if (!gate.ok) return gate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
       include: { dna: true },
     });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     const ranked = matchInvestorsForVenture({
       stage: venture.stage,

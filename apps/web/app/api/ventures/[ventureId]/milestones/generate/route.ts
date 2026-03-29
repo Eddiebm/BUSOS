@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser } from "@/lib/venture-access";
-import { requireVentureWriter } from "@/lib/venture-guard";
+import { canWrite, getVentureAccess } from "@/lib/venture-access";
 import { checkSlidingWindowRateLimit } from "@/lib/sliding-window-rate-limit";
 import { auditLog } from "@/lib/audit-log";
 import OpenAI from "openai";
@@ -78,8 +77,11 @@ export async function POST(
 
     const { ventureId } = await params;
 
-    const gate = await requireVentureWriter(ventureId, userId);
-    if (!gate.ok) return gate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const rl = checkSlidingWindowRateLimit(`milestone-gen:${userId}`, 8, 60 * 60 * 1000);
     if (!rl.ok) {
@@ -89,8 +91,8 @@ export async function POST(
       );
     }
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
       include: { dna: true },
     });
 

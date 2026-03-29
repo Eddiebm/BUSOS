@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { canRead, getVentureAccess } from "@/lib/venture-access";
 
 const CATEGORY_PRIORITY: Record<string, number> = {
   LEGAL: 0,
@@ -24,12 +24,18 @@ export async function GET(
 
     const { ventureId } = await params;
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
       include: { dna: true },
     });
 
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     if (!venture.dna) {
       return NextResponse.json({

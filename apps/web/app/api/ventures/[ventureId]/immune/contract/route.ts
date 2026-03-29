@@ -1,15 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser } from "@/lib/venture-access";
-import { requireVentureWriter } from "@/lib/venture-guard";
-
-async function ensureVentureMember(ventureId: string, userId: string) {
-  const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
-  });
-  if (!v) throw new Error("NOT_FOUND");
-}
+import { canWrite, getVentureAccess } from "@/lib/venture-access";
 
 /**
  * POST: Upload contract for analysis (multipart/form-data).
@@ -24,10 +16,11 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const gate = await requireVentureWriter(ventureId, userId);
-    if (!gate.ok) return gate.response;
-
-    await ensureVentureMember(ventureId, userId);
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
@@ -57,8 +50,6 @@ export async function POST(
 
     return NextResponse.json({ jobId, documentId: document.id }, { status: 202 });
   } catch (e) {
-    if ((e as Error).message === "NOT_FOUND")
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
     console.error(e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }

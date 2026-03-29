@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import type { VentureDNA } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser } from "@/lib/venture-access";
-import { requireVentureReader, requireVentureWriter } from "@/lib/venture-guard";
+import { canRead, canWrite, getVentureAccess } from "@/lib/venture-access";
 import { checkSlidingWindowRateLimit } from "@/lib/sliding-window-rate-limit";
 import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
@@ -156,8 +155,11 @@ export async function GET(
 
     const { ventureId } = await params;
 
-    const gate = await requireVentureReader(ventureId, userId);
-    if (!gate.ok) return gate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const rl = checkSlidingWindowRateLimit(`ada:${userId}`, 40, 15 * 60 * 1000);
     if (!rl.ok) {
@@ -167,8 +169,8 @@ export async function GET(
       );
     }
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
       include: {
         dna: true,
         tasks: {
@@ -184,7 +186,7 @@ export async function GET(
       },
     });
 
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json({
@@ -278,8 +280,11 @@ export async function POST(
 
     const { ventureId } = await params;
 
-    const writeGate = await requireVentureWriter(ventureId, userId);
-    if (!writeGate.ok) return writeGate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canWrite(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
     const rl = checkSlidingWindowRateLimit(`ada-chat:${userId}`, 60, 15 * 60 * 1000);
     if (!rl.ok) {
@@ -293,8 +298,8 @@ export async function POST(
     const userMessage = String(body?.message ?? "").trim();
     if (!userMessage) return NextResponse.json({ error: "Message is required" }, { status: 400 });
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
       include: {
         dna: true,
         tasks: {
@@ -310,7 +315,7 @@ export async function POST(
       },
     });
 
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     if (!process.env.OPENAI_API_KEY) {
       return NextResponse.json(
@@ -392,13 +397,16 @@ export async function PATCH(
 
     const { ventureId } = await params;
 
-    const readGate = await requireVentureReader(ventureId, userId);
-    if (!readGate.ok) return readGate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
     });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     const messages = await prisma.chatMessage.findMany({
       where: { ventureId },

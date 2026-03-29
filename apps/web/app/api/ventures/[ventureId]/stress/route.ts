@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ventureAccessibleByUser, getVentureAccess, canWrite } from "@/lib/venture-access";
-import { requireVentureReader } from "@/lib/venture-guard";
+import { canRead, canWrite, getVentureAccess } from "@/lib/venture-access";
 import { calculateStress } from "@/lib/stress";
 import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
@@ -178,13 +177,16 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const gate = await requireVentureReader(ventureId, userId);
-    if (!gate.ok) return gate.response;
+    const access = await getVentureAccess(ventureId, userId);
+    if (!access)
+      return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
+    if (!canRead(access.role))
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
+    const venture = await prisma.venture.findUnique({
+      where: { id: ventureId },
     });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     const now = new Date();
     const overdueCount = await prisma.task.count({
@@ -202,8 +204,7 @@ export async function GET(
       daysSince
     );
 
-    const access = await getVentureAccess(ventureId, userId);
-    if (access && canWrite(access.role)) {
+    if (canWrite(access.role)) {
       await prisma.venture.update({
         where: { id: ventureId },
         data: { stressLevel: level, stressMode: mode },

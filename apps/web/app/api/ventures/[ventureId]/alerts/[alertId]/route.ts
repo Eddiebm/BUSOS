@@ -1,11 +1,19 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { requireVentureWriter } from "@/lib/venture-guard";
+import { canWrite, getVentureAccess } from "@/lib/venture-access";
 
 async function getAlertForWrite(ventureId: string, alertId: string, userId: string) {
-  const gate = await requireVentureWriter(ventureId, userId);
-  if (!gate.ok) return { response: gate.response, alert: null };
+  const access = await getVentureAccess(ventureId, userId);
+  if (!access) {
+    return {
+      response: NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 }),
+      alert: null,
+    };
+  }
+  if (!canWrite(access.role)) {
+    return { response: NextResponse.json({ error: "Forbidden" }, { status: 403 }), alert: null };
+  }
   const alert = await prisma.alert.findFirst({
     where: { id: alertId, ventureId },
   });
