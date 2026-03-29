@@ -25,6 +25,7 @@ model User {
   alerts        Alert[]
   sessions      Session[]
   documents     Document[]
+  blueOceanScans BlueOceanScan[]
   loginCount    Int       @default(0)
   lastLoginAt   DateTime?
 }
@@ -128,6 +129,7 @@ model Venture {
   chatMessages  ChatMessage[]
   dna           VentureDNA?
   milestones    JourneyMilestone[]
+  blueOceanScans BlueOceanScan[]
 }
 
 model VentureDNA {
@@ -180,6 +182,19 @@ model JourneyMilestone {
   updatedAt   DateTime  @updatedAt
 
   @@index([ventureId, order])
+}
+
+model BlueOceanScan {
+  id         String   @id @default(cuid())
+  ventureId  String
+  venture    Venture  @relation(fields: [ventureId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId      String
+  analysis   Json
+  createdAt  DateTime @default(now())
+
+  @@index([ventureId, createdAt])
 }
 
 model Task {

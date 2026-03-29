@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Waves } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,19 +14,85 @@ type Analysis = {
   suggestedExperiments: string[];
 };
 
+type ScanRow = {
+  id: string;
+  jobId: string;
+  analysis: Analysis;
+  createdAt: string;
+};
+
 type ScanSuccess = {
+  id?: string;
   jobId: string;
   status: "completed";
   completedAt: string;
   analysis: Analysis;
 };
 
+function isAnalysis(x: unknown): x is Analysis {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  return typeof o.executiveSummary === "string";
+}
+
 export default function BlueOceanPage() {
   const params = useParams();
   const ventureId = params.ventureId as string;
   const [loading, setLoading] = useState(false);
+  const [historyLoading, setHistoryLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ScanSuccess | null>(null);
+  const [history, setHistory] = useState<ScanRow[]>([]);
+  const seededFromHistory = useRef(false);
+
+  useEffect(() => {
+    seededFromHistory.current = false;
+  }, [ventureId]);
+
+  const loadHistory = useCallback(async () => {
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/ventures/${ventureId}/blue-ocean`);
+      if (!res.ok) return;
+      const rows = (await res.json()) as Array<{
+        id: string;
+        jobId: string;
+        analysis: unknown;
+        createdAt: string;
+      }>;
+      const parsed: ScanRow[] = [];
+      for (const r of rows) {
+        if (isAnalysis(r.analysis)) {
+          parsed.push({
+            id: r.id,
+            jobId: r.jobId,
+            analysis: r.analysis,
+            createdAt: r.createdAt,
+          });
+        }
+      }
+      setHistory(parsed);
+      if (parsed.length > 0 && !seededFromHistory.current) {
+        seededFromHistory.current = true;
+        const latest = parsed[0];
+        setResult({
+          id: latest.id,
+          jobId: latest.jobId,
+          status: "completed",
+          completedAt: latest.createdAt,
+          analysis: latest.analysis,
+        });
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setHistoryLoading(false);
+    }
+  }, [ventureId]);
+
+  useEffect(() => {
+    loadHistory();
+  }, [loadHistory]);
 
   const runScan = useCallback(async () => {
     setLoading(true);
@@ -43,22 +109,53 @@ export default function BlueOceanPage() {
             : null;
         const msg = fromJson ?? `Request failed (${res.status})`;
         setError(msg);
-        setResult(null);
         return;
       }
       if ((json as ScanSuccess).status === "completed" && (json as ScanSuccess).analysis) {
-        setResult(json as ScanSuccess);
+        const s = json as ScanSuccess;
+        seededFromHistory.current = true;
+        setResult(s);
+        const resList = await fetch(`/api/ventures/${ventureId}/blue-ocean`);
+        if (resList.ok) {
+          const rows = (await resList.json()) as Array<{
+            id: string;
+            jobId: string;
+            analysis: unknown;
+            createdAt: string;
+          }>;
+          const parsed: ScanRow[] = [];
+          for (const r of rows) {
+            if (isAnalysis(r.analysis)) {
+              parsed.push({
+                id: r.id,
+                jobId: r.jobId,
+                analysis: r.analysis,
+                createdAt: r.createdAt,
+              });
+            }
+          }
+          setHistory(parsed);
+        }
         return;
       }
       setError("Unexpected response from server.");
-      setResult(null);
     } catch {
       setError("Network error. Try again.");
-      setResult(null);
     } finally {
       setLoading(false);
     }
   }, [ventureId]);
+
+  const selectScan = useCallback((row: ScanRow) => {
+    setResult({
+      id: row.id,
+      jobId: row.jobId,
+      status: "completed",
+      completedAt: row.createdAt,
+      analysis: row.analysis,
+    });
+    setError(null);
+  }, []);
 
   const a = result?.analysis;
 
@@ -78,7 +175,7 @@ export default function BlueOceanPage() {
 
       <p className="text-slate-600">
         A focused pass on differentiation and uncontested demand — grounded in your venture and Dream
-        Intake (VentureDNA) when available. Runs as one analysis; refresh anytime.
+        Intake (VentureDNA) when available. Each run is saved so you can compare over time.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">
@@ -90,7 +187,7 @@ export default function BlueOceanPage() {
             "rounded-lg bg-indigo-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-700 disabled:opacity-60"
           )}
         >
-          {loading ? "Running scan…" : "Run Blue Ocean scan"}
+          {loading ? "Running scan…" : "Run new scan"}
         </button>
         <Link
           href={`/ventures/${ventureId}/dream`}
@@ -99,6 +196,34 @@ export default function BlueOceanPage() {
           Edit Dream Intake →
         </Link>
       </div>
+
+      {historyLoading && (
+        <p className="mt-6 text-sm text-slate-500">Loading scan history…</p>
+      )}
+
+      {!historyLoading && history.length > 0 && (
+        <div className="mt-8">
+          <h2 className="text-sm font-semibold text-slate-800">Saved scans</h2>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {history.map((row) => (
+              <li key={row.id}>
+                <button
+                  type="button"
+                  onClick={() => selectScan(row)}
+                  className={cn(
+                    "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                    result?.id === row.id
+                      ? "border-indigo-600 bg-indigo-50 text-indigo-900"
+                      : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                  )}
+                >
+                  {new Date(row.createdAt).toLocaleString()}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {error && (
         <div
@@ -161,7 +286,7 @@ export default function BlueOceanPage() {
         </div>
       )}
 
-      {!a && !error && !loading && (
+      {!a && !error && !loading && !historyLoading && history.length === 0 && (
         <p className="mt-10 text-sm text-slate-500">
           Run a scan to see Ada&apos;s Blue Ocean-style readout for this venture.
         </p>

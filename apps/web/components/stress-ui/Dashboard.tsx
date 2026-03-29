@@ -184,7 +184,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
             urgentOnly={mode === "SURVIVAL"}
           />
 
-          {mode === "EXECUTION" && <UpcomingMilestones ventureId={venture.id} />}
+          <UpcomingMilestones ventureId={venture.id} />
         </div>
       </div>
     </div>

@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
+import { checkDemoRateLimit, clientIpFromRequest } from "@/lib/demo-rate-limit";
+import { log } from "@/lib/logger";
 
 const MODEL = "gpt-4.1-mini";
 
@@ -28,6 +30,19 @@ Return ONLY valid JSON with this exact shape:
 
 export async function POST(request: Request) {
   try {
+    const ip = clientIpFromRequest(request);
+    const limited = checkDemoRateLimit(`demo:${ip}`);
+    if (!limited.ok) {
+      log("warn", "demo.rate_limited", { ip, retryAfterSec: limited.retryAfterSec });
+      return NextResponse.json(
+        { error: "Too many requests. Try again later." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(limited.retryAfterSec) },
+        }
+      );
+    }
+
     const body = (await request.json()) as Partial<DemoPayload>;
     const problem = String(body.problem ?? "").trim();
     const hoursPerWeek = Number(body.hoursPerWeek);

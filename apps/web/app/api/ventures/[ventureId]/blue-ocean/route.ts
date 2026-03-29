@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { Prisma } from "@prisma/client";
 import OpenAI from "openai";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -32,8 +33,43 @@ async function ensureVentureOwner(ventureId: string, userId: string) {
 }
 
 /**
- * POST: Run a synchronous Blue Ocean scan (LLM). For high-volume production you can
- * move this behind a queue; the response shape stays the same with jobId + status.
+ * GET — Past Blue Ocean scans for this venture (newest first).
+ */
+export async function GET(
+  _request: Request,
+  { params }: { params: Promise<{ ventureId: string }> }
+) {
+  try {
+    const userId = await getOrCreateUserFromClerk();
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+    const { ventureId } = await params;
+    const venture = await prisma.venture.findFirst({
+      where: { id: ventureId, ownerId: userId },
+    });
+    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+    const scans = await prisma.blueOceanScan.findMany({
+      where: { ventureId },
+      orderBy: { createdAt: "desc" },
+      take: 25,
+      select: {
+        id: true,
+        jobId: true,
+        analysis: true,
+        createdAt: true,
+      },
+    });
+
+    return NextResponse.json(scans);
+  } catch (e) {
+    console.error("[blue-ocean/GET]", e);
+    return NextResponse.json({ error: "Internal error" }, { status: 500 });
+  }
+}
+
+/**
+ * POST — Run a Blue Ocean scan and persist the result.
  */
 export async function POST(
   _request: Request,
@@ -129,10 +165,20 @@ export async function POST(
         : [],
     };
 
+    const saved = await prisma.blueOceanScan.create({
+      data: {
+        ventureId,
+        userId,
+        jobId,
+        analysis: analysis as unknown as Prisma.InputJsonValue,
+      },
+    });
+
     return NextResponse.json({
+      id: saved.id,
       jobId,
       status: "completed" as const,
-      completedAt: new Date().toISOString(),
+      completedAt: saved.createdAt.toISOString(),
       analysis,
     });
   } catch (e) {

@@ -1,12 +1,23 @@
 # BUSOS — Founder Operating System
 
-Monorepo with the main product in **`apps/web`**: a Next.js (App Router) app for founders — Dream Intake (VentureDNA), stress-adaptive dashboard, journey milestones, Ada (LLM), demo mode, and investor flows.
+## Where the app lives
+
+**Develop and run the product from `apps/web/`** (Next.js App Router, Prisma, API routes).  
+The repository root may contain other `package.json` files; treat them as separate unless documented. Primary commands:
+
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+Monorepo layout: **`apps/web`** = BUSOS web app · **`prisma/schema.prisma`** (repo root) is kept in sync with **`apps/web/prisma/schema.prisma`** for Prisma CLI.
 
 ## Requirements
 
 - **Node.js 20+** (recommended)
-- **PostgreSQL** (e.g. Supabase) — connection string in **`DATABASE_URL`**
-- **OpenAI API key** — **`OPENAI_API_KEY`** (Ada, demo, stress alerts, Blue Ocean scan, documents where applicable)
+- **PostgreSQL** (e.g. Supabase) — **`DATABASE_URL`**
+- **`OPENAI_API_KEY`** — Ada, demo, stress alerts, Blue Ocean, **Dream voice (`/api/transcribe` via Whisper)**, documents where applicable
 
 ## Environment variables (`apps/web`)
 
@@ -14,10 +25,10 @@ Monorepo with the main product in **`apps/web`**: a Next.js (App Router) app for
 |----------|---------|
 | `DATABASE_URL` | PostgreSQL connection string for Prisma |
 | `JWT_SECRET` | Secret for session JWT (cookies) |
-| `OPENAI_API_KEY` | OpenAI API for Ada, `/api/demo`, Blue Ocean, etc. |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Optional; only if you use `/api/clerk-dev-init` for hosted dev |
+| `OPENAI_API_KEY` | Whisper transcription, chat, demo, Blue Ocean, etc. |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Optional; `/api/clerk-dev-init` only |
 
-Copy from your host’s dashboard as needed; never commit real secrets.
+Never commit secrets.
 
 ## Database
 
@@ -26,20 +37,25 @@ From **`apps/web`**:
 ```bash
 npx prisma generate --schema=./prisma/schema.prisma
 npx prisma db push --schema=./prisma/schema.prisma
-# or: npx prisma migrate deploy (if you use migrations)
+# or: npx prisma migrate deploy
 ```
 
-Schema source of truth: **`apps/web/prisma/schema.prisma`** (kept in sync with the repo root `prisma/schema.prisma` where present).
+## Voice transcription (`POST /api/transcribe`)
 
-## Run locally
+1. **Preferred:** **OpenAI Whisper** (`whisper-1`) when `OPENAI_API_KEY` is set — works on Vercel/serverless without extra binaries.  
+2. **Fallback:** `manus-speech-to-text` CLI on the server (temp file), if Whisper fails or is unavailable.
 
-```bash
-cd apps/web
-npm install
-npm run dev
-```
+## Public demo rate limits
 
-Open [http://localhost:3000](http://localhost:3000).
+**`POST /api/demo`** is limited per IP (in-memory, **10 requests / 15 minutes**; best-effort per server instance). Returns **429** with **`Retry-After`**.
+
+## Blue Ocean history
+
+Scans are stored in **`BlueOceanScan`** (see Prisma schema). **`GET /api/ventures/[ventureId]/blue-ocean`** lists saved scans; **`POST`** runs a new scan and persists it.
+
+## Observability
+
+Server routes use structured JSON logs via **`apps/web/lib/logger.ts`** (`log("info"|"warn"|"error", msg, meta?)`) for grep-friendly output in platform logs.
 
 ## Key routes
 
@@ -47,39 +63,37 @@ Open [http://localhost:3000](http://localhost:3000).
 |------|------|
 | Marketing | `/` |
 | No-login demo | `/demo`, `POST /api/demo` |
-| Auth | `/sign-in`, `/sign-up` (custom JWT; no Clerk UI components in-app) |
-| NDA gate | `/nda` (middleware) |
+| Voice STT | `POST /api/transcribe` |
+| Auth | `/sign-in`, `/sign-up` |
+| NDA | `/nda` |
 | Dashboard | `/dashboard?ventureId=…` |
 | Dream / DNA | `/ventures/[ventureId]/dream` |
 | Journey | `/ventures/[ventureId]/journey` |
-| Survival emergency kits | `/ventures/[ventureId]/emergency/bridge-financing`, `pivot-canvas`, `cost-reduction` |
-| Blue Ocean strategy scan | `/ventures/[ventureId]/blue-ocean` (UI) · `POST /api/ventures/[ventureId]/blue-ocean` |
-| Investor room (token) | `/investor/rooms/[accessToken]` |
-
-## API notes
-
-- Most **`/api/ventures/[ventureId]/...`** routes require auth and verify **venture ownership** via `getOrCreateUserFromClerk()` → internal `userId`.
-- **`POST /api/ventures/[ventureId]/blue-ocean`** runs a **synchronous** Blue Ocean analysis (JSON). For very high traffic you can later move execution to a queue; the response shape supports `jobId` + `status` + `analysis`.
+| Emergency kits | `/ventures/[ventureId]/emergency/...` |
+| Blue Ocean | `/ventures/[ventureId]/blue-ocean` · `GET` / `POST` `.../blue-ocean` |
+| Investor room | `/investor/rooms/[accessToken]` |
 
 ## Tests
 
-From **`apps/web`**:
-
 ```bash
-npm test
+cd apps/web && npm test
 ```
 
-Uses **Vitest** (`*.test.ts` next to source or under `tests/`).
+Vitest — `**/*.test.ts`.
 
 ## Deploy
-
-Configure the same env vars on your host (Vercel, Cloudflare, etc.). Build:
 
 ```bash
 cd apps/web && npm run build && npm start
 ```
 
-See also `apps/web` scripts for Cloudflare OpenNext if you deploy there.
+CI (GitHub Actions) runs **lint**, **test**, and **build** for `apps/web` on push/PR to `main`.
+
+### Security / `npm audit`
+
+`next` is pinned to the latest **14.2.x** patch. Some advisory noise remains from **devDependencies** (e.g. `wrangler` / `eslint-config-next` trees) and would require **major** upgrades (`npm audit fix --force`) — do that in a dedicated upgrade PR, not blindly in production.
+
+After schema changes, run **`prisma db push`** (or migrate) so **`BlueOceanScan`** exists before using saved Blue Ocean history.
 
 ## License
 
