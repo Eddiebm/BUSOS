@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Mic, MicOff, Loader2 } from "lucide-react";
+import { useEffect } from "react";
+import { Mic, MicOff, Loader2, MicOff as MicBlocked } from "lucide-react";
 import { useSpeechRecognition } from "@/hooks/use-speech-recognition";
 import { cn } from "@/lib/utils";
 
@@ -11,59 +11,85 @@ interface VoiceInputButtonProps {
 }
 
 export function VoiceInputButton({ onTranscript, className }: VoiceInputButtonProps) {
-  const { isRecording, startRecording, stopRecording } = useSpeechRecognition();
-  const [isTranscribing, setIsTranscribing] = useState(false);
+  const {
+    isRecording,
+    isTranscribing,
+    permissionState,
+    transcript,
+    startRecording,
+    stopRecording,
+    clearTranscript,
+  } = useSpeechRecognition();
 
-  const handleToggleRecording = async () => {
+  // When a transcript arrives, pass it up and clear internal state
+  useEffect(() => {
+    if (transcript) {
+      onTranscript(transcript);
+      clearTranscript();
+    }
+  }, [transcript, onTranscript, clearTranscript]);
+
+  const handleClick = () => {
     if (isRecording) {
-      const audioBlob = await stopRecording();
-      if (audioBlob && audioBlob.size > 0) {
-        setIsTranscribing(true);
-        const formData = new FormData();
-        formData.append("file", audioBlob, "audio.webm");
-        try {
-          const response = await fetch("/api/transcribe", {
-            method: "POST",
-            body: formData,
-          });
-          if (response.ok) {
-            const result = (await response.json()) as { text?: string };
-            const text = typeof result.text === "string" ? result.text : "";
-            if (text.trim()) onTranscript(text);
-          } else {
-            console.error("Transcription failed");
-            alert("Sorry, we couldn't transcribe that. Please try again.");
-          }
-        } catch (error) {
-          console.error("Error during transcription:", error);
-          alert("An error occurred. Please check your connection and try again.");
-        } finally {
-          setIsTranscribing(false);
-        }
-      }
+      stopRecording();
     } else {
       startRecording();
     }
   };
 
-  const Icon = isRecording ? MicOff : Mic;
+  // Permission denied — show a helpful inline message instead of an alert
+  if (permissionState === "denied") {
+    return (
+      <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+        <MicBlocked className="h-4 w-4 shrink-0 text-amber-600" aria-hidden />
+        <span>
+          Mic blocked.{" "}
+          <button
+            type="button"
+            className="underline hover:no-underline"
+            onClick={() => {
+              // Open browser settings hint in a tooltip-style message
+              window.open(
+                "https://support.google.com/chrome/answer/2693767",
+                "_blank",
+                "noopener,noreferrer"
+              );
+            }}
+          >
+            How to allow it
+          </button>{" "}
+          — or just type your answer below.
+        </span>
+      </div>
+    );
+  }
+
+  // Browser doesn't support any speech API
+  if (permissionState === "unavailable") {
+    return null;
+  }
 
   return (
     <button
       type="button"
-      onClick={handleToggleRecording}
+      onClick={handleClick}
       disabled={isTranscribing}
+      title={isRecording ? "Tap to stop — we'll transcribe what you said" : "Tap to speak your answer"}
       className={cn(
-        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 shadow-sm hover:bg-slate-50",
-        isRecording && "border-red-200 bg-red-100 text-red-600 hover:bg-red-200",
+        "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-sm transition-colors hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-400",
+        isRecording &&
+          "animate-pulse border-red-300 bg-red-50 text-red-600 hover:bg-red-100",
+        isTranscribing && "cursor-wait opacity-70",
         className
       )}
-      aria-label={isRecording ? "Stop recording" : "Start recording"}
+      aria-label={isRecording ? "Stop recording" : "Start voice input"}
     >
       {isTranscribing ? (
         <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+      ) : isRecording ? (
+        <MicOff className="h-5 w-5" aria-hidden />
       ) : (
-        <Icon className="h-5 w-5" aria-hidden />
+        <Mic className="h-5 w-5" aria-hidden />
       )}
     </button>
   );
