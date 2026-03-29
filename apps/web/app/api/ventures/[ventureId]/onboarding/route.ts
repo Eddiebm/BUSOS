@@ -16,12 +16,14 @@ export async function GET(
     const gate = await requireVentureReader(ventureId, userId);
     if (!gate.ok) return gate.response;
 
-    const [dna, milestoneCount, memberCount, integrationCount, taskOpen] = await Promise.all([
+    const [dna, milestoneCount, memberCount, integrationCount, openMilestones] = await Promise.all([
       prisma.ventureDNA.findUnique({ where: { ventureId } }),
       prisma.journeyMilestone.count({ where: { ventureId } }),
       prisma.ventureMember.count({ where: { ventureId } }),
       prisma.integrationConnection.count({ where: { ventureId, connected: true } }),
-      prisma.task.count({ where: { ventureId, completed: false } }),
+      prisma.journeyMilestone.count({
+        where: { ventureId, completed: false, skipped: false },
+      }),
     ]);
 
     return NextResponse.json({
@@ -29,7 +31,7 @@ export async function GET(
       hasMilestones: milestoneCount > 0,
       hasTeam: memberCount > 0,
       hasIntegration: integrationCount > 0,
-      openTasks: taskOpen,
+      openMilestones,
     });
   } catch (e) {
     console.error("[onboarding]", e);

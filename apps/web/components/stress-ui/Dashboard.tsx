@@ -7,7 +7,6 @@ import { getStageName } from "@/lib/stage-names";
 import { AlertTriangle, Rocket, Focus, Shell } from "lucide-react";
 import { AdaMessage } from "@/components/ada/AdaMessage";
 import { AlertsPanel } from "@/components/alerts/AlertsPanel";
-import { TaskList } from "@/components/tasks/TaskList";
 import { RunwayGauge } from "@/components/stress/RunwayGauge";
 import { StageProgress } from "@/components/stages/StageProgress";
 import { IntelligenceBanner } from "@/components/dashboard/IntelligenceBanner";
@@ -183,12 +182,6 @@ export function Dashboard({ ventureId }: DashboardProps) {
               </button>
             </div>
           )}
-
-          <TaskList
-            ventureId={venture.id}
-            compact={mode === "SURVIVAL"}
-            urgentOnly={mode === "SURVIVAL"}
-          />
 
           <UpcomingMilestones ventureId={venture.id} />
         </div>

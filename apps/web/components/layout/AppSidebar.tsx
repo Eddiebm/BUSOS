@@ -224,7 +224,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
                 "Funding",
                 <Banknote className="h-4 w-4 shrink-0 opacity-90" aria-hidden />
               )}
-              {nav(`${base}/tasks`, "Tasks")}
+              {nav(`${base}/tasks`, "Roadmap")}
               {nav(`${base}/documents`, "Documents")}
               {nav(`${base}/intelligence`, "Intelligence", <Brain className="h-4 w-4 shrink-0 opacity-90" aria-hidden />)}
               {nav(`${base}/settings`, "Settings")}
@@ -244,7 +244,7 @@ export function AppSidebar({ onNavigate }: { onNavigate?: () => void }) {
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Growth</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Learn</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Funding</span>
-              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Tasks</span>
+              <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Roadmap</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Documents</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Intelligence</span>
               <span className="block cursor-not-allowed rounded-lg px-3 py-2 text-sm text-zinc-600">Settings</span>

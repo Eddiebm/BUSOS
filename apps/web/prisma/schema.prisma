@@ -32,6 +32,7 @@ model User {
   lastActiveAt  DateTime?
   ventureInvitesSent VentureInvite[] @relation("VentureInviteInviter")
   integrationConnections IntegrationConnection[]
+  milestoneConversations MilestoneConversation[]
 }
 
 model Subscription {
@@ -129,7 +130,6 @@ model Venture {
   alerts        Alert[]
   dataRoom      DataRoom?
   financials    FinancialSnapshot[]
-  tasks         Task[]
   chatMessages  ChatMessage[]
   dna           VentureDNA?
   milestones    JourneyMilestone[]
@@ -203,8 +203,22 @@ model JourneyMilestone {
   deferredUntil   DateTime?
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+  conversations   MilestoneConversation[]
 
   @@index([ventureId, order])
+}
+
+model MilestoneConversation {
+  id          String           @id @default(cuid())
+  createdAt   DateTime         @default(now())
+  milestoneId String
+  milestone   JourneyMilestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String
+  content     String           @db.Text
+
+  @@index([milestoneId, createdAt])
 }
 
 model BlueOceanScan {
@@ -228,20 +242,6 @@ model LeanCanvas {
   blocks     Json
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-}
-
-model Task {
-  id            String    @id @default(cuid())
-  ventureId     String
-  venture       Venture   @relation(fields: [ventureId], references: [id], onDelete: Cascade)
-  title         String
-  description   String?
-  dueDate       DateTime?
-  completed     Boolean   @default(false)
-  completedAt   DateTime?
-  createdById   String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
 }
 
 enum VentureStatus {

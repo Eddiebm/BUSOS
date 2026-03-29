@@ -99,12 +99,17 @@ function buildContext(venture: {
   cashRunwayMonths?: number | null;
   monthlyBurn?: number | null;
   monthlyRevenue?: number | null;
-  tasks: Array<{ title: string; dueDate?: Date | null; completed: boolean }>;
+  milestones: Array<{
+    title: string;
+    dueDate?: Date | null;
+    completed: boolean;
+    skipped: boolean;
+  }>;
   alerts?: Array<{ message: string; read: boolean }>;
   dna?: VentureDNA | null;
 }): string {
   const now = new Date();
-  const open = venture.tasks.filter((t) => !t.completed);
+  const open = venture.milestones.filter((t) => !t.completed && !t.skipped);
   const overdue = open.filter((t) => t.dueDate && new Date(t.dueDate) < now);
   const stageFocus = STAGE_FOCUS[venture.stage] ?? `Stage ${venture.stage}`;
 
@@ -121,10 +126,10 @@ function buildContext(venture: {
       ? `Monthly revenue: $${venture.monthlyRevenue.toLocaleString()}`
       : "Monthly revenue: $0 or not entered",
     open.length > 0
-      ? `Open tasks (${open.length}): ${open.slice(0, 8).map((t) => t.title).join("; ")}`
-      : "No open tasks",
+      ? `Open roadmap steps (${open.length}): ${open.slice(0, 8).map((t) => t.title).join("; ")}`
+      : "No open roadmap steps",
     overdue.length > 0
-      ? `OVERDUE (${overdue.length}): ${overdue.map((t) => t.title).join("; ")}`
+      ? `OVERDUE MILESTONES (${overdue.length}): ${overdue.map((t) => t.title).join("; ")}`
       : null,
     venture.alerts && venture.alerts.filter((a) => !a.read).length > 0
       ? `Active alerts: ${venture.alerts
@@ -173,10 +178,11 @@ export async function GET(
       where: { id: ventureId },
       include: {
         dna: true,
-        tasks: {
-          orderBy: { createdAt: "desc" },
+        milestones: {
+          where: { completed: false, skipped: false },
+          orderBy: { order: "asc" },
           take: 15,
-          select: { title: true, dueDate: true, completed: true },
+          select: { title: true, dueDate: true, completed: true, skipped: true },
         },
         alerts: {
           where: { read: false, dismissed: false },
@@ -228,16 +234,16 @@ export async function GET(
     if (venture.stressMode === "SURVIVAL") {
       suggestions.push(
         { label: "Update runway", action: `${base}/settings` },
-        { label: "Review tasks", action: `${base}/tasks` }
+        { label: "Review roadmap", action: `${base}/tasks` }
       );
     } else if (venture.stressMode === "EXECUTION") {
       suggestions.push(
-        { label: "View tasks", action: `${base}/tasks` },
+        { label: "View roadmap", action: `${base}/tasks` },
         { label: "Documents", action: `${base}/documents` }
       );
     } else {
       suggestions.push(
-        { label: "Add a task", action: `${base}/tasks` },
+        { label: "Next milestone", action: `${base}/tasks` },
         { label: "Update settings", action: `${base}/settings` }
       );
     }
@@ -302,10 +308,11 @@ export async function POST(
       where: { id: ventureId },
       include: {
         dna: true,
-        tasks: {
-          where: { completed: false },
+        milestones: {
+          where: { completed: false, skipped: false },
+          orderBy: { order: "asc" },
           take: 15,
-          select: { title: true, dueDate: true, completed: true },
+          select: { title: true, dueDate: true, completed: true, skipped: true },
         },
         alerts: {
           where: { read: false, dismissed: false },

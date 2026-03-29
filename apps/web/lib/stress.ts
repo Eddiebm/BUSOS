@@ -1,10 +1,10 @@
 /**
- * Stress score 0–100 from runway, overdue tasks, and inactivity.
+ * Stress score 0–100 from runway, overdue milestones, and inactivity.
  * Mode: DISCOVERY (< 40), EXECUTION (40–70), SURVIVAL (> 70).
  */
 export function calculateStress(
   runwayMonths: number | null | undefined,
-  overdueTaskCount: number,
+  overdueMilestoneCount: number,
   daysSinceLastActivity: number
 ): { level: number; mode: "DISCOVERY" | "EXECUTION" | "SURVIVAL" } {
   let stress = 0;
@@ -14,7 +14,7 @@ export function calculateStress(
   } else {
     stress += 20; // unknown runway adds baseline
   }
-  stress += overdueTaskCount * 5;
+  stress += overdueMilestoneCount * 5;
   stress += Math.min(30, daysSinceLastActivity * 2);
   const level = Math.min(100, Math.max(0, Math.round(stress)));
 

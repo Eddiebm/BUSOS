@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ChevronDown,
   ChevronUp,
@@ -13,7 +13,9 @@ import {
   SkipForward,
   CalendarClock,
   RotateCcw,
-  ExternalLink,
+  Sparkles,
+  Send,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -260,6 +262,8 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
             </section>
           )}
 
+          <MilestoneAskAda ventureId={ventureId} milestoneId={m.id} />
+
           {/* Skip consequence warning */}
           {m.skipConsequence && (
             <section className="rounded-lg border border-amber-200 bg-amber-50 p-3">
@@ -427,5 +431,169 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
         </div>
       )}
     </div>
+  );
+}
+
+type AskMsg = { id: string; role: string; content: string };
+
+function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milestoneId: string }) {
+  const [messages, setMessages] = useState<AskMsg[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+  const [sending, setSending] = useState(false);
+  const [thinking, setThinking] = useState(false);
+  const [input, setInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const loadedRef = useRef(false);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    setLoadingHistory(true);
+    fetch(`/api/ventures/${ventureId}/milestones/${milestoneId}/ask`)
+      .then((r) => (r.ok ? r.json() : { messages: [] }))
+      .then((d: { messages?: AskMsg[] }) => setMessages(Array.isArray(d.messages) ? d.messages : []))
+      .catch(() => setMessages([]))
+      .finally(() => setLoadingHistory(false));
+  }, [ventureId, milestoneId]);
+
+  useEffect(() => {
+    if (listRef.current) {
+      listRef.current.scrollTop = listRef.current.scrollHeight;
+    }
+  }, [messages, thinking]);
+
+  async function sendQuestion(text: string) {
+    const q = text.trim();
+    if (!q || sending) return;
+    setError(null);
+    const optimistic: AskMsg = { id: `local-${Date.now()}`, role: "USER", content: q };
+    setMessages((prev) => [...prev, optimistic]);
+    setInput("");
+    setSending(true);
+    setThinking(true);
+    try {
+      const res = await fetch(`/api/ventures/${ventureId}/milestones/${milestoneId}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: q }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { reply?: string; error?: string };
+      if (!res.ok) {
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+        setError(data.error ?? "Could not reach Ada.");
+        return;
+      }
+      const reply = String(data.reply ?? "").trim();
+      if (!reply) {
+        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
+        setError("Empty reply.");
+        return;
+      }
+      setMessages((prev) => [
+        ...prev.filter((m) => m.id !== optimistic.id),
+        { id: `u-${Date.now()}`, role: "USER", content: q },
+        { id: `a-${Date.now()}`, role: "ASSISTANT", content: reply },
+      ]);
+    } finally {
+      setSending(false);
+      setThinking(false);
+    }
+  }
+
+  return (
+    <section className="rounded-xl border border-amber-500/25 bg-zinc-950/90 p-4 shadow-inner">
+      <h4 className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-amber-200/90">
+        <Sparkles className="h-4 w-4 text-amber-400" aria-hidden />
+        Ask Ada About This Task
+      </h4>
+
+      {loadingHistory ? (
+        <div className="flex items-center gap-2 py-6 text-sm text-zinc-500">
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Loading conversation…
+        </div>
+      ) : (
+        <>
+          <div
+            ref={listRef}
+            className="mb-3 max-h-52 space-y-2 overflow-y-auto rounded-lg border border-zinc-800/80 bg-zinc-900/50 p-3"
+          >
+            {messages.length === 0 && !thinking && (
+              <p className="text-center text-xs text-zinc-500">Ask Ada anything about this milestone.</p>
+            )}
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={cn(
+                  "flex w-full",
+                  msg.role === "USER" ? "justify-end" : "justify-start"
+                )}
+              >
+                <div
+                  className={cn(
+                    "max-w-[90%] rounded-lg px-3 py-2 text-sm leading-relaxed",
+                    msg.role === "USER"
+                      ? "border border-amber-500/35 bg-amber-500/15 text-amber-50"
+                      : "border border-zinc-700 bg-zinc-800/90 text-zinc-100"
+                  )}
+                >
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            {thinking && (
+              <div className="flex justify-start">
+                <div className="rounded-lg border border-zinc-700 bg-zinc-800/80 px-3 py-2 text-sm italic text-zinc-400">
+                  Ada is thinking...
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="mb-3 flex flex-wrap gap-2">
+            {["How do I start this?", "What does this cost?", "What if I skip this?"].map((q) => (
+              <button
+                key={q}
+                type="button"
+                disabled={sending}
+                onClick={() => void sendQuestion(q)}
+                className="rounded-full border border-amber-500/25 bg-amber-500/5 px-3 py-1.5 text-xs font-medium text-amber-100/90 hover:bg-amber-500/15 disabled:opacity-50"
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+
+          {error && <p className="mb-2 text-xs text-red-400">{error}</p>}
+
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  void sendQuestion(input);
+                }
+              }}
+              placeholder="Ask Ada…"
+              disabled={sending}
+              className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 focus:border-amber-500/50 focus:outline-none focus:ring-1 focus:ring-amber-500/30 disabled:opacity-50"
+            />
+            <button
+              type="button"
+              disabled={sending || !input.trim()}
+              onClick={() => void sendQuestion(input)}
+              className="flex shrink-0 items-center justify-center rounded-lg bg-amber-500/90 px-3 py-2 text-zinc-950 hover:bg-amber-400 disabled:opacity-40"
+              aria-label="Send"
+            >
+              {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </button>
+          </div>
+        </>
+      )}
+    </section>
   );
 }

@@ -86,7 +86,7 @@ const CONTENT: Record<
       {
         heading: "Resources",
         body: [
-          "Align tasks in Tasks with the new focus; archive work that no longer matters.",
+          "Align your journey milestones with the new focus; defer or skip work that no longer matters.",
           "Update Dream Intake if your story materially changed so your roadmap regenerates correctly.",
         ],
       },
@@ -130,7 +130,7 @@ const CONTENT: Record<
         heading: "Track impact",
         body: [
           "After each cut, update monthly burn in Settings.",
-          "Add a task: “Revisit cost baseline in 14 days” so you do not creep back.",
+          "Add a calendar reminder to revisit your cost baseline in 14 days so spend does not creep back.",
         ],
       },
     ],
@@ -185,7 +185,7 @@ export default function EmergencyKitPage({
           href={`/ventures/${ventureId}/tasks`}
           className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
         >
-          Review tasks
+          Focused roadmap
         </Link>
         <Link
           href={`/ventures/${ventureId}/journey`}

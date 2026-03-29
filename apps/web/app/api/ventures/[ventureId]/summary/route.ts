@@ -22,10 +22,11 @@ export async function GET(
       return NextResponse.json({ error: "Not found", code: "NOT_FOUND" }, { status: 404 });
 
     const now = new Date();
-    const overdueCount = await prisma.task.count({
+    const overdueCount = await prisma.journeyMilestone.count({
       where: {
         ventureId,
         completed: false,
+        skipped: false,
         dueDate: { lt: now },
       },
     });
@@ -64,7 +65,7 @@ export async function GET(
         mode,
         factors: {
           runway: venture.cashRunwayMonths ?? null,
-          overdueTasks: overdueCount,
+          overdueMilestones: overdueCount,
           daysSinceLogin: daysSince,
         },
       },

@@ -9,7 +9,7 @@ type Status = {
   hasMilestones: boolean;
   hasTeam: boolean;
   hasIntegration: boolean;
-  openTasks: number;
+  openMilestones: number;
 };
 
 export function OnboardingChecklist({ ventureId }: { ventureId: string }) {
@@ -56,11 +56,11 @@ export function OnboardingChecklist({ ventureId }: { ventureId: string }) {
           </li>
         ))}
       </ul>
-      {s.openTasks > 0 && (
+      {s.openMilestones > 0 && (
         <p className="mt-3 text-xs text-zinc-500">
-          You have {s.openTasks} open task{s.openTasks === 1 ? "" : "s"} —{" "}
+          You have {s.openMilestones} open roadmap step{s.openMilestones === 1 ? "" : "s"} —{" "}
           <Link href={`/ventures/${ventureId}/tasks`} className="text-amber-400/90 hover:text-amber-300">
-            review tasks
+            focus your roadmap
           </Link>
         </p>
       )}

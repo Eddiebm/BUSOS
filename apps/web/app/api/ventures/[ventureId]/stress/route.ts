@@ -90,7 +90,7 @@ async function maybeCreateAIAlerts(
     }
   }
 
-  // Overdue tasks alert
+  // Overdue roadmap milestones (due date passed)
   if (overdueCount >= 3) {
     const existing = await prisma.alert.findFirst({
       where: {
@@ -101,7 +101,7 @@ async function maybeCreateAIAlerts(
       },
     });
     if (!existing) {
-      let message = `You have ${overdueCount} overdue tasks. Falling behind on execution is an early warning sign.`;
+      let message = `You have ${overdueCount} overdue roadmap milestones. Falling behind on execution is an early warning sign.`;
       try {
         const client = getOpenAI();
         if (!client) throw new Error("no openai");
@@ -111,11 +111,11 @@ async function maybeCreateAIAlerts(
             {
               role: "system",
               content:
-                "You are Ada. Write a single direct 2-sentence alert for a founder with multiple overdue tasks. Be specific and motivating. No bullet points.",
+                "You are Ada. Write a single direct 2-sentence alert for a founder with multiple overdue roadmap milestones. Be specific and motivating. No bullet points.",
             },
             {
               role: "user",
-              content: `Venture: ${venture.name}. Stage: ${venture.stage}/13. Overdue tasks: ${overdueCount}. Mode: ${venture.stressMode}. Write the alert.`,
+              content: `Venture: ${venture.name}. Stage: ${venture.stage}/13. Overdue milestones: ${overdueCount}. Mode: ${venture.stressMode}. Write the alert.`,
             },
           ],
           max_tokens: 100,
@@ -131,7 +131,7 @@ async function maybeCreateAIAlerts(
         userId,
         type: AlertType.TASK_OVERDUE,
         severity: overdueCount >= 5 ? AlertSeverity.WARNING : AlertSeverity.INFO,
-        title: `${overdueCount} overdue tasks need attention`,
+        title: `${overdueCount} overdue milestones need attention`,
         message,
         actionUrl: `/ventures/${ventureId}/tasks`,
       });
@@ -189,8 +189,13 @@ export async function GET(
     if (!venture) return NextResponse.json({ error: "Not found or unauthorized" }, { status: 404 });
 
     const now = new Date();
-    const overdueCount = await prisma.task.count({
-      where: { ventureId, completed: false, dueDate: { lt: now } },
+    const overdueCount = await prisma.journeyMilestone.count({
+      where: {
+        ventureId,
+        completed: false,
+        skipped: false,
+        dueDate: { lt: now },
+      },
     });
 
     const lastActivity = venture.lastActivityAt ?? venture.createdAt;
@@ -219,7 +224,7 @@ export async function GET(
       mode,
       factors: {
         runway: venture.cashRunwayMonths ?? null,
-        overdueTasks: overdueCount,
+        overdueMilestones: overdueCount,
         daysSinceLogin: daysSince,
       },
     });

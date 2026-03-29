@@ -24,19 +24,11 @@ export interface VentureDetail extends VentureSummary {
 
 export interface VentureSummaryResponse {
   venture: VentureDetail;
-  stress: { stressLevel: number; mode: StressMode; factors: { runway: number | null; overdueTasks: number; daysSinceLogin: number } };
-}
-
-export interface Task {
-  id: string;
-  ventureId: string;
-  title: string;
-  description?: string | null;
-  dueDate?: string | null;
-  completed: boolean;
-  completedAt?: string | null;
-  createdAt: string;
-  updatedAt: string;
+  stress: {
+    stressLevel: number;
+    mode: StressMode;
+    factors: { runway: number | null; overdueMilestones: number; daysSinceLogin: number };
+  };
 }
 
 export interface Alert {
