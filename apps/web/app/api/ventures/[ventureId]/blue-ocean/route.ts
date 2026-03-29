@@ -3,6 +3,8 @@ import type { Prisma } from "@prisma/client";
 import OpenAI from "openai";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureWriter } from "@/lib/venture-guard";
 
 const MODEL = "gpt-4.1-mini";
 
@@ -23,9 +25,9 @@ function getOpenAI(): OpenAI | null {
   return new OpenAI({ apiKey, baseURL: process.env.OPENAI_BASE_URL });
 }
 
-async function ensureVentureOwner(ventureId: string, userId: string) {
+async function ensureVentureMember(ventureId: string, userId: string) {
   const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
     include: { dna: true },
   });
   if (!v) throw new Error("NOT_FOUND");
@@ -45,7 +47,7 @@ export async function GET(
 
     const { ventureId } = await params;
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
     });
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -80,7 +82,10 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await ensureVentureOwner(ventureId, userId);
+    const write = await requireVentureWriter(ventureId, userId);
+    if (!write.ok) return write.response;
+
+    const venture = await ensureVentureMember(ventureId, userId);
 
     const jobId = `blue_${Date.now()}_${ventureId}`;
     const dna = venture.dna;

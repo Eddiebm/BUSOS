@@ -3,6 +3,7 @@ import type { CashFlowType, TransactionCategory } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canFinance, getVentureAccess } from "@/lib/venture-access";
+import { auditLog } from "@/lib/audit-log";
 
 export async function GET(
   request: Request,
@@ -92,6 +93,16 @@ export async function POST(
         type: "TRANSACTION_RECORDED",
         description: `${type} ${amount}: ${description}`,
       },
+    });
+
+    void auditLog({
+      userId,
+      ventureId,
+      action: "TRANSACTION_CREATE",
+      resourceType: "CashTransaction",
+      resourceId: t.id,
+      metadata: { amount, type, category },
+      request,
     });
 
     return NextResponse.json({

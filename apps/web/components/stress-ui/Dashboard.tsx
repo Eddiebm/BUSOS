@@ -12,6 +12,7 @@ import { RunwayGauge } from "@/components/stress/RunwayGauge";
 import { StageProgress } from "@/components/stages/StageProgress";
 import { IntelligenceBanner } from "@/components/dashboard/IntelligenceBanner";
 import { ActivityFeed } from "@/components/dashboard/ActivityFeed";
+import { OnboardingChecklist } from "@/components/dashboard/OnboardingChecklist";
 import { UpcomingMilestones } from "@/components/dashboard/UpcomingMilestones";
 import { TeamPresence } from "@/components/team/TeamPresence";
 import { DashboardSkeleton } from "@/components/ui/Skeleton";
@@ -35,7 +36,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
   if (error)
     return (
       <div className="p-8">
-        <ErrorState message={error.message} code={error.code} onRetry={refresh} />
+        <ErrorState variant="dark" message={error.message} code={error.code} onRetry={refresh} />
       </div>
     );
   if (!venture)
@@ -115,6 +116,7 @@ export function Dashboard({ ventureId }: DashboardProps) {
 
       <div className="grid grid-cols-1 gap-6 p-6 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-1">
+          <OnboardingChecklist ventureId={venture.id} />
           <AdaMessage ventureId={venture.id} mode={mode} />
           <ActivityFeed ventureId={venture.id} />
           <AlertsPanel ventureId={venture.id} />

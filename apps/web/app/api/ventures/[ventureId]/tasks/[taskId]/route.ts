@@ -1,14 +1,17 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireVentureWriter } from "@/lib/venture-guard";
+import { auditLog } from "@/lib/audit-log";
 
-async function getTaskIfVentureOwner(ventureId: string, taskId: string, userId: string) {
+async function getTaskForWrite(ventureId: string, taskId: string, userId: string) {
+  const gate = await requireVentureWriter(ventureId, userId);
+  if (!gate.ok) return { response: gate.response, task: null };
   const task = await prisma.task.findFirst({
     where: { id: taskId, ventureId },
-    include: { venture: { select: { ownerId: true } } },
   });
-  if (!task || task.venture.ownerId !== userId) return null;
-  return task;
+  if (!task) return { response: NextResponse.json({ error: "Not found" }, { status: 404 }), task: null };
+  return { response: null, task };
 }
 
 export async function PATCH(
@@ -20,8 +23,8 @@ export async function PATCH(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId, taskId } = await params;
-    const existing = await getTaskIfVentureOwner(ventureId, taskId, userId);
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const { response, task } = await getTaskForWrite(ventureId, taskId, userId);
+    if (response || !task) return response!;
 
     const body = await request.json();
     const data: Record<string, unknown> = {};
@@ -33,11 +36,19 @@ export async function PATCH(
       data.completedAt = body.completed ? new Date() : null;
     }
 
-    const task = await prisma.task.update({
+    const updated = await prisma.task.update({
       where: { id: taskId },
       data,
     });
-    return NextResponse.json(task);
+    void auditLog({
+      userId,
+      ventureId,
+      action: "TASK_UPDATE",
+      resourceType: "Task",
+      resourceId: taskId,
+      request,
+    });
+    return NextResponse.json(updated);
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
@@ -53,10 +64,18 @@ export async function DELETE(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId, taskId } = await params;
-    const existing = await getTaskIfVentureOwner(ventureId, taskId, userId);
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const { response, task } = await getTaskForWrite(ventureId, taskId, userId);
+    if (response || !task) return response!;
 
     await prisma.task.delete({ where: { id: taskId } });
+    void auditLog({
+      userId,
+      ventureId,
+      action: "TASK_DELETE",
+      resourceType: "Task",
+      resourceId: taskId,
+      request,
+    });
     return new NextResponse(null, { status: 204 });
   } catch (e) {
     console.error(e);

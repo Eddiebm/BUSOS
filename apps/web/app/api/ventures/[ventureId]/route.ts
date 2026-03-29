@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { getVentureForUser } from "@/lib/venture";
 import { prisma } from "@/lib/prisma";
+import { requireVentureWriter } from "@/lib/venture-guard";
 
 export async function GET(
   request: Request,
@@ -53,6 +54,9 @@ export async function PATCH(
     const existing = await getVentureForUser(ventureId, userId);
     if (!existing)
       return NextResponse.json({ error: "Not found", code: "NOT_FOUND" }, { status: 404 });
+
+    const write = await requireVentureWriter(ventureId, userId);
+    if (!write.ok) return write.response;
 
     const body = await request.json();
     const data: Record<string, unknown> = {};

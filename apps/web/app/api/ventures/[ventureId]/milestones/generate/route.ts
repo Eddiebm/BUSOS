@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureWriter } from "@/lib/venture-guard";
+import { checkSlidingWindowRateLimit } from "@/lib/sliding-window-rate-limit";
+import { auditLog } from "@/lib/audit-log";
 import OpenAI from "openai";
 
 const MODEL = "gpt-4.1-mini";
@@ -73,8 +77,20 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
+
+    const gate = await requireVentureWriter(ventureId, userId);
+    if (!gate.ok) return gate.response;
+
+    const rl = checkSlidingWindowRateLimit(`milestone-gen:${userId}`, 8, 60 * 60 * 1000);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Too many AI generations — try again later." },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      );
+    }
+
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
       include: { dna: true },
     });
 
@@ -173,6 +189,14 @@ Industry: ${dna.industryVertical ?? "Not specified"}
         });
       })
     );
+
+    void auditLog({
+      userId,
+      ventureId,
+      action: "MILESTONE_AI_GENERATE",
+      metadata: { count: created.length, regenerate },
+      request,
+    });
 
     return NextResponse.json({ milestones: created, count: created.length });
   } catch (e) {

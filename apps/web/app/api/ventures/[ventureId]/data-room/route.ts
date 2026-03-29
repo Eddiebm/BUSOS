@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureReader, requireVentureWriter } from "@/lib/venture-guard";
 import { randomBytes } from "crypto";
 
-async function ensureVentureOwner(ventureId: string, userId: string) {
+async function ensureVentureMember(ventureId: string, userId: string) {
   const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
   });
   if (!v) throw new Error("NOT_FOUND");
 }
@@ -23,7 +25,10 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    await ensureVentureOwner(ventureId, userId);
+    const read = await requireVentureReader(ventureId, userId);
+    if (!read.ok) return read.response;
+
+    await ensureVentureMember(ventureId, userId);
 
     const dataRoom = await prisma.dataRoom.findUnique({
       where: { ventureId },
@@ -52,7 +57,10 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    await ensureVentureOwner(ventureId, userId);
+    const write = await requireVentureWriter(ventureId, userId);
+    if (!write.ok) return write.response;
+
+    await ensureVentureMember(ventureId, userId);
 
     const existing = await prisma.dataRoom.findUnique({
       where: { ventureId },

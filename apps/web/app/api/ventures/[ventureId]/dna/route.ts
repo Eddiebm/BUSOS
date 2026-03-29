@@ -2,11 +2,13 @@ import { NextResponse } from "next/server";
 import type { FounderExperience } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureWriter } from "@/lib/venture-guard";
 import { generateJourneyMilestones } from "@/lib/journey";
 
-async function getVentureForOwner(ventureId: string, userId: string) {
+async function getVentureForMember(ventureId: string, userId: string) {
   return prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
   });
 }
 
@@ -28,7 +30,7 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await getVentureForOwner(ventureId, userId);
+    const venture = await getVentureForMember(ventureId, userId);
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const dna = await prisma.ventureDNA.findUnique({
@@ -50,7 +52,10 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await getVentureForOwner(ventureId, userId);
+    const gate = await requireVentureWriter(ventureId, userId);
+    if (!gate.ok) return gate.response;
+
+    const venture = await getVentureForMember(ventureId, userId);
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
     const body = (await request.json()) as Record<string, unknown>;

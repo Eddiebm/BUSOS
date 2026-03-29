@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireVentureWriter } from "@/lib/venture-guard";
+import { auditLog } from "@/lib/audit-log";
 
-async function getMilestoneForOwner(
-  ventureId: string,
-  milestoneId: string,
-  userId: string
-) {
-  return prisma.journeyMilestone.findFirst({
-    where: {
-      id: milestoneId,
-      ventureId,
-      venture: { ownerId: userId },
-    },
+async function getMilestoneIfWrite(ventureId: string, milestoneId: string, userId: string) {
+  const gate = await requireVentureWriter(ventureId, userId);
+  if (!gate.ok) return { response: gate.response, milestone: null };
+  const milestone = await prisma.journeyMilestone.findFirst({
+    where: { id: milestoneId, ventureId },
   });
+  if (!milestone) return { response: NextResponse.json({ error: "Not found" }, { status: 404 }), milestone: null };
+  return { response: null, milestone };
 }
 
 export async function PATCH(
@@ -25,8 +23,8 @@ export async function PATCH(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId, milestoneId } = await params;
-    const existing = await getMilestoneForOwner(ventureId, milestoneId, userId);
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const { response, milestone: existing } = await getMilestoneIfWrite(ventureId, milestoneId, userId);
+    if (response || !existing) return response!;
 
     const body = (await request.json()) as Record<string, unknown>;
     const data: {
@@ -70,6 +68,14 @@ export async function PATCH(
       where: { id: milestoneId },
       data,
     });
+    void auditLog({
+      userId,
+      ventureId,
+      action: "MILESTONE_UPDATE",
+      resourceType: "JourneyMilestone",
+      resourceId: milestoneId,
+      request,
+    });
     return NextResponse.json(updated);
   } catch (e) {
     console.error(e);
@@ -78,7 +84,7 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: Promise<{ ventureId: string; milestoneId: string }> }
 ) {
   try {
@@ -86,8 +92,8 @@ export async function DELETE(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId, milestoneId } = await params;
-    const existing = await getMilestoneForOwner(ventureId, milestoneId, userId);
-    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const { response, milestone: existing } = await getMilestoneIfWrite(ventureId, milestoneId, userId);
+    if (response || !existing) return response!;
     if (existing.aiGenerated) {
       return NextResponse.json(
         { error: "Cannot delete auto-generated milestones" },
@@ -96,6 +102,14 @@ export async function DELETE(
     }
 
     await prisma.journeyMilestone.delete({ where: { id: milestoneId } });
+    void auditLog({
+      userId,
+      ventureId,
+      action: "MILESTONE_DELETE",
+      resourceType: "JourneyMilestone",
+      resourceId: milestoneId,
+      request,
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error(e);

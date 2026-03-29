@@ -1,10 +1,12 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureWriter } from "@/lib/venture-guard";
 
-async function ensureVentureOwner(ventureId: string, userId: string) {
+async function ensureVentureMember(ventureId: string, userId: string) {
   const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
   });
   if (!v) throw new Error("NOT_FOUND");
 }
@@ -22,7 +24,10 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    await ensureVentureOwner(ventureId, userId);
+    const gate = await requireVentureWriter(ventureId, userId);
+    if (!gate.ok) return gate.response;
+
+    await ensureVentureMember(ventureId, userId);
 
     const formData = await request.formData();
     const file = formData.get("file") as File | null;

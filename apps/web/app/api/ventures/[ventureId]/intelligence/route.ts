@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
 
 const CATEGORY_PRIORITY: Record<string, number> = {
   LEGAL: 0,
@@ -24,7 +25,7 @@ export async function GET(
     const { ventureId } = await params;
 
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
       include: { dna: true },
     });
 

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sortJourneyMilestones } from "@/lib/sort-milestones";
+import { requireVentureReader, requireVentureWriter } from "@/lib/venture-guard";
 
 export async function GET(
   _request: Request,
@@ -12,10 +13,8 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
-    });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const gate = await requireVentureReader(ventureId, userId);
+    if (!gate.ok) return gate.response;
 
     const list = await prisma.journeyMilestone.findMany({
       where: { ventureId },
@@ -36,10 +35,8 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
-    });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const gate = await requireVentureWriter(ventureId, userId);
+    if (!gate.ok) return gate.response;
 
     const body = (await request.json()) as Record<string, unknown>;
     const title = String(body.title ?? "").trim();

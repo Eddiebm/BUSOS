@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-async function ensureVentureOwner(ventureId: string, userId: string) {
-  const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
-  });
-  if (!v) throw new Error("NOT_FOUND");
-}
+import { requireVentureReader, requireVentureWriter } from "@/lib/venture-guard";
+import { auditLog } from "@/lib/audit-log";
 
 export async function GET(
   request: Request,
@@ -18,7 +13,8 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    await ensureVentureOwner(ventureId, userId);
+    const gate = await requireVentureReader(ventureId, userId);
+    if (!gate.ok) return gate.response;
 
     const { searchParams } = new URL(request.url);
     const urgentOnly = searchParams.get("urgentOnly") === "true";
@@ -35,8 +31,6 @@ export async function GET(
     });
     return NextResponse.json(tasks);
   } catch (e) {
-    if ((e as Error).message === "NOT_FOUND")
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
     console.error(e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }
@@ -51,7 +45,8 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    await ensureVentureOwner(ventureId, userId);
+    const gate = await requireVentureWriter(ventureId, userId);
+    if (!gate.ok) return gate.response;
 
     const body = await request.json();
     const title = String(body?.title ?? "").trim();
@@ -66,10 +61,16 @@ export async function POST(
         createdById: userId,
       },
     });
+    void auditLog({
+      userId,
+      ventureId,
+      action: "TASK_CREATE",
+      resourceType: "Task",
+      resourceId: task.id,
+      request,
+    });
     return NextResponse.json(task);
   } catch (e) {
-    if ((e as Error).message === "NOT_FOUND")
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
     console.error(e);
     return NextResponse.json({ error: "Internal error" }, { status: 500 });
   }

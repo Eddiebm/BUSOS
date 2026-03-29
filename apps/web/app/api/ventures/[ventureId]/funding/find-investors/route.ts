@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { FUNDING_INVESTORS, matchInvestorsForVenture } from "@/lib/funding-investors";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureReader } from "@/lib/venture-guard";
 
 export async function POST(
   _request: Request,
@@ -12,8 +14,11 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
+    const gate = await requireVentureReader(ventureId, userId);
+    if (!gate.ok) return gate.response;
+
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
       include: { dna: true },
     });
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });

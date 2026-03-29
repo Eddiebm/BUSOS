@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser, getVentureAccess, canWrite } from "@/lib/venture-access";
+import { requireVentureReader } from "@/lib/venture-guard";
 import { calculateStress } from "@/lib/stress";
 import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
@@ -176,8 +178,11 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
+    const gate = await requireVentureReader(ventureId, userId);
+    if (!gate.ok) return gate.response;
+
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
     });
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
@@ -197,16 +202,16 @@ export async function GET(
       daysSince
     );
 
-    // Persist stress level
-    await prisma.venture.update({
-      where: { id: ventureId },
-      data: { stressLevel: level, stressMode: mode },
-    });
-
-    // Auto-generate AI alerts in the background (non-blocking)
-    maybeCreateAIAlerts(ventureId, userId, venture, overdueCount, daysSince).catch(
-      (e) => console.error("[stress/alerts]", e)
-    );
+    const access = await getVentureAccess(ventureId, userId);
+    if (access && canWrite(access.role)) {
+      await prisma.venture.update({
+        where: { id: ventureId },
+        data: { stressLevel: level, stressMode: mode },
+      });
+      maybeCreateAIAlerts(ventureId, userId, venture, overdueCount, daysSince).catch(
+        (e) => console.error("[stress/alerts]", e)
+      );
+    }
 
     return NextResponse.json({
       stressLevel: level,

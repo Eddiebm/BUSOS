@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requireVentureReader } from "@/lib/venture-guard";
 
 export async function GET(
   request: Request,
@@ -11,10 +12,8 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
-    });
-    if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
+    const gate = await requireVentureReader(ventureId, userId);
+    if (!gate.ok) return gate.response;
 
     const { searchParams } = new URL(request.url);
     const dismissed = searchParams.get("dismissed");

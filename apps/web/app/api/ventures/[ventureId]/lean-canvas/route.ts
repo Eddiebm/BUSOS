@@ -8,10 +8,12 @@ import {
   seedBlocksFromVenture,
 } from "@/lib/lean-canvas";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureWriter } from "@/lib/venture-guard";
 
-async function ensureVentureOwner(ventureId: string, userId: string) {
+async function ensureVentureMember(ventureId: string, userId: string) {
   const v = await prisma.venture.findFirst({
-    where: { id: ventureId, ownerId: userId },
+    where: { id: ventureId, ...ventureAccessibleByUser(userId) },
     include: { dna: true, leanCanvas: true },
   });
   if (!v) throw new Error("NOT_FOUND");
@@ -30,7 +32,7 @@ export async function GET(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await ensureVentureOwner(ventureId, userId);
+    const venture = await ensureVentureMember(ventureId, userId);
     const seed = seedBlocksFromVenture(venture, venture.dna);
 
     if (!venture.leanCanvas) {
@@ -67,7 +69,10 @@ export async function PATCH(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
-    const venture = await ensureVentureOwner(ventureId, userId);
+    const write = await requireVentureWriter(ventureId, userId);
+    if (!write.ok) return write.response;
+
+    const venture = await ensureVentureMember(ventureId, userId);
     const body = (await request.json()) as { blocks?: unknown };
     const patch = normalizePartialPatch(body.blocks);
     if (Object.keys(patch).length === 0) {
@@ -122,7 +127,10 @@ export async function POST(
     }
 
     const { ventureId } = await params;
-    const venture = await ensureVentureOwner(ventureId, userId);
+    const write = await requireVentureWriter(ventureId, userId);
+    if (!write.ok) return write.response;
+
+    const venture = await ensureVentureMember(ventureId, userId);
     const seed = seedBlocksFromVenture(venture, venture.dna);
 
     const saved = await prisma.leanCanvas.upsert({

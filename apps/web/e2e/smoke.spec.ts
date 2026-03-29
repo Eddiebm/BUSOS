@@ -21,4 +21,14 @@ test.describe("api", () => {
     });
     expect(res.status()).toBe(400);
   });
+
+  test("GET /api/ventures/fake/onboarding returns 401 without session", async ({ request }) => {
+    const res = await request.get("/api/ventures/not-a-real-id/onboarding");
+    expect(res.status()).toBe(401);
+  });
+
+  test("GET /api/oauth/integration/callback returns 400 without state", async ({ request }) => {
+    const res = await request.get("/api/oauth/integration/callback");
+    expect([400, 500].includes(res.status())).toBeTruthy();
+  });
 });

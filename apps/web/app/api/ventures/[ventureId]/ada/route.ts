@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import type { VentureDNA } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ventureAccessibleByUser } from "@/lib/venture-access";
+import { requireVentureReader, requireVentureWriter } from "@/lib/venture-guard";
+import { checkSlidingWindowRateLimit } from "@/lib/sliding-window-rate-limit";
 import OpenAI from "openai";
 import { getStageName } from "@/lib/stage-names";
 
@@ -153,8 +156,19 @@ export async function GET(
 
     const { ventureId } = await params;
 
+    const gate = await requireVentureReader(ventureId, userId);
+    if (!gate.ok) return gate.response;
+
+    const rl = checkSlidingWindowRateLimit(`ada:${userId}`, 40, 15 * 60 * 1000);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      );
+    }
+
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
       include: {
         dna: true,
         tasks: {
@@ -263,12 +277,24 @@ export async function POST(
     if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { ventureId } = await params;
+
+    const writeGate = await requireVentureWriter(ventureId, userId);
+    if (!writeGate.ok) return writeGate.response;
+
+    const rl = checkSlidingWindowRateLimit(`ada-chat:${userId}`, 60, 15 * 60 * 1000);
+    if (!rl.ok) {
+      return NextResponse.json(
+        { error: "Too many requests" },
+        { status: 429, headers: { "Retry-After": String(rl.retryAfterSec) } }
+      );
+    }
+
     const body = await req.json();
     const userMessage = String(body?.message ?? "").trim();
     if (!userMessage) return NextResponse.json({ error: "Message is required" }, { status: 400 });
 
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
       include: {
         dna: true,
         tasks: {
@@ -366,8 +392,11 @@ export async function PATCH(
 
     const { ventureId } = await params;
 
+    const readGate = await requireVentureReader(ventureId, userId);
+    if (!readGate.ok) return readGate.response;
+
     const venture = await prisma.venture.findFirst({
-      where: { id: ventureId, ownerId: userId },
+      where: { id: ventureId, ...ventureAccessibleByUser(userId) },
     });
     if (!venture) return NextResponse.json({ error: "Not found" }, { status: 404 });
 

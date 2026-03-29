@@ -3,6 +3,7 @@ import type { IntegrationProvider } from "@prisma/client";
 import { getOrCreateUserFromClerk } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { canManageTeam, getVentureAccess } from "@/lib/venture-access";
+import { auditLog } from "@/lib/audit-log";
 
 const PROVIDERS: IntegrationProvider[] = ["SLACK", "GITHUB", "GOOGLE_CALENDAR"];
 
@@ -69,6 +70,16 @@ export async function POST(
         userId,
         metadata: { stub: true, connectedAt: new Date().toISOString() },
       },
+    });
+
+    void auditLog({
+      userId,
+      ventureId,
+      action: "INTEGRATION_STUB_CONNECT",
+      resourceType: "IntegrationConnection",
+      resourceId: row.id,
+      metadata: { provider: row.provider },
+      request,
     });
 
     return NextResponse.json({ ok: true, provider: row.provider, connected: row.connected });
