@@ -1,7 +1,15 @@
 import Link from "next/link";
 import { Brain, Map, Zap } from "lucide-react";
+import { redirect } from "next/navigation";
+import { getSession } from "@/lib/auth";
 
-export default function MarketingHomePage() {
+export default async function MarketingHomePage() {
+  // If already logged in, send straight to dashboard
+  const session = await getSession();
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">

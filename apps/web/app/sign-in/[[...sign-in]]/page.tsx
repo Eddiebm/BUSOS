@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,7 +31,18 @@ export default function SignInPage() {
         return;
       }
 
-      router.push("/");
+      // Redirect to originally requested URL, or dashboard
+      const redirectUrl = searchParams.get("redirect_url") || searchParams.get("next");
+      const safeRedirect =
+        redirectUrl &&
+        redirectUrl.startsWith("/") &&
+        !redirectUrl.startsWith("/demo") &&
+        !redirectUrl.startsWith("/sign-in") &&
+        !redirectUrl.startsWith("/sign-up") &&
+        redirectUrl !== "/"
+          ? redirectUrl
+          : "/dashboard";
+      router.push(safeRedirect);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -99,5 +111,13 @@ export default function SignInPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-50" />}>
+      <SignInForm />
+    </Suspense>
   );
 }
