@@ -265,7 +265,7 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
             </section>
           )}
 
-          <MilestoneAskAda ventureId={ventureId} milestoneId={m.id} />
+          <MilestoneAskAda ventureId={ventureId} milestoneId={m.id} category={m.category} title={m.title} />
 
           {/* Skip consequence warning */}
           {m.skipConsequence && (
@@ -454,7 +454,67 @@ export function MilestoneCard({ milestone: m, ventureId, onUpdate }: MilestoneCa
 
 type AskMsg = { id: string; role: string; content: string };
 
-function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milestoneId: string }) {
+const CATEGORY_QUESTIONS: Record<string, string[]> = {
+  VALIDATION: [
+    "Who exactly is my target customer?",
+    "How do I run a customer discovery interview?",
+    "How do I know if my problem is real?",
+  ],
+  LEGAL: [
+    "Which business entity should I form?",
+    "How much does this legal step cost?",
+    "What happens if I skip this?",
+  ],
+  FINANCIAL: [
+    "What's the minimum I need to get started?",
+    "How do I open a business bank account?",
+    "What financial records do I need to keep?",
+  ],
+  PRODUCT: [
+    "What should my MVP include?",
+    "How do I prioritize features?",
+    "How do I get my first beta users?",
+  ],
+  GROWTH: [
+    "How do I find my first 10 customers?",
+    "What's the cheapest way to market this?",
+    "How do I build a repeatable sales process?",
+  ],
+  OPERATIONS: [
+    "What tools do I actually need right now?",
+    "How do I hire my first team member?",
+    "What processes should I document first?",
+  ],
+  IP: [
+    "Do I actually need a patent?",
+    "How much does a trademark cost?",
+    "What's a trade secret and how do I protect one?",
+  ],
+};
+
+function getSuggestedQuestions(category: string, title: string): string[] {
+  const base = CATEGORY_QUESTIONS[category.toUpperCase()] ?? [
+    "How do I start this?",
+    "What does this cost?",
+    "What if I skip this?",
+  ];
+  // Personalise the first chip with the milestone title if it's short enough
+  const titleChip = title.length <= 50 ? `What's the fastest way to complete "${title}"?` : null;
+  return titleChip ? [titleChip, ...base.slice(0, 2)] : base;
+}
+
+function MilestoneAskAda({
+  ventureId,
+  milestoneId,
+  category,
+  title,
+}: {
+  ventureId: string;
+  milestoneId: string;
+  category: string;
+  title: string;
+}) {
+  const suggestedQuestions = getSuggestedQuestions(category, title);
   const [messages, setMessages] = useState<AskMsg[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [sending, setSending] = useState(false);
@@ -570,7 +630,7 @@ function MilestoneAskAda({ ventureId, milestoneId }: { ventureId: string; milest
           </div>
 
           <div className="mb-3 flex flex-wrap gap-2">
-            {["How do I start this?", "What does this cost?", "What if I skip this?"].map((q) => (
+            {suggestedQuestions.map((q) => (
               <button
                 key={q}
                 type="button"
