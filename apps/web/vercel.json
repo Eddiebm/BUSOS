@@ -5,7 +5,8 @@
       "source": "/(.*)",
       "has": [{ "type": "host", "value": "founderpath.app" }],
       "destination": "https://www.founderpath.app/$1",
-      "permanent": true
+      "permanent": true,
+      "statusCode": 301
     }
   ]
 }

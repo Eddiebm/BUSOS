@@ -4,9 +4,41 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ClientToaster } from "@/components/ClientToaster";
 
 export const metadata: Metadata = {
-  title: "BUSOS — Founder Operating System",
+  metadataBase: new URL("https://www.founderpath.app"),
+  title: {
+    default: "FounderPath — Founder Operating System",
+    template: "%s | FounderPath",
+  },
   description:
     "From idea to execution. Nothing missed. The operating system for founders who cannot afford to miss a step.",
+  alternates: {
+    canonical: "https://www.founderpath.app",
+  },
+  openGraph: {
+    type: "website",
+    url: "https://www.founderpath.app",
+    siteName: "FounderPath",
+    title: "FounderPath — Founder Operating System",
+    description:
+      "From idea to execution. Nothing missed. The operating system for founders who cannot afford to miss a step.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "FounderPath — Founder Operating System",
+    description:
+      "From idea to execution. Nothing missed. The operating system for founders who cannot afford to miss a step.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+    },
+  },
 };
 
 export default function RootLayout({
