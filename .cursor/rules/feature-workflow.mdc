@@ -1,0 +1,52 @@
+---
+description: Standardized workflow for implementing any new feature, bug fix, or improvement in the FounderPath (BUSOS) codebase. Apply this rule whenever a feature request is made.
+globs:
+  - "apps/web/**/*.ts"
+  - "apps/web/**/*.tsx"
+  - "apps/web/prisma/schema.prisma"
+alwaysApply: false
+---
+
+# FounderPath Feature Development Workflow
+
+Follow these four phases in order for every new development request. Do not skip phases.
+
+## Phase 1: Audit & Understand
+
+Before writing any code, thoroughly inspect all relevant files.
+
+- **Data Models:** `apps/web/prisma/schema.prisma`
+- **API Routes:** `apps/web/app/api/...`
+- **Frontend Pages:** `apps/web/app/(app)/...`
+- **Components:** `apps/web/components/...`
+- **Shared Libraries:** `apps/web/lib/...`
+
+Use `grep` and file reads to understand the current state before proposing any changes.
+
+## Phase 2: Plan
+
+After the audit, write a clear implementation plan before touching any code. The plan must include:
+
+1. A summary of the current state (what exists today).
+2. A description of the proposed changes (what will change and why).
+3. A step-by-step list of files to create or modify, with specific actions for each.
+
+Present the plan and wait for approval before proceeding to implementation.
+
+## Phase 3: Implement
+
+Implement the approved plan file by file. Follow these non-negotiable rules:
+
+- **Schema changes first:** If `schema.prisma` is modified, run `npx prisma generate` before touching any TypeScript files.
+- **No hardcoded colors:** All Tailwind classes must use semantic tokens (e.g., `bg-background`, `text-foreground`, `border-border`). Never use raw palette classes like `bg-white`, `text-zinc-900`, or `bg-violet-600`.
+- **Auth on every API route:** Every `GET`, `POST`, `PATCH`, and `DELETE` handler must call `getOrCreateUserFromClerk()` and `getVentureAccess()` before touching the database.
+- **TypeScript strict:** No `any` types. All new data shapes must be typed with interfaces or Prisma-generated types.
+- **Build must pass:** Run `pnpm --filter @busos/web build` after implementation. Fix all TypeScript errors before declaring the work done.
+
+## Phase 4: Verify & Summarise
+
+After implementation:
+
+1. Confirm the build passes with zero errors.
+2. Write a brief summary of all files changed and what was done in each.
+3. Instruct the user to push to `main` so the deployment pipeline can run.

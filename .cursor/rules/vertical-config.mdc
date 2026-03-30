@@ -1,0 +1,93 @@
+---
+description: Architecture and configuration patterns for adding or modifying industry verticals in the BUSOS platform. Apply this rule whenever working on vertical-specific features, the VerticalConfig library, or the milestone generation system.
+globs:
+  - "apps/web/lib/vertical-config.ts"
+  - "apps/web/prisma/schema.prisma"
+  - "apps/web/app/api/ventures/*/milestones/generate/route.ts"
+alwaysApply: false
+---
+
+# BUSOS Vertical Engine — Architecture & Configuration
+
+The BUSOS platform supports multiple industry verticals from a single codebase. All vertical-specific behaviour is driven by configuration, not separate codebases.
+
+## Core Architecture
+
+| Component | File | Purpose |
+|---|---|---|
+| `Vertical` enum | `apps/web/prisma/schema.prisma` | Flags which industry a venture belongs to |
+| `Venture.vertical` field | `apps/web/prisma/schema.prisma` | Stores the vertical for each venture |
+| `VerticalConfig` library | `apps/web/lib/vertical-config.ts` | Central source of truth for all vertical configs |
+| Milestone generation | `apps/web/app/api/ventures/[ventureId]/milestones/generate/route.ts` | Reads the vertical config to extend Ada's system prompt |
+
+## Adding a New Vertical
+
+Follow these steps in order:
+
+### Step 1: Schema
+
+Add the new vertical ID to the `Vertical` enum in `schema.prisma`:
+
+```prisma
+enum Vertical {
+  GENERAL
+  BIOTECH
+  PROPERTY_DEV
+  FINTECH  // <- add new vertical here
+}
+```
+
+Add any vertical-specific fields to `VentureDNA` in `schema.prisma` (all optional):
+
+```prisma
+model VentureDNA {
+  // ... existing fields
+  // FINTECH fields
+  regulatoryBody   String? @db.Text
+  licenceRequired  String? @db.Text
+}
+```
+
+Run `npx prisma generate` after schema changes.
+
+### Step 2: VerticalConfig Library
+
+Add a new entry to `VERTICAL_CONFIGS` in `apps/web/lib/vertical-config.ts`. Every config must include:
+
+```typescript
+[Vertical.FINTECH]: {
+  id: Vertical.FINTECH,
+  displayName: "FinTech / Financial Services",
+  dnaFields: [
+    { name: "regulatoryBody", label: "Primary Regulator", placeholder: "e.g., FCA, SEC, FINRA" },
+    { name: "licenceRequired", label: "Licence Required", placeholder: "e.g., EMI Licence, Broker-Dealer" },
+  ],
+  adaPromptExtension: `This is a **fintech** venture. [Domain-specific Ada guidance here...]`,
+  milestoneCategories: ["VALIDATION", "REGULATORY_LICENCE", "BANKING_PARTNER", "PRODUCT", "COMPLIANCE", "GROWTH"],
+},
+```
+
+### Step 3: Milestone Generation
+
+The `milestones/generate/route.ts` already reads `venture.vertical` and calls `getSystemPrompt(vertical)`. No changes are needed to this file when adding a new vertical — the config library handles it automatically.
+
+### Step 4: Onboarding
+
+The vertical selector in `apps/web/app/(app)/dream/page.tsx` is populated from `VERTICAL_CONFIGS`. No changes are needed here either — the new vertical will appear automatically once added to the config library.
+
+## Existing Verticals
+
+### GENERAL
+The default. Generic startup journey covering Validation, Legal, Financial, Product, Growth, IP, and Operations.
+
+### BIOTECH
+Science-driven journey for life sciences founders. Key stages: Discovery → Pre-Clinical → IND/Regulatory → Clinical Phase I → Series A → Phase II/III → Exit. Ada is prompted to focus on IP, regulatory pathways (FDA/EMA), non-dilutive funding (SBIR/STTR), and M&A exit strategy.
+
+### PROPERTY_DEV
+Project-driven journey for residential property developers. Key stages: Deal Analysis → Due Diligence → Acquisition Financing → Planning Approvals → Construction → Marketing/Sales → Exit. Ada is prompted to focus on feasibility, planning permission, construction loans, and defined exit (for-sale vs build-to-rent).
+
+## Non-Negotiable Rules
+
+- Every vertical must have an `adaPromptExtension` that is specific, domain-aware, and at least 3 bullet points long.
+- Every vertical must define `milestoneCategories` — Ada uses these as the allowed category values when generating the journey.
+- Never hardcode vertical-specific logic outside of `vertical-config.ts`. All branching must be driven by the config object.
