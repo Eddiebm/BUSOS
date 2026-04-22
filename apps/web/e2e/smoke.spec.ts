@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 test.describe("public pages", () => {
-  test("home loads with BUSOS title", async ({ page }) => {
+  test("home loads with FounderPath title", async ({ page }) => {
     await page.goto("/");
-    await expect(page).toHaveTitle(/BUSOS/);
+    await expect(page).toHaveTitle(/FounderPath/);
     await expect(page.getByRole("heading", { name: /Founder Operating System/i })).toBeVisible();
   });
 
